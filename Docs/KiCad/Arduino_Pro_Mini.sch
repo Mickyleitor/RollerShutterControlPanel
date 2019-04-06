@@ -1,0 +1,510 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:Arduino_Pro_Mini-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Domotic Shutter Board"
+Date "2019-04-05"
+Rev "Michele"
+Comp "MickySimulation"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text Label 6000 3100 1    60   ~ 0
+RAW
+Text Label 5200 2600 1    60   ~ 0
+DTR
+Text Label 5400 2600 1    60   ~ 0
+0(Rx)
+Text Label 4650 3600 0    60   ~ 0
+2
+Text Label 4650 3700 0    60   ~ 0
+3(**)
+Text Label 4650 4300 0    60   ~ 0
+9(**)
+Text Label 6150 4300 0    60   ~ 0
+10(**/SS)
+Text Label 6150 4200 0    60   ~ 0
+11(**/MOSI)
+Text Label 5300 4800 3    60   ~ 0
+A4
+Text Label 5200 4800 3    60   ~ 0
+A5
+Text Label 5600 4800 3    60   ~ 0
+A7
+Text Label 5700 4800 3    60   ~ 0
+A6
+$Comp
+L CONN_01X02 P3
+U 1 1 56D74FB3
+P 5250 4600
+F 0 "P3" H 5250 4750 50  0000 C CNN
+F 1 "ADC" V 5350 4600 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x02_Pitch2.54mm" H 5250 4600 50  0001 C CNN
+F 3 "" H 5250 4600 50  0000 C CNN
+	1    5250 4600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_01X02 P5
+U 1 1 56D7505C
+P 5650 4600
+F 0 "P5" H 5650 4750 50  0000 C CNN
+F 1 "ADC" V 5750 4600 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x02_Pitch2.54mm" H 5650 4600 50  0001 C CNN
+F 3 "" H 5650 4600 50  0000 C CNN
+	1    5650 4600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_01X06 P2
+U 1 1 56D75238
+P 5450 2800
+F 0 "P2" H 5450 3150 50  0000 C CNN
+F 1 "COM" V 5550 2800 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x06_Pitch2.54mm" H 5450 2800 50  0001 C CNN
+F 3 "" H 5450 2800 50  0000 C CNN
+	1    5450 2800
+	0    -1   1    0   
+$EndComp
+Text Label 5300 2600 1    60   ~ 0
+1(Tx)
+$Comp
+L GND #PWR01
+U 1 1 56D7539A
+P 5850 2600
+F 0 "#PWR01" H 5850 2350 50  0001 C CNN
+F 1 "GND" H 5850 2450 50  0000 C CNN
+F 2 "" H 5850 2600 50  0000 C CNN
+F 3 "" H 5850 2600 50  0000 C CNN
+	1    5850 2600
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR02
+U 1 1 56D753B8
+P 5950 2400
+F 0 "#PWR02" H 5950 2250 50  0001 C CNN
+F 1 "VCC" H 5950 2550 50  0000 C CNN
+F 2 "" H 5950 2400 50  0000 C CNN
+F 3 "" H 5950 2400 50  0000 C CNN
+	1    5950 2400
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X12 P1
+U 1 1 56D754D1
+P 5200 3750
+F 0 "P1" H 5200 4400 50  0000 C CNN
+F 1 "Digital" V 5300 3750 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x12_Pitch2.54mm" H 5200 3750 50  0001 C CNN
+F 3 "" H 5200 3750 50  0000 C CNN
+	1    5200 3750
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR03
+U 1 1 56D75A9D
+P 6100 3100
+F 0 "#PWR03" H 6100 2950 50  0001 C CNN
+F 1 "VCC" H 6100 3250 50  0000 C CNN
+F 2 "" H 6100 3100 50  0000 C CNN
+F 3 "" H 6100 3100 50  0000 C CNN
+	1    6100 3100
+	1    0    0    -1  
+$EndComp
+Text Notes 5300 3200 0    60   ~ 0
+1
+$Comp
+L SW_PUSH SW1
+U 1 1 5CA7286F
+P 7700 3950
+F 0 "SW1" H 7850 4060 50  0000 C CNN
+F 1 "SW_PUSH" H 7700 3870 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_6mm" H 7700 3950 50  0001 C CNN
+F 3 "" H 7700 3950 50  0000 C CNN
+	1    7700 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW2
+U 1 1 5CA729AE
+P 8000 3950
+F 0 "SW2" H 8150 4060 50  0000 C CNN
+F 1 "SW_PUSH" H 8000 3870 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_6mm" H 8000 3950 50  0001 C CNN
+F 3 "" H 8000 3950 50  0000 C CNN
+	1    8000 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW3
+U 1 1 5CA729E5
+P 8300 3950
+F 0 "SW3" H 8450 4060 50  0000 C CNN
+F 1 "SW_PUSH" H 8300 3870 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_6mm" H 8300 3950 50  0001 C CNN
+F 3 "" H 8300 3950 50  0000 C CNN
+	1    8300 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L SW_PUSH SW4
+U 1 1 5CA72A28
+P 8600 3950
+F 0 "SW4" H 8750 4060 50  0000 C CNN
+F 1 "SW_PUSH" H 8600 3870 50  0000 C CNN
+F 2 "Buttons_Switches_ThroughHole:SW_PUSH_6mm" H 8600 3950 50  0001 C CNN
+F 3 "" H 8600 3950 50  0000 C CNN
+	1    8600 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR04
+U 1 1 5CA72C67
+P 8150 4450
+F 0 "#PWR04" H 8150 4200 50  0001 C CNN
+F 1 "GND" H 8150 4300 50  0000 C CNN
+F 2 "" H 8150 4450 50  0000 C CNN
+F 3 "" H 8150 4450 50  0000 C CNN
+	1    8150 4450
+	1    0    0    -1  
+$EndComp
+Text Label 7700 3400 0    60   ~ 0
+8
+Text Label 8000 3400 0    60   ~ 0
+9(**)
+Text Label 8300 3400 0    60   ~ 0
+10(**/SS)
+Text Label 8600 3500 0    60   ~ 0
+11(**/MOSI)
+$Comp
+L CONN_01X06 P6
+U 1 1 5CA736FC
+P 5450 2000
+F 0 "P6" H 5450 2350 50  0000 C CNN
+F 1 "COM" V 5550 2000 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06_Pitch2.54mm" H 5450 2000 50  0001 C CNN
+F 3 "" H 5450 2000 50  0000 C CNN
+	1    5450 2000
+	0    1    -1   0   
+$EndComp
+$Comp
+L CONN_01X04 P7
+U 1 1 5CA7437E
+P 6300 5100
+F 0 "P7" H 6300 5350 50  0000 C CNN
+F 1 "CONN_01X04" V 6400 5100 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x04_Pitch2.54mm" H 6300 5100 50  0001 C CNN
+F 3 "" H 6300 5100 50  0000 C CNN
+	1    6300 5100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR05
+U 1 1 5CA746DA
+P 5950 5450
+F 0 "#PWR05" H 5950 5200 50  0001 C CNN
+F 1 "GND" H 5950 5300 50  0000 C CNN
+F 2 "" H 5950 5450 50  0000 C CNN
+F 3 "" H 5950 5450 50  0000 C CNN
+	1    5950 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR06
+U 1 1 5CA7477F
+P 6000 4800
+F 0 "#PWR06" H 6000 4650 50  0001 C CNN
+F 1 "VCC" H 6000 4950 50  0000 C CNN
+F 2 "" H 6000 4800 50  0000 C CNN
+F 3 "" H 6000 4800 50  0000 C CNN
+	1    6000 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X03 P8
+U 1 1 5CA74F56
+P 3500 2250
+F 0 "P8" H 3500 2450 50  0000 C CNN
+F 1 "CONN_01X03" V 3600 2250 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x03_Pitch2.54mm" H 3500 2250 50  0001 C CNN
+F 3 "" H 3500 2250 50  0000 C CNN
+	1    3500 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_01X04 P9
+U 1 1 5CA750E1
+P 2450 2300
+F 0 "P9" H 2450 2550 50  0000 C CNN
+F 1 "CONN_01X04" V 2550 2300 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x04_Pitch2.54mm" H 2450 2300 50  0001 C CNN
+F 3 "" H 2450 2300 50  0000 C CNN
+	1    2450 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR07
+U 1 1 5CA75B6E
+P 2050 2650
+F 0 "#PWR07" H 2050 2400 50  0001 C CNN
+F 1 "GND" H 2050 2500 50  0000 C CNN
+F 2 "" H 2050 2650 50  0000 C CNN
+F 3 "" H 2050 2650 50  0000 C CNN
+	1    2050 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR08
+U 1 1 5CA75B9C
+P 3200 2650
+F 0 "#PWR08" H 3200 2400 50  0001 C CNN
+F 1 "GND" H 3200 2500 50  0000 C CNN
+F 2 "" H 3200 2650 50  0000 C CNN
+F 3 "" H 3200 2650 50  0000 C CNN
+	1    3200 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR09
+U 1 1 5CA75BCA
+P 3200 1950
+F 0 "#PWR09" H 3200 1800 50  0001 C CNN
+F 1 "VCC" H 3200 2100 50  0000 C CNN
+F 2 "" H 3200 1950 50  0000 C CNN
+F 3 "" H 3200 1950 50  0000 C CNN
+	1    3200 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L VCC #PWR010
+U 1 1 5CA75BF8
+P 2050 1950
+F 0 "#PWR010" H 2050 1800 50  0001 C CNN
+F 1 "VCC" H 2050 2100 50  0000 C CNN
+F 2 "" H 2050 1950 50  0000 C CNN
+F 3 "" H 2050 1950 50  0000 C CNN
+	1    2050 1950
+	1    0    0    -1  
+$EndComp
+Text Label 2100 2250 0    60   ~ 0
+2
+Text Label 3050 2150 0    60   ~ 0
+3(**)
+NoConn ~ 5900 3500
+NoConn ~ 5500 2600
+Wire Wire Line
+	5600 2600 5850 2600
+Connection ~ 5700 2600
+Wire Wire Line
+	4650 3600 5000 3600
+Wire Wire Line
+	5000 3700 4650 3700
+Wire Wire Line
+	5000 4200 4650 4200
+Wire Wire Line
+	5000 4300 4650 4300
+Wire Wire Line
+	6000 3100 6000 3200
+Wire Wire Line
+	5900 3200 6100 3200
+Wire Wire Line
+	6100 3200 6100 3100
+Wire Wire Line
+	6150 4200 5900 4200
+Wire Wire Line
+	5900 4300 6150 4300
+Wire Wire Line
+	7700 3650 7700 3100
+Wire Wire Line
+	8000 3650 8000 3100
+Wire Wire Line
+	8300 3650 8300 3100
+Wire Wire Line
+	8600 3650 8600 3100
+Wire Wire Line
+	7700 4250 7700 4450
+Wire Wire Line
+	7700 4450 8600 4450
+Wire Wire Line
+	8600 4450 8600 4250
+Wire Wire Line
+	8000 4250 8000 4450
+Connection ~ 8000 4450
+Wire Wire Line
+	8300 4250 8300 4450
+Connection ~ 8300 4450
+Wire Wire Line
+	5700 2200 5700 2600
+Wire Wire Line
+	5600 2200 5600 2600
+Wire Wire Line
+	5400 2200 5400 2600
+Wire Wire Line
+	5300 2200 5300 2600
+Wire Wire Line
+	5200 2200 5200 2600
+Wire Wire Line
+	6100 4950 5950 4950
+Wire Wire Line
+	5950 4950 5950 5450
+Wire Wire Line
+	6100 5050 6000 5050
+Wire Wire Line
+	6000 5050 6000 4800
+Wire Wire Line
+	6100 5150 5300 5150
+Wire Wire Line
+	5300 5150 5300 4800
+Wire Wire Line
+	6100 5250 5200 5250
+Wire Wire Line
+	5200 5250 5200 4800
+Wire Wire Line
+	3300 2350 3200 2350
+Wire Wire Line
+	3200 2350 3200 2650
+Wire Wire Line
+	3300 2250 3200 2250
+Wire Wire Line
+	3200 2250 3200 1950
+Wire Wire Line
+	3300 2150 3000 2150
+Wire Wire Line
+	2250 2450 2050 2450
+Wire Wire Line
+	2050 2450 2050 2650
+Wire Wire Line
+	2250 2350 2250 2250
+Wire Wire Line
+	2250 2250 2050 2250
+Wire Wire Line
+	2250 2150 2050 2150
+Wire Wire Line
+	2050 2150 2050 1950
+Wire Wire Line
+	5950 2400 5500 2400
+Wire Wire Line
+	5500 2400 5500 2200
+Connection ~ 6000 3200
+Wire Notes Line
+	1700 1500 1700 3100
+Wire Notes Line
+	1700 3100 3800 3100
+Wire Notes Line
+	3800 3100 3800 1500
+Wire Notes Line
+	3800 1500 1700 1500
+Text Notes 2450 1600 0    60   ~ 0
+Modulos RF
+Wire Notes Line
+	7400 2950 7400 4700
+Wire Notes Line
+	7400 4700 9250 4700
+Wire Notes Line
+	9250 4700 9250 2950
+Wire Notes Line
+	9250 2950 7400 2950
+Text Notes 8100 2900 0    60   ~ 0
+Botones
+Wire Notes Line
+	5800 4600 5800 5850
+Wire Notes Line
+	5800 5850 6650 5850
+Wire Notes Line
+	6650 5850 6650 4600
+Wire Notes Line
+	6650 4600 5800 4600
+Text Notes 6300 5800 2    60   ~ 0
+LCD
+Wire Notes Line
+	4900 1750 4900 2300
+Wire Notes Line
+	4900 2300 6150 2300
+Wire Notes Line
+	6150 2300 6150 1750
+Wire Notes Line
+	6150 1750 4900 1750
+Text Notes 5000 1700 0    60   ~ 0
+Conexiones a TTL-USB
+NoConn ~ 5900 3400
+NoConn ~ 5600 4800
+NoConn ~ 5700 4800
+NoConn ~ 5000 3200
+NoConn ~ 5000 3300
+NoConn ~ 5000 3400
+Text Label 4650 4200 0    60   ~ 0
+8
+NoConn ~ 5000 3800
+NoConn ~ 5000 3900
+NoConn ~ 5000 4000
+NoConn ~ 5000 4100
+NoConn ~ 5900 3600
+NoConn ~ 5900 3700
+NoConn ~ 5900 3800
+NoConn ~ 5900 3900
+NoConn ~ 5900 4000
+NoConn ~ 5900 4100
+NoConn ~ 5000 3500
+$Comp
+L CONN_01X12 P4
+U 1 1 56D755F3
+P 5700 3750
+F 0 "P4" H 5700 4400 50  0000 C CNN
+F 1 "Analog" V 5800 3750 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_1x12_Pitch2.54mm" H 5700 3750 50  0001 C CNN
+F 3 "" H 5700 3750 50  0000 C CNN
+	1    5700 3750
+	-1   0    0    -1  
+$EndComp
+$Comp
+L GND #PWR011
+U 1 1 5CA7A61F
+P 6050 4400
+F 0 "#PWR011" H 6050 4150 50  0001 C CNN
+F 1 "GND" H 6050 4250 50  0000 C CNN
+F 2 "" H 6050 4400 50  0000 C CNN
+F 3 "" H 6050 4400 50  0000 C CNN
+	1    6050 4400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 4400 6050 3300
+Wire Wire Line
+	6050 3300 5900 3300
+Connection ~ 8150 4450
+$EndSCHEMATC

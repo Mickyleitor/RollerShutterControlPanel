@@ -1,0 +1,123 @@
+Cmp-Mod V01 Created by PcbNew   date = 05/04/2019 21:02:22
+
+BeginCmp
+TimeStamp = 5CA7391F
+Path = /5CA7286F
+Reference = SW1;
+ValeurCmp = SW_PUSH;
+IdModule  = Buttons_Switches_ThroughHole:SW_PUSH_6mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA73927
+Path = /5CA729AE
+Reference = SW2;
+ValeurCmp = SW_PUSH;
+IdModule  = Buttons_Switches_ThroughHole:SW_PUSH_6mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA7392F
+Path = /5CA729E5
+Reference = SW3;
+ValeurCmp = SW_PUSH;
+IdModule  = Buttons_Switches_ThroughHole:SW_PUSH_6mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA73937
+Path = /5CA72A28
+Reference = SW4;
+ValeurCmp = SW_PUSH;
+IdModule  = Buttons_Switches_ThroughHole:SW_PUSH_6mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA747D8
+Path = /56D754D1
+Reference = P1;
+ValeurCmp = Digital;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x12_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA747E7
+Path = /56D75238
+Reference = P2;
+ValeurCmp = COM;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x06_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA747F0
+Path = /56D74FB3
+Reference = P3;
+ValeurCmp = ADC;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x02_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA747F5
+Path = /56D755F3
+Reference = P4;
+ValeurCmp = Analog;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x12_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA74804
+Path = /56D7505C
+Reference = P5;
+ValeurCmp = ADC;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x02_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA74809
+Path = /5CA736FC
+Reference = P6;
+ValeurCmp = COM;
+IdModule  = Pin_Headers:Pin_Header_Straight_1x06_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA74812
+Path = /5CA7437E
+Reference = P7;
+ValeurCmp = CONN_01X04;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x04_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA74819
+Path = /5CA74F56
+Reference = P8;
+ValeurCmp = CONN_01X03;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x03_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA7481F
+Path = /5CA750E1
+Reference = P9;
+ValeurCmp = CONN_01X04;
+IdModule  = Socket_Strips:Socket_Strip_Straight_1x04_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA79EDF
+Path = 
+Reference = REF***;
+ValeurCmp = KiCad-Logo_6mm_SilkScreen;
+IdModule  = Symbols:KiCad-Logo_6mm_SilkScreen;
+EndCmp
+
+BeginCmp
+TimeStamp = 5CA79F10
+Path = 
+Reference = REF***;
+ValeurCmp = OSHW-Logo2_7.3x6mm_SilkScreen;
+IdModule  = Symbols:OSHW-Logo2_7.3x6mm_SilkScreen;
+EndCmp
+
+EndListe

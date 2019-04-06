@@ -1,0 +1,12 @@
+"Id";"Identificador";"Empaquetado";"Cantidad";"Identificación";"Suministrador y ref";
+1;"REF**,REF**,REF**,REF**";"MountingHole_3.2mm_M3";4;"MountingHole_3.2mm_M3";;;
+2;"SW1,SW2,SW3,SW4";"SW_PUSH_6mm";4;"SW_PUSH";;;
+3;"P1";"Socket_Strip_Straight_1x12_Pitch2.54mm";1;"Digital";;;
+4;"P2";"Socket_Strip_Straight_1x06_Pitch2.54mm";1;"COM";;;
+5;"P3,P5";"Socket_Strip_Straight_1x02_Pitch2.54mm";2;"ADC";;;
+6;"P4";"Socket_Strip_Straight_1x12_Pitch2.54mm";1;"Analog";;;
+7;"P6";"Pin_Header_Straight_1x06_Pitch2.54mm";1;"COM";;;
+8;"P7,P9";"Socket_Strip_Straight_1x04_Pitch2.54mm";2;"CONN_01X04";;;
+9;"P8";"Socket_Strip_Straight_1x03_Pitch2.54mm";1;"CONN_01X03";;;
+10;"REF***";"KiCad-Logo_6mm_SilkScreen";1;"KiCad-Logo_6mm_SilkScreen";;;
+11;"REF***";"OSHW-Logo2_7.3x6mm_SilkScreen";1;"OSHW-Logo2_7.3x6mm_SilkScreen";;;

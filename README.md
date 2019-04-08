@@ -1,6 +1,10 @@
 # DomoticShutter
 Arduino-Controlled Shutter with programmable tasks and LED display device.
 
+![Panel](https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/3Dmodel/DomoticShutterPanel.jpg)
+
+![Board](https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/3Dmodel/DomoticShutterBoard.jpg)
+
 ## User Requirements
 * User can control the shutters manually via buttons.
 * Arduino can interface with shutter via wired or/and RF (the best solution).

@@ -14,6 +14,10 @@ Custom embedded system to remotely control your shutter, add programmable tasks/
 * Power consumption by arduino, LCD, buttons and required ICs.
 * Logic voltage levels between LCD 5V and Arduino MiniPro 3.3V.
 
+## Finite State Machine Diagrams
+### Initialization
+![Initialization](https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/FSM/Initialization_FSM.jpg)
+
 ## Board Schematics
 ![Schematic](https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/KiCad/DomoticShutterSchematic.jpg)
 

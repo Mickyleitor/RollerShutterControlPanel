@@ -1,47 +1,24 @@
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <EEPROM.h>
-#include <TimeLib.h>
+#include "basic_defines.h"
 
-#define PIN_BUZZER 5
-#define PIN_RF_TX 2
-#define PIN_RF_RX 3
-#define PIN_BUTTON_LEFT 0
-#define PIN_BUTTON_CANCEL 1
-#define PIN_BUTTON_OK 2
-#define PIN_BUTTON_RIGHT 3
-#define BUZZER_LOW_VOLUME 90000
-#define BUZZER_MEDIUM_VOLUME 300
-#define BUZZER_HIGH_VOLUME 5000
+LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
 
-#define KEY_LENGTH 92
-#define KEY_CRC_LENGTH 1
-#define DEBUGGING 0
-
-LiquidCrystal_PCF8574 lcd(0x3F);
-
-struct Tcommand {
-  char Key [KEY_LENGTH];
-  char CRC [KEY_CRC_LENGTH];
-};
+int task_button = -1;
 
 void setup(){
-  int error = -1;
-  while(error){
+  Serial.begin(9600);
+  do{
+    delay(1000);
     Wire.begin();
-    Wire.beginTransmission(0x3F);
-    error = Wire.endTransmission();
-    if(error && !DEBUGGING){
-      beep_alarm(BUZZER_MEDIUM_VOLUME,300,3);
-      delay(5000);
-    }else if(DEBUGGING){
-      error = 0;
-    }
-  }
+    Wire.beginTransmission(ADDRESS_I2C_LCD);
+  }while(Wire.endTransmission() != 0);
+  
   lcd.begin(16,2);
   lcd.setBacklight(255);
   lcd.home(); lcd.clear();
-  
+ 
   DDRB &= ~bit(DDB0) | ~bit(DDB1) | ~bit(DDB2) | ~bit(DDB3); // Clear the PBX pin
   // PBX (PCINT0-5 pin) is now an input
   PCMSK0 |= bit (PCINT0) | bit (PCINT1) |bit (PCINT2) |bit (PCINT3); // set PCINT0-3 to trigger an interrupt on state change 
@@ -50,14 +27,35 @@ void setup(){
 }
 
 void loop(){
-    
+    switch (task_button) {
+      case PIN_BUTTON_LEFT : {
+        if(!sendCommand(2,0)) beep_alarm(BUZZER_MEDIUM_VOLUME,100,3);
+        task_button = -1;
+        break;
+      }
+      case PIN_BUTTON_CANCEL : {
+        if(!sendCommand(2,1)) beep_alarm(BUZZER_MEDIUM_VOLUME,100,3);
+        task_button = -1;
+        break;
+      }
+      case PIN_BUTTON_OK : {
+        if(!sendCommand(2,2)) beep_alarm(BUZZER_MEDIUM_VOLUME,100,3);
+        task_button = -1;
+        break;
+      }
+      case PIN_BUTTON_RIGHT : {
+        if(!sendCommand(1,1)) beep_alarm(BUZZER_MEDIUM_VOLUME,100,3);
+        task_button = -1;
+        break;
+      }
+    }    
 }
 
-void beep_alarm(unsigned int volume, unsigned long period_ms, int times){
-  while(times > 0){
+// This shouldn't be used inside ISR
+void beep_alarm(unsigned int volume, unsigned long period_ms, unsigned int times){
+  for(int i = 0; i < times; i ++){
     tone(PIN_BUZZER,volume,period_ms);
     delay(2*period_ms);
-    times --;
   }
 }
 
@@ -81,27 +79,43 @@ byte CRC8(const byte *data, size_t dataLength)
   return crc;
 }
 
-bool readKeyFromEEPROM (int row, char  * ptr){
-  char buf;
-  for(int address = 0; address < (KEY_LENGTH+KEY_CRC_LENGTH); address ++){
-    EEPROM.get(row*(sizeof(Tcommand)) + address, buf);
-    ptr[address] = buf;
-  }
-  return ((char)CRC8(ptr,KEY_LENGTH) == ptr[KEY_LENGTH]);
-}
-
 ISR (PCINT0_vect)
 {
   if(bitRead(PINB,PIN_BUTTON_LEFT)==0){
-    beep_alarm(BUZZER_LOW_VOLUME,100,1);
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = PIN_BUTTON_LEFT;
   }
   if(bitRead(PINB,PIN_BUTTON_CANCEL)==0){
-    beep_alarm(BUZZER_LOW_VOLUME,100,1);
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = PIN_BUTTON_CANCEL;
   }
   if(bitRead(PINB,PIN_BUTTON_OK)==0){
-    beep_alarm(BUZZER_LOW_VOLUME,100,1);
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = PIN_BUTTON_OK;
   }
   if(bitRead(PINB,PIN_BUTTON_RIGHT)==0){
-    beep_alarm(BUZZER_LOW_VOLUME,100,1);
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = PIN_BUTTON_RIGHT;
+  }
+}
+
+bool sendCommand(unsigned int shutter, unsigned int order){
+  Tcommand command;
+  if(shutter < 3 && order < 3){
+    EEPROM.get( ((shutter * 3) + order) * sizeof(struct Tcommand), command);
+    if(CRC8(command.Key,KEY_LENGTH) == command.CRC){
+      int bits = 0;
+      for(int index = 0; index < KEY_LENGTH ; index++){
+        for(bits = 7; bits >= 0; bits--){
+          bitWrite(PORT_RF_TX,PIN_RF_TX,(command.Key[index] >> bits) & 1);
+          delayMicroseconds(490);
+        }
+      }
+      return true;
+    }else{
+      return false;
+    }
+  }else{
+    return false;
   }
 }

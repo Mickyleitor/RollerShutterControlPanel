@@ -1,3 +1,6 @@
-"dependencies": {
-  "LiquidCrystal_PCF8574": "mathertel/LiquidCrystal_PCF8574#master"
+{
+    "name": "DomoticShutter",
+    "dependencies": {
+        "LiquidCrystal_PCF8574": "mathertel/LiquidCrystal_PCF8574#master"
+    }
 }

@@ -2,16 +2,20 @@
 #include <LiquidCrystal_PCF8574.h>
 #include <EEPROM.h>
 #include "basic_defines.h"
+#include <TimeLib.h>
 
 LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
 
-int task_button = -1;
+int task_button = TASK_UPDATE_LCD;
 int selected_shutter = 1;
 enum state {GOING_DOWN,STOPPED,GOING_UP};
 String shuttername [3] = {"Persiana derecha","Persiana central","Persiana lateral"};
 state shutterstate [3] = {STOPPED,STOPPED,STOPPED};
 int shutterprevioustime [3] = {0,0,0};
-int shuttercurrenttime [3] = {0,0,0}; 
+int shuttercurrenttime [3] = {0,0,0};
+unsigned long LastTimeButtonPressed = 0xFFFF;
+unsigned long LastTimeScreenRefreshed = 0xFFFF;
+time_t T;
 
 void setup(){
   Serial.begin(9600);
@@ -26,7 +30,9 @@ void setup(){
   byte customArrayChar[5][8] = {{0x00,0x00,0x1F,0x1F,0x0E,0x04,0x00,0x00},{0x00,0x00,0x04,0x0E,0x1F,0x1F,0x00,0x00},{0x00,0x00,0x06,0x0E,0x1E,0x0E,0x06,0x00},{0x00,0x00,0x0C,0x0E,0x0F,0x0E,0x0C,0x00},{0x00,0x0E,0x1F,0x11,0x11,0x1F,0x0E,0x00}};
   for ( int i = 0 ; i < 5 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
 
-  updateScreen();
+  setTime(14,33,30,9,9,2019); // 12:00 (H24) 9 de Septiembre del 2019
+  
+  updateMainScreen();
  
   DDRB &= ~bit(DDB0) | ~bit(DDB1) | ~bit(DDB2) | ~bit(DDB3); // Clear the PBX pin
   // PBX (PCINT0-5 pin) is now an input
@@ -40,56 +46,32 @@ void loop(){
       case PIN_BUTTON_LEFT : {
         selected_shutter = (selected_shutter+1) % 3;
         updateScreen();
-        task_button = -1;
+        task_button = TASK_UPDATE_LCD;
         break;
       }
-
-      // Not sure how to handle this following two buttons, they behave exactly in almost the same way
       case PIN_BUTTON_CANCEL : {
-        if(shutterstate[selected_shutter] == GOING_UP){
-          if(sendCommand(selected_shutter,STOPPED)){
-            shuttercurrenttime[selected_shutter] -= (millis() - shutterprevioustime[selected_shutter]);
-            shutterstate[selected_shutter] = STOPPED;
-          }
-        }else{
-          if(sendCommand(selected_shutter,GOING_UP)){
-            if(shutterstate[selected_shutter] == GOING_DOWN){
-              shuttercurrenttime[selected_shutter] += (millis() - shutterprevioustime[selected_shutter]);
-            }
-            shutterprevioustime[selected_shutter] = millis();
-            shutterstate[selected_shutter] = GOING_UP;
-          }
-        }
-        shuttercurrenttime[selected_shutter] = constrain(shuttercurrenttime[selected_shutter], 0, SHUTTER_CICLETIME);
+        moveShutter(GOING_UP);
         updateScreen();
-        task_button = -1;
+        task_button = TASK_UPDATE_LCD;
         break;
       }
       case PIN_BUTTON_OK : {
-        if(shutterstate[selected_shutter] == GOING_DOWN){
-          if(sendCommand(selected_shutter,STOPPED)){
-            shuttercurrenttime[selected_shutter] += (millis() - shutterprevioustime[selected_shutter]);
-            shutterstate[selected_shutter] = STOPPED;
-          }
-        }else{
-          if(sendCommand(selected_shutter,GOING_DOWN)){
-            if(shutterstate[selected_shutter] == GOING_UP){
-              shuttercurrenttime[selected_shutter] -= (millis() - shutterprevioustime[selected_shutter]);
-            }
-            shutterprevioustime[selected_shutter] = millis();
-            shutterstate[selected_shutter] = GOING_DOWN;
-          }
-        }
-        shuttercurrenttime[selected_shutter] = constrain(shuttercurrenttime[selected_shutter], 0, SHUTTER_CICLETIME);
+        moveShutter(GOING_DOWN);
         updateScreen();
-        task_button = -1;
+        task_button = TASK_UPDATE_LCD;
+        
         break;
       }
       case PIN_BUTTON_RIGHT : {
         selected_shutter = (selected_shutter < 1) ? 2 : selected_shutter - 1;
         updateScreen();
-        task_button = -1;
+        task_button = TASK_UPDATE_LCD;
         break;
+      }
+      case TASK_UPDATE_LCD : {
+        if ((millis() - LastTimeButtonPressed > SHUTTER_CICLETIME) && (millis() - LastTimeScreenRefreshed > 1000))  {
+          updateMainScreen();
+        }
       }
     }
 }
@@ -140,6 +122,7 @@ ISR (PCINT0_vect)
     tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
     task_button = PIN_BUTTON_RIGHT;
   }
+  LastTimeButtonPressed = millis();
 }
 
 
@@ -170,6 +153,7 @@ bool sendCommand(unsigned int shutter, unsigned int order){
 }
 
 void updateScreen(){
+  lcd.setBacklight(255);
   lcd.home(); lcd.clear();
   lcd.print(shuttername[selected_shutter]);
   lcd.setCursor(1,1);
@@ -193,4 +177,100 @@ void updateScreen(){
   lcd.setCursor(14,1);
   lcd.write(LCD_CHAR_ARROWRIGHT);
 
+  LastTimeScreenRefreshed = millis();
+}
+
+void updateMainScreen(){
+  /*
+  lcd.home(); lcd.clear();
+  
+
+  lcd.setCursor(6,0);
+  lcd.print(hour(T));  
+  lcd.print(+ ":") ;
+  lcd.print(minute(T));
+  // lcd.print(+ ":") ;
+  // lcd.print(second(T));
+  lcd.setCursor(4,1);
+  lcd.print(day(T));
+  lcd.print(+ "/") ;
+  lcd.print(month(T));
+  lcd.print(+ "/") ;
+  lcd.print(year(T)); 
+  lcd.print( " ") ;
+
+  LastTimeScreenRefreshed = millis();
+  lcd.setBacklight(0);
+  */
+  T = now();
+  lcd.clear();
+  lcd.setCursor(0, 1);
+  if (day(T)<10) lcd.print('0');
+  lcd.print(day(T), DEC);
+  
+  lcd.print('/');
+  if (month(T)<10) lcd.print('0');
+  lcd.print(month(T), DEC);
+  
+  lcd.print('/');
+  lcd.print(year(T), DEC);
+  lcd.print(' ');
+  
+  lcd.setCursor(4, 0);
+  if (hour(T)<10) lcd.print('0');
+  lcd.print(hour(T), DEC);
+  
+  lcd.print(':');
+  if (minute(T)<10) lcd.print('0');
+  lcd.print(minute(T), DEC);
+  
+  lcd.print(':');
+  if (second(T)<10) lcd.print('0');
+  lcd.print(second(T), DEC);
+  
+  lcd.setCursor(12, 1);
+  int dayofweek = weekday(T);
+  switch(dayofweek){
+    case 1:
+      lcd.print("Dom.");
+      break;
+    case 2:
+      lcd.print("Lun.");
+      break;
+    case 3:
+      lcd.print("Mar.");
+    break;
+    case 4:
+      lcd.print("Mie.");
+      break;
+    case 5:
+      lcd.print("Jue.");
+      break;
+    case 6:
+      lcd.print("Vie.");
+      break;
+    case 0:
+      lcd.print("Sab.");
+      break;
+  }
+  LastTimeScreenRefreshed = millis();
+  lcd.setBacklight(0);
+}
+
+void moveShutter(state GOING_TO){
+  if(shutterstate[selected_shutter] == GOING_TO){
+    if(sendCommand(selected_shutter,STOPPED)){
+      shuttercurrenttime[selected_shutter] += ((GOING_TO == GOING_UP) ? -1 : 1)*(millis() - shutterprevioustime[selected_shutter]);
+      shutterstate[selected_shutter] = STOPPED;
+    }
+  }else{
+    if(sendCommand(selected_shutter,GOING_TO)){
+      if(shutterstate[selected_shutter] == ((GOING_TO == GOING_UP) ? GOING_DOWN : GOING_UP)){
+        shuttercurrenttime[selected_shutter] += ((GOING_TO == GOING_UP) ? 1 : -1)*(millis() - shutterprevioustime[selected_shutter]);
+      }
+      shutterprevioustime[selected_shutter] = millis();
+      shutterstate[selected_shutter] = GOING_TO;
+    }
+  }
+  shuttercurrenttime[selected_shutter] = constrain(shuttercurrenttime[selected_shutter], 0, SHUTTER_CICLETIME);
 }

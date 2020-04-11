@@ -7,7 +7,7 @@
 #include "WiFiEsp.h"
 #include "WiFiEspUdp.h"
 #include <TimeLib.h>
-#include <TimeAlarms.h>
+// #include <TimeAlarms.h>
 #include <NTPClient.h> // From https://github.com/MHotchin/NTPClient
 #include "basic_defines.h"
 #include "wifidata.h" // No incluir en proyecto final
@@ -21,7 +21,7 @@ SoftwareSerial Serial1(2, 3); // RX, TX
 #define SUNRISE_REFRESH_RATE 30 // 43200
 
 time_t initTime,sunriseTime;
-AlarmId sunriseTaskID;
+// AlarmId sunriseTaskID;
 
 int status = -1;
 int failed = 0;
@@ -60,7 +60,8 @@ void loop(){
 
   */
   updateMainScreen();
-  Alarm.delay(1000);
+  // Alarm.delay(1000);
+  delay(1000);
 }
 void initLCDFunction(){
   status = -1;
@@ -252,9 +253,9 @@ void getWeatherFunction(){
   if(client.find("\"sunrise\":")){
     sunriseTime = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
     // Update the time of the Sunrise Task
-    Alarm.free(sunriseTaskID);
+    // Alarm.free(sunriseTaskID);
     // A delay is needed to let the object proccess the free function
-    Alarm.delay(1);
+    // Alarm.delay(1);
     // create a new alarm with the new time
     // sunriseTaskID = Alarm.alarmRepeat(hour(sunriseTime),minute(sunriseTime),second(sunriseTime), sunriseTaskFunction);
   }else{

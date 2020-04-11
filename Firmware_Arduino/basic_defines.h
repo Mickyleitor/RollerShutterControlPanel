@@ -33,3 +33,4 @@
 #define LCD_CHAR_ARROWLEFT byte(2)
 #define LCD_CHAR_ARROWRIGHT byte(3)
 #define LCD_CHAR_STOP byte(4)
+#define LCD_CHAR_DEGREE byte(5)

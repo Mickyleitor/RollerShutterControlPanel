@@ -1,3 +1,9 @@
 (sym_lib_table
-  (lib (name Arduino_Pro_Mini-rescue)(type Legacy)(uri ${KIPRJMOD}/Arduino_Pro_Mini-rescue.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_connectors)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_connectors.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_Device)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_Device.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_power)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_power.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_pspice)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_pspice.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_SRD-05VDC-SL-C)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_SRD-05VDC-SL-C.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_ULN2803A)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_ULN2803A.lib)(options "")(descr ""))
+  (lib (name CustomLibraries_Switch)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_Switch.lib)(options "")(descr ""))
 )

@@ -4,29 +4,34 @@
 
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
-#include "WiFiEsp.h"
+#include "WiFiEsp.h" 
 #include "WiFiEspUdp.h"
 #include <TimeLib.h>
-// #include <TimeAlarms.h>
+//  #include <TimeAlarms.h>
 #include <NTPClient.h> // From https://github.com/MHotchin/NTPClient
 #include "basic_defines.h"
 #include "wifidata.h" // No incluir en proyecto final
 
 #ifndef HAVE_HWSERIAL1
-#include "SoftwareSerial.h"
+#include "SoftwareSerial_buttons.h" // Librería modificada para atender a las interrupciones del PCINT0_Int
 SoftwareSerial Serial1(2, 3); // RX, TX
 #endif
 
 #define NTP_REFRESH_RATE 600
 #define SUNRISE_REFRESH_RATE 30 // 43200
 
-time_t initTime,sunriseTime;
+time_t initTime,sunriseTime,sunsetTime;
 // AlarmId sunriseTaskID;
 
-int status = -1;
-int failed = 0;
-int cloudiness = -1;
+byte status = -1;
+byte failed = 0;
+byte cloudiness = -1;
 int temperature = -1;
+byte task_button = 0;
+byte system_fsm = SYSTEM_FSM_DIGITALCLOCK;
+byte selected_shutter = 3;
+byte selected_option = 0;
+byte sleep_var = 0;
 
 LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
 
@@ -36,32 +41,153 @@ void setup(){
   initWifiFunction();
   initTime = getTimeFunction();
   getWeatherFunction();
+  initButtonsFunction();
+  // initButtonsFunction();
   // getSunriseTimeFunction();
   // getCloudsFunction();
   // Every 10 min get a the time from NTP server
   // Alarm.timerRepeat(NTP_REFRESH_RATE, getTimeFunction);
   // Get sunrise time every 12 hours (this should be changed to everyday at midnight)
   // Alarm.timerRepeat(SUNRISE_REFRESH_RATE, getSunriseTimeFunction);
+  system_fsm = SYSTEM_FSM_DIGITALCLOCK;
+  selected_shutter = 0;
+  selected_option = 0;
 }
 
 void loop(){
-  /*
-  Serial.println("-START TIME-");
-  updateSerialScreen(initTime);
-  Serial.println("------------");
-  Serial.println("--INTERNAL--");
-  updateSerialScreen(now());
-  Serial.println("------------");
-  Serial.println("---SUNRISE--");
-  updateSerialScreen(sunriseTime);
-  Serial.println("------------");
-  
-  // tone(PIN_BUZZER,25000,25);
-
-  */
-  updateMainScreen();
-  // Alarm.delay(1000);
-  delay(1000);
+  switch(system_fsm) {
+    case SYSTEM_FSM_DIGITALCLOCK : {
+      if(task_button == TASK_UPDATE_LCD){
+          updateMainScreen();
+          // Alarm.delay(1000);
+          delay(1000);
+          // Serial.println(selected_shutter);
+		  if(isSunriseTime()){
+			// Serial.println("Es hora del amanecer");
+		  }
+      }else{
+        system_fsm = SYSTEM_FSM_SHUTTER;
+      }
+      break;
+    }
+    case SYSTEM_FSM_SHUTTER : {
+      switch(task_button) {
+        case TASK_BUTTON_LEFT : {
+          selected_shutter = (selected_shutter < 1) ? 3 : selected_shutter - 1;
+          task_button = TASK_UPDATE_LCD;
+          break;
+        }
+        case TASK_BUTTON_CANCEL : {
+          if(selected_shutter == 3){
+            system_fsm = SYSTEM_FSM_OPTIONS;
+          }else{
+            /*
+            if(estaParada(selected_shutter)) subirPersiana(selected_shutter);
+            else pararPersiana(selected_shutter);
+            */
+            task_button = TASK_UPDATE_LCD;
+          }
+          break;
+        }
+        case TASK_BUTTON_OK : {
+          if(selected_shutter == 3){
+            system_fsm = SYSTEM_FSM_OPTIONS;
+          }else{
+            /*
+            if(estaParada(selected_shutter)) bajarPersiana(selected_shutter);
+            else pararPersiana(selected_shutter);
+            */
+            task_button = TASK_UPDATE_LCD;
+          }
+          break;
+        }
+        case TASK_BUTTON_RIGHT : {
+          selected_shutter = (selected_shutter+1) % 4;
+          task_button = TASK_UPDATE_LCD;
+          break;
+        }
+        case TASK_UPDATE_LCD : {
+          Serial.print("FSM: ");
+          Serial.print(system_fsm);
+          Serial.print(" Selected shutter: ");
+          Serial.print(selected_shutter);
+          Serial.print(" Selected option: ");
+          Serial.println(selected_option);
+          lcd.clear(); lcd.home();
+          if(selected_shutter != 3){
+            lcd.print("Persiana - ");
+            lcd.print(selected_shutter);
+            lcd.setCursor(0,1);
+            lcd.print("<    -    -    >");
+          }else{
+            lcd.print("    OPCIONES    ");
+            lcd.setCursor(0,1);
+            lcd.print("<    -    -    >");
+          }
+          task_button = TASK_UPDATE_IDLE;
+          break;
+        }
+      }
+      break;
+    }
+    case SYSTEM_FSM_OPTIONS : {
+      switch(task_button) {
+        case TASK_BUTTON_LEFT : {
+          system_fsm = SYSTEM_FSM_SHUTTER;
+          selected_option = 0;
+          task_button = TASK_BUTTON_LEFT;
+          break;
+        }
+        case TASK_BUTTON_CANCEL : {
+          selected_option = (selected_option < 1) ? 2 : selected_option - 1;
+          task_button = TASK_UPDATE_LCD;
+          break;
+        }
+        case TASK_BUTTON_OK : {
+          selected_option = (selected_option+1) % 3;
+          task_button = TASK_UPDATE_LCD;
+          break;
+        }
+        case TASK_BUTTON_RIGHT : {
+          task_button = TASK_UPDATE_LCD;
+          if(selected_option == 1) system_fsm = SYSTEM_FSM_FUNC_SLEEP;
+          else{
+            task_button = TASK_BUTTON_RIGHT;
+            system_fsm = SYSTEM_FSM_SHUTTER;
+          }
+          break;
+        }
+        case TASK_UPDATE_LCD : {
+          Serial.print("FSM: ");
+          Serial.print(system_fsm);
+          Serial.print(" Selected shutter: ");
+          Serial.print(selected_shutter);
+          Serial.print(" Selected option: ");
+          Serial.println(selected_option);
+          lcd.clear(); lcd.home();
+          if(selected_option == 0){
+            lcd.print("    OPCIONES    ");
+            lcd.setCursor(0,1);
+            lcd.print("<    -    -    >");
+          }else if(selected_option == 1){
+            lcd.print(" CONFIG.  SUEÑO ");
+            lcd.setCursor(0,1);
+            lcd.print("<    -    -   OK");
+          }else{
+            lcd.print("ACTIVAR  TRABAJO");
+            lcd.setCursor(0,1);
+            lcd.print("<    -    -   OK");
+          }
+          task_button = TASK_UPDATE_IDLE;
+          break;
+        }
+      }
+      break;
+    }
+    default : {
+      Serial.println("Error");
+    }
+  }
 }
 void initLCDFunction(){
   status = -1;
@@ -78,7 +204,7 @@ void initLCDFunction(){
         delay(1000);
       }
     }else if(status != 0){
-      // wait 1 seconds for reconnection:
+      // wait 5 seconds for reconnection:
       delay(5000);
     }
     failed++;
@@ -87,7 +213,7 @@ void initLCDFunction(){
   lcd.begin(16,2);
   lcd.setBacklight(255);
   int customArrayChar[6][8] = {{0x00,0x00,0x1F,0x1F,0x0E,0x04,0x00,0x00},{0x00,0x00,0x04,0x0E,0x1F,0x1F,0x00,0x00},{0x00,0x00,0x06,0x0E,0x1E,0x0E,0x06,0x00},{0x00,0x00,0x0C,0x0E,0x0F,0x0E,0x0C,0x00},{0x00,0x0E,0x1F,0x11,0x11,0x1F,0x0E,0x00},{0x06,0x09,0x09,0x06,0x00,0x00,0x00,0x00}};
-  for ( int i = 0 ; i < 6 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
+  for ( byte i = 0 ; i < 6 ; i ++ ) lcd.createChar(i,customArrayChar[i]);
   lcd.home(); lcd.clear();
   lcd.print("...INICIANDO...");
 }
@@ -106,7 +232,10 @@ void initWifiFunction(){
     lcd.setCursor(0,1);
     lcd.println(" NO  ENCONTRADA ");
     // don't continue:
-    while (true);
+    while(true){
+      tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,1000);
+      delay(1500);
+    }
   }
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED ) {
@@ -185,26 +314,29 @@ void updateMainScreen(){
   lcd.setCursor(12, 1);
   int dayofweek = weekday(T);
   switch(dayofweek){
-    case 1:
+    case dowSunday:
       lcd.print("Dom.");
       break;
-    case 2:
+    case dowMonday:
       lcd.print("Lun.");
       break;
-    case 3:
+    case dowTuesday:
       lcd.print("Mar.");
     break;
-    case 4:
+    case dowWednesday:
       lcd.print("Mie.");
       break;
-    case 5:
+    case dowThursday:
       lcd.print("Jue.");
       break;
-    case 6:
+    case dowFriday:
       lcd.print("Vie.");
       break;
-    case 0:
+    case dowSaturday:
       lcd.print("Sab.");
+      break;
+    default:
+      lcd.print("Err.");
       break;
   }
 }
@@ -221,10 +353,8 @@ void getWeatherFunction(){
   }
 
   // Send HTTP request
-  String HTTPrequest = "GET /data/2.5/weather?lat=36.7167615&lon=-4.4115726&appid=";
-  HTTPrequest += appid;
-  HTTPrequest += " HTTP/1.0";
-  client.println(HTTPrequest);
+  // HTTPRequest is defined in wifidata.h
+  client.println(HTTP_Request);
   client.println("Host: api.openweathermap.org");
   client.println("Connection: close");
   if (client.println() == 0) {
@@ -260,6 +390,17 @@ void getWeatherFunction(){
     // sunriseTaskID = Alarm.alarmRepeat(hour(sunriseTime),minute(sunriseTime),second(sunriseTime), sunriseTaskFunction);
   }else{
     Serial.println("No sunrise JSON object found");
+  }
+  if(client.find("\"sunset\":")){
+    sunsetTime = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
+    // Update the time of the Sunrise Task
+    // Alarm.free(sunriseTaskID);
+    // A delay is needed to let the object proccess the free function
+    // Alarm.delay(1);
+    // create a new alarm with the new time
+    // sunriseTaskID = Alarm.alarmRepeat(hour(sunriseTime),minute(sunriseTime),second(sunriseTime), sunriseTaskFunction);
+  }else{
+    Serial.println("No sunset JSON object found");
   }
   // Disconnect
   client.stop();
@@ -391,6 +532,15 @@ void getCloudsFunction(){
   return -1;
 }
 */
+bool isSunriseTime(){
+	if(hour() == hour(sunriseTime)){
+		if(minute() == minute(sunriseTime)){
+			return true;
+		}
+	}
+	return false;
+}
+
 bool isCESTtimezone(){
   if(month() >= 3 && month() <= 10){
     if(month() == 3){
@@ -412,7 +562,7 @@ bool isCESTtimezone(){
 /*
 void sunriseTaskFunction(){
   bool thisDayIsDeactivated = false;
-  for(int i = 0 ; i < sunriseTasks ; i++){
+  for(byte i = 0 ; i < sunriseTasks ; i++){
     if(month(sunriseTasksArray[i]) == month()){
       if(day(sunriseTasksArray[i]) == day()){
         thisDayIsDeactivated = true;
@@ -428,3 +578,63 @@ void sunriseTaskFunction(){
   }
 }
 */
+void handleButton_interrupt(){
+  byte pinInterrupt = PINB;
+  if( (pinInterrupt & 0xF) != 0xF){
+    TCNT1 = 0;
+    TCCR1B = bit(CS12) | bit(CS10);  // CTC, scale to clock / 8
+  }
+}
+
+
+ISR(TIMER1_COMPA_vect)
+{
+  byte pinInterrupt= PINB;
+  if( (bitRead(pinInterrupt,PIN_BUTTON_LEFT) + bitRead(pinInterrupt,PIN_BUTTON_RIGHT)) == 0){
+    tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,100);
+  }else if(bitRead(pinInterrupt,PIN_BUTTON_LEFT)==0){
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = TASK_BUTTON_LEFT;
+  }else if(bitRead(pinInterrupt,PIN_BUTTON_CANCEL)==0){
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = TASK_BUTTON_CANCEL;
+  }else if(bitRead(pinInterrupt,PIN_BUTTON_OK)==0){
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = TASK_BUTTON_OK;
+  }else if(bitRead(pinInterrupt,PIN_BUTTON_RIGHT)==0){
+    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,100);
+    task_button = TASK_BUTTON_RIGHT;
+  }
+  // sleep_var = 0;
+}
+/*
+ISR(TIMER1_COMPB_vect)
+{
+  if(sleep_var < 3){
+    sleep_var ++;
+    TCNT1 = OCR1A + 1;
+    Serial.println("Un salto");
+  }else if(sleep_var >= 3) {
+    TCCR1B = 0;
+    Serial.println("Timed");
+    system_fsm = SYSTEM_FSM_DIGITALCLOCK;
+    task_button = TASK_UPDATE_LCD;
+  }
+}
+*/
+
+void initButtonsFunction(){
+  DDRB &= ~bit(DDB0) | ~bit(DDB1) | ~bit(DDB2) | ~bit(DDB3); // Clear the PBX pin
+  // PBX (PCINT0-5 pin) is now an input
+  PCMSK0 |= bit (PCINT0) | bit (PCINT1) |bit (PCINT2) |bit (PCINT3); // set PCINT0-3 to trigger an interrupt on state change 
+  PCIFR  |= bit (PCIF0);   // clear any outstanding interrupts
+  PCICR |= bit (PCIF0); // set PCIE0 to enable PCMSK0 scan
+
+  // set up Timer 1
+  TCCR1A = 0;          // normal operation
+  TCCR1B = 0;   // CTC, clk/1024
+  OCR1A = ((8000000 * 0.5) / (4 * 1024) ) - 1; // ((8000000 * x) / (4 * 1024) ) - 1
+  OCR1B = 65534;   
+  // TIMSK1 = bit (TOIE1);             // interrupt on Compare A Match
+  TIMSK1 |= bit (OCIE1A); // | bit (OCIE1B);
+}

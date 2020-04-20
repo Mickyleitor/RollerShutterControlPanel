@@ -20,6 +20,13 @@
 #define TASK_BUTTON_OK 2
 #define TASK_BUTTON_RIGHT 3
 #define TASK_UPDATE_LCD 4
+#define TASK_UPDATE_IDLE 5
+
+// Macros for System FSM handling
+#define SYSTEM_FSM_DIGITALCLOCK 0
+#define SYSTEM_FSM_SHUTTER 1
+#define SYSTEM_FSM_OPTIONS 2
+#define SYSTEM_FSM_FUNC_SLEEP 3
 
 // Misc
 #define DEBUGGING 1

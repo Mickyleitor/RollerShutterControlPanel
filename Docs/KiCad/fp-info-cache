@@ -1,4 +1,4 @@
-15987873534393118
+15989461001547430
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -42251,6 +42251,13 @@ Carcasa
 0
 0
 0
+Custom_libraries
+DCDC_3v3_PowerModule
+
+
+0
+8
+4
 Custom_libraries
 DIP850W46P254L2324H393Q18
 

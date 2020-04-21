@@ -5,11 +5,11 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date "sam. 04 avril 2015"
+Title "Roller Shutter Controller Panel"
+Date "2020-04-21"
 Rev ""
 Comp ""
-Comment1 ""
+Comment1 "Relays approach"
 Comment2 ""
 Comment3 ""
 Comment4 ""
@@ -31,7 +31,7 @@ Reset
 Text Label 4450 2150 0    60   ~ 0
 2
 Text Label 4450 2250 0    60   ~ 0
-3(**)
+3
 Text Label 4450 2350 0    60   ~ 0
 4
 Text Label 4450 2450 0    60   ~ 0
@@ -930,10 +930,6 @@ Wire Wire Line
 NoConn ~ 2900 6550
 NoConn ~ 5500 3400
 NoConn ~ 5400 3400
-NoConn ~ 5100 3400
-NoConn ~ 5000 3400
-NoConn ~ 4450 2150
-NoConn ~ 4450 2250
 NoConn ~ 5950 2150
 NoConn ~ 5950 2250
 NoConn ~ 5950 2350
@@ -994,4 +990,87 @@ Wire Wire Line
 	3000 7200 3000 6950
 Wire Wire Line
 	3000 6950 2900 6950
+Wire Notes Line
+	1950 2100 1950 3000
+Wire Notes Line
+	750  3000 750  2100
+Text Notes 800  2200 0    50   ~ 0
+ESP-13e
+Text Notes 1100 2550 0    50   ~ 10
+(No incluido)
+Wire Notes Line
+	4000 2000 4000 2300
+Wire Notes Line
+	4650 2300 4650 2000
+Text Notes 4050 2150 0    31   ~ 0
+ESP13 (Tx) <-
+Text Notes 4050 2250 0    31   ~ 0
+ESP13 (Rx) <-
+Wire Notes Line
+	4000 2000 4650 2000
+Wire Notes Line
+	4000 2300 4650 2300
+Text Notes 2200 2200 0    50   ~ 0
+LCD 16x2 I2C
+$Comp
+L CustomLibraries_connectors:Conn_01x04 J15
+U 1 1 5EA32128
+P 2800 2500
+F 0 "J15" H 2880 2492 50  0000 L CNN
+F 1 "Conn_01x04" H 2880 2401 50  0000 L CNN
+F 2 "" H 2800 2500 50  0001 C CNN
+F 3 "~" H 2800 2500 50  0001 C CNN
+	1    2800 2500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2600 2400 2500 2400
+Wire Wire Line
+	2600 2500 2350 2500
+Wire Wire Line
+	2600 2600 2350 2600
+Wire Wire Line
+	2600 2700 2350 2700
+$Comp
+L CustomLibraries_power:GND #PWR08
+U 1 1 5EA49EAB
+P 2500 2850
+F 0 "#PWR08" H 2500 2600 50  0001 C CNN
+F 1 "GND" H 2505 2677 50  0000 C CNN
+F 2 "" H 2500 2850 50  0001 C CNN
+F 3 "" H 2500 2850 50  0001 C CNN
+	1    2500 2850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 2850 2500 2400
+Wire Wire Line
+	2350 2500 2350 2450
+$Comp
+L CustomLibraries_power:+5V #PWR04
+U 1 1 5EA685C8
+P 2350 2450
+F 0 "#PWR04" H 2350 2300 50  0001 C CNN
+F 1 "+5V" H 2365 2623 50  0000 C CNN
+F 2 "" H 2350 2450 50  0001 C CNN
+F 3 "" H 2350 2450 50  0001 C CNN
+	1    2350 2450
+	1    0    0    -1  
+$EndComp
+Text Label 2400 2700 0    39   ~ 0
+A4
+Wire Notes Line
+	2150 2100 3350 2100
+Wire Notes Line
+	1950 3000 750  3000
+Wire Notes Line
+	750  2100 1950 2100
+Text Label 2400 2600 0    39   ~ 0
+A5
+Wire Notes Line
+	3350 3100 2150 3100
+Wire Notes Line
+	3350 2100 3350 3100
+Wire Notes Line
+	2150 2100 2150 3100
 $EndSCHEMATC

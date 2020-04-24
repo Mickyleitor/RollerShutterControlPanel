@@ -1,4 +1,4 @@
-update=21/04/2020 13:24:52
+update=24/04/2020 14:27:21
 version=1
 last_client=kicad
 [pcbnew]
@@ -30,7 +30,7 @@ version=1
 LibDir=
 [schematic_editor]
 version=1
-PageLayoutDescrFile=
+PageLayoutDescrFile=empty.kicad_wks
 PlotDirectoryName=
 SubpartIdSeparator=0
 SubpartFirstId=65

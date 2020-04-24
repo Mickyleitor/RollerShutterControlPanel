@@ -1,1076 +1,1070 @@
 EESchema Schematic File Version 4
-LIBS:DomoticShutterPanel-cache
 EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Roller Shutter Controller Panel"
-Date "2020-04-21"
+Date "2020-04-24"
 Rev ""
 Comp ""
-Comment1 "Relays approach"
-Comment2 ""
+Comment1 "Radio Approach"
+Comment2 "NOT FINISHED"
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Label 5800 1650 1    60   ~ 0
-RAW
-Text Label 5000 1150 1    60   ~ 0
-DTR
-Text Label 5200 1150 1    60   ~ 0
-0(Rx)
-Text Label 4450 1750 0    60   ~ 0
-1(Tx)
-Text Label 4450 1850 0    60   ~ 0
-0(Rx)
-Text Label 4450 1950 0    60   ~ 0
-Reset
-Text Label 5950 1950 0    60   ~ 0
-Reset
-Text Label 4450 2150 0    60   ~ 0
-2
-Text Label 4450 2250 0    60   ~ 0
-3
-Text Label 4450 2350 0    60   ~ 0
-4
-Text Label 4450 2450 0    60   ~ 0
-5
-Text Label 4450 2550 0    60   ~ 0
-6
-Text Label 4450 2650 0    60   ~ 0
-7
-Text Label 4450 2750 0    60   ~ 0
-8
-Text Label 4450 2850 0    60   ~ 0
-9
-Text Label 5950 2850 0    60   ~ 0
-10
-Text Label 5950 2750 0    60   ~ 0
-11
-Text Label 5950 2650 0    60   ~ 0
-12
-Text Label 5950 2550 0    60   ~ 0
-13
-Text Label 5950 2450 0    60   ~ 0
-A0
-Text Label 5950 2350 0    60   ~ 0
-A1
-Text Label 5950 2250 0    60   ~ 0
-A2
-Text Label 5950 2150 0    60   ~ 0
-A3
-Text Label 5100 3400 3    60   ~ 0
-A4
-Text Label 5000 3400 3    60   ~ 0
-A5
-Text Notes 4000 725  0    60   ~ 0
-Shield Arduino Pro Mini \n
-Wire Notes Line
-	3975 800  5150 800 
-Text Label 5400 3400 3    60   ~ 0
-A7
-Text Label 5500 3400 3    60   ~ 0
-A6
-Text Label 5100 1150 1    60   ~ 0
-1(Tx)
-$Comp
-L CustomLibraries_power:GND #PWR01
-U 1 1 56D7539A
-P 5650 1150
-F 0 "#PWR01" H 5650 900 50  0001 C CNN
-F 1 "GND" H 5800 1100 50  0000 C CNN
-F 2 "" H 5650 1150 50  0000 C CNN
-F 3 "" H 5650 1150 50  0000 C CNN
-	1    5650 1150
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4800 2050 4700 2050
-Wire Wire Line
-	4800 1750 4450 1750
-Wire Wire Line
-	4450 1850 4800 1850
-Wire Wire Line
-	4800 1950 4450 1950
-Wire Wire Line
-	4450 2150 4800 2150
-Wire Wire Line
-	4800 2250 4450 2250
-Wire Wire Line
-	4800 2350 4450 2350
-Wire Wire Line
-	4450 2450 4800 2450
-Wire Wire Line
-	4800 2550 4450 2550
-Wire Wire Line
-	4450 2650 4800 2650
-Wire Wire Line
-	4800 2750 4450 2750
-Wire Wire Line
-	4800 2850 4450 2850
-Wire Wire Line
-	5800 1650 5800 1750
-Wire Wire Line
-	5800 1750 5700 1750
-Wire Wire Line
-	5700 1850 5800 1850
-Wire Wire Line
-	5800 1850 5800 2950
-Wire Wire Line
-	5700 2050 5900 2050
-Wire Wire Line
-	5700 1950 5950 1950
-Wire Wire Line
-	5950 2150 5700 2150
-Wire Wire Line
-	5700 2250 5950 2250
-Wire Wire Line
-	5950 2350 5700 2350
-Wire Wire Line
-	5700 2450 5950 2450
-Wire Wire Line
-	5950 2550 5700 2550
-Wire Wire Line
-	5700 2650 5950 2650
-Wire Wire Line
-	5950 2750 5700 2750
-Wire Wire Line
-	5700 2850 5950 2850
-Wire Notes Line
-	6650 3550 3950 3550
-Text Notes 5100 1750 0    60   ~ 0
-1
-Wire Wire Line
-	5400 1150 5400 1100
-Wire Wire Line
-	5400 1100 5500 1100
-Wire Wire Line
-	5500 1100 5500 1150
-Wire Wire Line
-	5500 1100 5650 1100
-Wire Wire Line
-	5650 1100 5650 1150
-Connection ~ 5500 1100
-Wire Notes Line
-	6650 3550 6650 600 
-Wire Notes Line
-	6650 600  3950 600 
-Wire Notes Line
-	3950 600  3950 3550
-Wire Notes Line
-	5150 600  5150 800 
-$Comp
-L CustomLibraries_connectors:Conn_01x12 J1
-U 1 1 5E9B5FB1
-P 5000 2250
-F 0 "J1" H 4950 3000 50  0000 L CNN
-F 1 "Conn_01x12" H 4750 2900 50  0000 L CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_1x12" H 5000 2250 50  0001 C CNN
-F 3 "~" H 5000 2250 50  0001 C CNN
-	1    5000 2250
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x12 J2
-U 1 1 5E9B744B
-P 5500 2250
-F 0 "J2" H 5500 3000 50  0000 C CNN
-F 1 "Conn_01x12" H 5550 2900 50  0000 C CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_1x12" H 5500 2250 50  0001 C CNN
-F 3 "~" H 5500 2250 50  0001 C CNN
-	1    5500 2250
-	-1   0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x06 J3
-U 1 1 5E9BB664
-P 5300 1350
-F 0 "J3" V 5200 700 50  0000 L CNN
-F 1 "Conn_01x06" V 5300 500 50  0000 L CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_1x06" H 5300 1350 50  0001 C CNN
-F 3 "~" H 5300 1350 50  0001 C CNN
-	1    5300 1350
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_power:+3.3V #PWR03
-U 1 1 5E9BC443
-P 5300 1150
-F 0 "#PWR03" H 5300 1000 50  0001 C CNN
-F 1 "+3.3V" H 5315 1323 50  0000 C CNN
-F 2 "" H 5300 1150 50  0001 C CNN
-F 3 "" H 5300 1150 50  0001 C CNN
-	1    5300 1150
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3.3V #PWR05
-U 1 1 5E9BCCBF
-P 5900 1650
-F 0 "#PWR05" H 5900 1500 50  0001 C CNN
-F 1 "+3.3V" H 5915 1823 50  0000 C CNN
-F 2 "" H 5900 1650 50  0001 C CNN
-F 3 "" H 5900 1650 50  0001 C CNN
-	1    5900 1650
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x02 J5
-U 1 1 5E9BD1B8
-P 5400 3200
-F 0 "J5" V 5600 3200 50  0000 R CNN
-F 1 "Conn_01x02" V 5500 3350 50  0000 R CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_1x02" H 5400 3200 50  0001 C CNN
-F 3 "~" H 5400 3200 50  0001 C CNN
-	1    5400 3200
-	0    -1   -1   0   
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x02 J4
-U 1 1 5E9BE7DB
-P 5000 3200
-F 0 "J4" V 5200 3200 50  0000 R CNN
-F 1 "Conn_01x02" V 5100 3400 50  0000 R CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_1x02" H 5000 3200 50  0001 C CNN
-F 3 "~" H 5000 3200 50  0001 C CNN
-	1    5000 3200
-	0    -1   -1   0   
-$EndComp
 $Comp
 L CustomLibraries_Switch:SW_Push SW1
 U 1 1 5E9CB25B
-P 7200 1700
-F 0 "SW1" V 7250 1850 50  0000 L CNN
-F 1 "SW_Push" V 7350 1750 50  0000 L CNN
-F 2 "" H 7200 1900 50  0001 C CNN
-F 3 "~" H 7200 1900 50  0001 C CNN
-	1    7200 1700
+P 7250 2400
+F 0 "SW1" V 7300 2550 50  0000 L CNN
+F 1 "SW_Push" V 7400 2450 50  0000 L CNN
+F 2 "" H 7250 2600 50  0001 C CNN
+F 3 "~" H 7250 2600 50  0001 C CNN
+	1    7250 2400
 	0    1    1    0   
 $EndComp
 $Comp
 L CustomLibraries_Switch:SW_Push SW2
 U 1 1 5E9CB5A7
-P 8050 1700
-F 0 "SW2" V 8100 1850 50  0000 L CNN
-F 1 "SW_Push" V 8200 1800 50  0000 L CNN
-F 2 "" H 8050 1900 50  0001 C CNN
-F 3 "~" H 8050 1900 50  0001 C CNN
-	1    8050 1700
+P 8100 2400
+F 0 "SW2" V 8150 2550 50  0000 L CNN
+F 1 "SW_Push" V 8250 2500 50  0000 L CNN
+F 2 "" H 8100 2600 50  0001 C CNN
+F 3 "~" H 8100 2600 50  0001 C CNN
+	1    8100 2400
 	0    1    1    0   
 $EndComp
 $Comp
 L CustomLibraries_Switch:SW_Push SW4
 U 1 1 5E9CBCA4
-P 9750 1700
-F 0 "SW4" V 9800 1850 50  0000 L CNN
-F 1 "SW_Push" V 9900 1800 50  0000 L CNN
-F 2 "" H 9750 1900 50  0001 C CNN
-F 3 "~" H 9750 1900 50  0001 C CNN
-	1    9750 1700
+P 9800 2400
+F 0 "SW4" V 9850 2550 50  0000 L CNN
+F 1 "SW_Push" V 9950 2500 50  0000 L CNN
+F 2 "" H 9800 2600 50  0001 C CNN
+F 3 "~" H 9800 2600 50  0001 C CNN
+	1    9800 2400
 	0    1    1    0   
 $EndComp
 $Comp
 L CustomLibraries_Switch:SW_Push SW3
 U 1 1 5E9CC698
-P 8900 1700
-F 0 "SW3" V 8950 1850 50  0000 L CNN
-F 1 "SW_Push" V 9050 1800 50  0000 L CNN
-F 2 "" H 8900 1900 50  0001 C CNN
-F 3 "~" H 8900 1900 50  0001 C CNN
-	1    8900 1700
+P 8950 2400
+F 0 "SW3" V 9000 2550 50  0000 L CNN
+F 1 "SW_Push" V 9100 2500 50  0000 L CNN
+F 2 "" H 8950 2600 50  0001 C CNN
+F 3 "~" H 8950 2600 50  0001 C CNN
+	1    8950 2400
 	0    1    1    0   
 $EndComp
 $Comp
 L CustomLibraries_Device:CP C3
 U 1 1 5E9CCFC0
-P 8600 1700
-F 0 "C3" H 8700 1650 50  0000 L CNN
-F 1 "1uF" H 8700 1550 50  0000 L CNN
-F 2 "" H 8638 1550 50  0001 C CNN
-F 3 "~" H 8600 1700 50  0001 C CNN
-	1    8600 1700
+P 8650 2400
+F 0 "C3" H 8750 2350 50  0000 L CNN
+F 1 "1uF" H 8750 2250 50  0000 L CNN
+F 2 "" H 8688 2250 50  0001 C CNN
+F 3 "~" H 8650 2400 50  0001 C CNN
+	1    8650 2400
 	1    0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_Device:CP C4
 U 1 1 5E9D1B46
-P 9450 1700
-F 0 "C4" H 9550 1650 50  0000 L CNN
-F 1 "1uF" H 9550 1550 50  0000 L CNN
-F 2 "" H 9488 1550 50  0001 C CNN
-F 3 "~" H 9450 1700 50  0001 C CNN
-	1    9450 1700
+P 9500 2400
+F 0 "C4" H 9600 2350 50  0000 L CNN
+F 1 "1uF" H 9600 2250 50  0000 L CNN
+F 2 "" H 9538 2250 50  0001 C CNN
+F 3 "~" H 9500 2400 50  0001 C CNN
+	1    9500 2400
 	1    0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_Device:CP C2
 U 1 1 5E9D37C0
-P 7750 1700
-F 0 "C2" H 7850 1650 50  0000 L CNN
-F 1 "1uF" H 7850 1550 50  0000 L CNN
-F 2 "" H 7788 1550 50  0001 C CNN
-F 3 "~" H 7750 1700 50  0001 C CNN
-	1    7750 1700
+P 7800 2400
+F 0 "C2" H 7900 2350 50  0000 L CNN
+F 1 "1uF" H 7900 2250 50  0000 L CNN
+F 2 "" H 7838 2250 50  0001 C CNN
+F 3 "~" H 7800 2400 50  0001 C CNN
+	1    7800 2400
 	1    0    0    -1  
 $EndComp
 $Comp
-L CustomLibraries_power:GND #PWR07
+L CustomLibraries_power:GND #PWR013
 U 1 1 5E9D458F
-P 8450 2200
-F 0 "#PWR07" H 8450 1950 50  0001 C CNN
-F 1 "GND" H 8455 2027 50  0000 C CNN
-F 2 "" H 8450 2200 50  0001 C CNN
-F 3 "" H 8450 2200 50  0001 C CNN
-	1    8450 2200
+P 8500 2900
+F 0 "#PWR013" H 8500 2650 50  0001 C CNN
+F 1 "GND" H 8505 2727 50  0000 C CNN
+F 2 "" H 8500 2900 50  0001 C CNN
+F 3 "" H 8500 2900 50  0001 C CNN
+	1    8500 2900
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8900 1900 8900 2050
+	8950 2600 8950 2750
 Wire Wire Line
-	9750 1900 9750 2050
-Connection ~ 8900 2050
+	9800 2600 9800 2750
+Connection ~ 8950 2750
 Wire Wire Line
-	8050 2050 8050 1900
-Connection ~ 8050 2050
+	8100 2750 8100 2600
+Connection ~ 8100 2750
 Wire Wire Line
-	7200 2050 7200 1900
+	7250 2750 7250 2600
 Wire Wire Line
-	7200 1350 7200 1500
+	7250 2050 7250 2200
 Wire Wire Line
-	8050 1350 8050 1500
+	8100 2050 8100 2200
 Wire Wire Line
-	8900 1350 8900 1500
+	8950 2050 8950 2200
 Wire Wire Line
-	9750 1350 9750 1500
+	9800 2050 9800 2200
 $Comp
 L CustomLibraries_Device:R R1
 U 1 1 5E9E8880
-P 7200 1200
-F 0 "R1" H 7270 1246 50  0000 L CNN
-F 1 "15k" H 7270 1155 50  0000 L CNN
-F 2 "" V 7130 1200 50  0001 C CNN
-F 3 "~" H 7200 1200 50  0001 C CNN
-	1    7200 1200
+P 7250 1900
+F 0 "R1" H 7320 1946 50  0000 L CNN
+F 1 "15k" H 7320 1855 50  0000 L CNN
+F 2 "" V 7180 1900 50  0001 C CNN
+F 3 "~" H 7250 1900 50  0001 C CNN
+	1    7250 1900
 	1    0    0    -1  
 $EndComp
-Connection ~ 7200 1350
+Connection ~ 7250 2050
 $Comp
 L CustomLibraries_Device:R R2
 U 1 1 5E9E9134
-P 8050 1200
-F 0 "R2" H 8120 1246 50  0000 L CNN
-F 1 "15k" H 8120 1155 50  0000 L CNN
-F 2 "" V 7980 1200 50  0001 C CNN
-F 3 "~" H 8050 1200 50  0001 C CNN
-	1    8050 1200
+P 8100 1900
+F 0 "R2" H 8170 1946 50  0000 L CNN
+F 1 "15k" H 8170 1855 50  0000 L CNN
+F 2 "" V 8030 1900 50  0001 C CNN
+F 3 "~" H 8100 1900 50  0001 C CNN
+	1    8100 1900
 	1    0    0    -1  
 $EndComp
-Connection ~ 8050 1350
+Connection ~ 8100 2050
 $Comp
 L CustomLibraries_Device:R R3
 U 1 1 5E9E963F
-P 8900 1200
-F 0 "R3" H 8970 1246 50  0000 L CNN
-F 1 "15k" H 8970 1155 50  0000 L CNN
-F 2 "" V 8830 1200 50  0001 C CNN
-F 3 "~" H 8900 1200 50  0001 C CNN
-	1    8900 1200
+P 8950 1900
+F 0 "R3" H 9020 1946 50  0000 L CNN
+F 1 "15k" H 9020 1855 50  0000 L CNN
+F 2 "" V 8880 1900 50  0001 C CNN
+F 3 "~" H 8950 1900 50  0001 C CNN
+	1    8950 1900
 	1    0    0    -1  
 $EndComp
-Connection ~ 8900 1350
+Connection ~ 8950 2050
 $Comp
 L CustomLibraries_Device:R R4
 U 1 1 5E9E9CE9
-P 9750 1200
-F 0 "R4" H 9820 1246 50  0000 L CNN
-F 1 "15k" H 9820 1155 50  0000 L CNN
-F 2 "" V 9680 1200 50  0001 C CNN
-F 3 "~" H 9750 1200 50  0001 C CNN
-	1    9750 1200
+P 9800 1900
+F 0 "R4" H 9870 1946 50  0000 L CNN
+F 1 "15k" H 9870 1855 50  0000 L CNN
+F 2 "" V 9730 1900 50  0001 C CNN
+F 3 "~" H 9800 1900 50  0001 C CNN
+	1    9800 1900
 	1    0    0    -1  
 $EndComp
-Connection ~ 9750 1350
+Connection ~ 9800 2050
 Wire Wire Line
-	8900 2050 9450 2050
+	8950 2750 9500 2750
 $Comp
-L CustomLibraries_power:+3.3V #PWR06
+L CustomLibraries_power:+3.3V #PWR012
 U 1 1 5E9EBD42
-P 8450 850
-F 0 "#PWR06" H 8450 700 50  0001 C CNN
-F 1 "+3.3V" H 8465 1023 50  0000 C CNN
-F 2 "" H 8450 850 50  0001 C CNN
-F 3 "" H 8450 850 50  0001 C CNN
-	1    8450 850 
+P 8500 1550
+F 0 "#PWR012" H 8500 1400 50  0001 C CNN
+F 1 "+3.3V" H 8515 1723 50  0000 C CNN
+F 2 "" H 8500 1550 50  0001 C CNN
+F 3 "" H 8500 1550 50  0001 C CNN
+	1    8500 1550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7200 950  7200 1050
+	7250 1650 7250 1750
 Wire Wire Line
-	8050 1050 8050 950 
-Connection ~ 8050 950 
+	8100 1750 8100 1650
+Connection ~ 8100 1650
 Wire Wire Line
-	8050 950  7200 950 
+	8100 1650 7250 1650
 Wire Wire Line
-	8900 950  8900 1050
+	8950 1650 8950 1750
 Wire Wire Line
-	8900 950  9750 950 
+	8950 1650 9800 1650
 Wire Wire Line
-	9750 950  9750 1050
-Connection ~ 8900 950 
-Text Label 7000 1350 0    50   ~ 0
+	9800 1650 9800 1750
+Connection ~ 8950 1650
+Text Label 7050 2050 0    50   ~ 0
 8
-Text Label 7850 1350 0    50   ~ 0
+Text Label 7900 2050 0    50   ~ 0
 9
-Text Label 8700 1350 0    50   ~ 0
+Text Label 8750 2050 0    50   ~ 0
 10
-Text Label 9550 1350 0    50   ~ 0
+Text Label 9600 2050 0    50   ~ 0
 11
 Wire Notes Line
-	6750 600  6750 2450
+	6800 1300 6800 3150
 Wire Notes Line
-	6750 2450 10300 2450
+	6800 3150 10350 3150
 Wire Notes Line
-	10300 2450 10300 600 
+	10350 3150 10350 1300
 Wire Notes Line
-	10300 600  6750 600 
+	10350 1300 6800 1300
 Wire Wire Line
-	6900 1850 6900 2050
+	6950 2550 6950 2750
 Wire Wire Line
-	6900 2050 7200 2050
-Connection ~ 7200 2050
+	6950 2750 7250 2750
+Connection ~ 7250 2750
 Wire Wire Line
-	6900 1550 6900 1350
+	6950 2250 6950 2050
 Wire Wire Line
-	6900 1350 7200 1350
+	6950 2050 7250 2050
 $Comp
 L CustomLibraries_Device:CP C1
 U 1 1 5E9D2266
-P 6900 1700
-F 0 "C1" H 7000 1650 50  0000 L CNN
-F 1 "1uF" H 7000 1550 50  0000 L CNN
-F 2 "" H 6938 1550 50  0001 C CNN
-F 3 "~" H 6900 1700 50  0001 C CNN
-	1    6900 1700
+P 6950 2400
+F 0 "C1" H 7050 2350 50  0000 L CNN
+F 1 "1uF" H 7050 2250 50  0000 L CNN
+F 2 "" H 6988 2250 50  0001 C CNN
+F 3 "~" H 6950 2400 50  0001 C CNN
+	1    6950 2400
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7750 1350 7750 1550
+	7800 2050 7800 2250
 Wire Wire Line
-	7750 1350 8050 1350
+	7800 2050 8100 2050
 Wire Wire Line
-	7750 1850 7750 2050
-Connection ~ 7750 2050
+	7800 2550 7800 2750
+Connection ~ 7800 2750
 Wire Wire Line
-	7750 2050 7200 2050
+	7800 2750 7250 2750
 Wire Wire Line
-	7750 2050 8050 2050
+	7800 2750 8100 2750
 Wire Wire Line
-	8600 1550 8600 1350
+	8650 2250 8650 2050
 Wire Wire Line
-	8600 1850 8600 2050
-Connection ~ 8600 2050
+	8650 2550 8650 2750
+Connection ~ 8650 2750
 Wire Wire Line
-	9450 1850 9450 2050
-Connection ~ 9450 2050
+	9500 2550 9500 2750
+Connection ~ 9500 2750
 Wire Wire Line
-	9450 1550 9450 1350
+	9500 2250 9500 2050
 Wire Wire Line
-	9450 1350 9750 1350
+	9500 2050 9800 2050
 Wire Wire Line
-	8600 1350 8900 1350
+	8650 2050 8950 2050
 Wire Wire Line
-	8600 2050 8900 2050
+	8650 2750 8950 2750
 Wire Wire Line
-	9450 2050 9750 2050
-Text Notes 6900 750  0    50   ~ 0
+	9500 2750 9800 2750
+Text Notes 6900 1450 0    60   ~ 0
 Button setup
 Wire Notes Line
-	6750 800  7500 800 
+	6800 1500 7550 1500
 Wire Notes Line
-	7500 800  7500 600 
+	7550 1500 7550 1300
+Wire Wire Line
+	8100 2750 8500 2750
+Wire Wire Line
+	8500 2900 8500 2750
+Connection ~ 8500 2750
+Wire Wire Line
+	8500 2750 8650 2750
+Wire Wire Line
+	8100 1650 8500 1650
+Wire Wire Line
+	8500 1550 8500 1650
+Connection ~ 8500 1650
+Wire Wire Line
+	8500 1650 8950 1650
+Wire Wire Line
+	8650 3900 8650 4250
+Wire Wire Line
+	9250 4450 9250 4550
 $Comp
-L CustomLibraries_connectors:Conn_01x02 J6
+L CustomLibraries_connectors:Conn_01x03 J9
+U 1 1 5EACF56F
+P 9450 4350
+F 0 "J9" H 9400 4150 50  0000 L CNN
+F 1 "Conn_01x03" H 9200 4050 50  0000 L CNN
+F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 9450 4350 50  0001 C CNN
+F 3 "~" H 9450 4350 50  0001 C CNN
+	1    9450 4350
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	8350 5000 9900 5000
+Wire Notes Line
+	9900 3550 8350 3550
+Text Notes 8400 3700 0    60   ~ 0
+Lamp Relay
+Wire Notes Line
+	8350 3550 8350 5000
+Wire Notes Line
+	9900 3550 9900 5000
+Text Label 5750 2350 1    60   ~ 0
+RAW
+Text Label 4950 1850 1    60   ~ 0
+DTR
+Text Label 5150 1850 1    60   ~ 0
+0(Rx)
+Text Label 4400 2450 0    60   ~ 0
+1(Tx)
+Text Label 4400 2550 0    60   ~ 0
+0(Rx)
+Text Label 4400 2650 0    60   ~ 0
+Reset
+Text Label 5900 2650 0    60   ~ 0
+Reset
+Text Label 4400 2850 0    60   ~ 0
+2
+Text Label 4400 2950 0    60   ~ 0
+3
+Text Label 4400 3050 0    60   ~ 0
+4
+Text Label 4400 3150 0    60   ~ 0
+5
+Text Label 4400 3250 0    60   ~ 0
+6
+Text Label 4400 3350 0    60   ~ 0
+7
+Text Label 4400 3450 0    60   ~ 0
+8
+Text Label 4400 3550 0    60   ~ 0
+9
+Text Label 5900 3550 0    60   ~ 0
+10
+Text Label 5900 3450 0    60   ~ 0
+11
+Text Label 5900 3350 0    60   ~ 0
+12
+Text Label 5900 3250 0    60   ~ 0
+13
+Text Label 5900 3150 0    60   ~ 0
+A0
+Text Label 5900 3050 0    60   ~ 0
+A1
+Text Label 5900 2950 0    60   ~ 0
+A2
+Text Label 5900 2850 0    60   ~ 0
+A3
+Text Label 5050 4050 3    60   ~ 0
+A4
+Text Label 4950 4050 3    60   ~ 0
+A5
+Text Notes 3950 1425 0    60   ~ 0
+Shield Arduino Pro Mini \n
+Wire Notes Line
+	3925 1500 5100 1500
+Text Label 5350 4050 3    60   ~ 0
+A7
+Text Label 5450 4050 3    60   ~ 0
+A6
+Text Label 5050 1850 1    60   ~ 0
+1(Tx)
+$Comp
+L CustomLibraries_power:GND #PWR09
+U 1 1 56D7539A
+P 5600 1850
+F 0 "#PWR09" H 5600 1600 50  0001 C CNN
+F 1 "GND" H 5750 1800 50  0000 C CNN
+F 2 "" H 5600 1850 50  0000 C CNN
+F 3 "" H 5600 1850 50  0000 C CNN
+	1    5600 1850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4750 2750 4650 2750
+Wire Wire Line
+	4750 2450 4400 2450
+Wire Wire Line
+	4400 2550 4750 2550
+Wire Wire Line
+	4750 2650 4400 2650
+Wire Wire Line
+	4400 2850 4750 2850
+Wire Wire Line
+	4750 2950 4400 2950
+Wire Wire Line
+	4750 3050 4400 3050
+Wire Wire Line
+	4400 3150 4750 3150
+Wire Wire Line
+	4750 3250 4400 3250
+Wire Wire Line
+	4400 3350 4750 3350
+Wire Wire Line
+	4750 3450 4400 3450
+Wire Wire Line
+	4750 3550 4400 3550
+Wire Wire Line
+	5750 2350 5750 2450
+Wire Wire Line
+	5750 2450 5650 2450
+Wire Wire Line
+	5650 2550 5750 2550
+Wire Wire Line
+	5750 2550 5750 3650
+Wire Wire Line
+	5650 2750 5850 2750
+Wire Wire Line
+	5650 2650 5900 2650
+Wire Wire Line
+	5900 2850 5650 2850
+Wire Wire Line
+	5650 2950 5900 2950
+Wire Wire Line
+	5900 3050 5650 3050
+Wire Wire Line
+	5650 3150 5900 3150
+Wire Wire Line
+	5900 3250 5650 3250
+Wire Wire Line
+	5650 3350 5900 3350
+Wire Wire Line
+	5900 3450 5650 3450
+Wire Wire Line
+	5650 3550 5900 3550
+Wire Notes Line
+	6600 4250 3900 4250
+Text Notes 5050 2450 0    60   ~ 0
+1
+Wire Wire Line
+	5350 1800 5450 1800
+Wire Wire Line
+	5450 1800 5600 1800
+Wire Wire Line
+	5600 1800 5600 1850
+Connection ~ 5450 1800
+Wire Notes Line
+	6600 4250 6600 1300
+Wire Notes Line
+	6600 1300 3900 1300
+Wire Notes Line
+	3900 1300 3900 4250
+Wire Notes Line
+	5100 1300 5100 1500
+$Comp
+L CustomLibraries_power:+3.3V #PWR08
+U 1 1 5E9BC443
+P 5250 1850
+F 0 "#PWR08" H 5250 1700 50  0001 C CNN
+F 1 "+3.3V" H 5265 2023 50  0000 C CNN
+F 2 "" H 5250 1850 50  0001 C CNN
+F 3 "" H 5250 1850 50  0001 C CNN
+	1    5250 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3.3V #PWR011
+U 1 1 5E9BCCBF
+P 5850 2350
+F 0 "#PWR011" H 5850 2200 50  0001 C CNN
+F 1 "+3.3V" H 5865 2523 50  0000 C CNN
+F 2 "" H 5850 2350 50  0001 C CNN
+F 3 "" H 5850 2350 50  0001 C CNN
+	1    5850 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x02 J1
 U 1 1 5EA2AF4A
-P 1150 1000
-F 0 "J6" H 1068 1217 50  0000 C CNN
-F 1 "Conn_01x02" H 1068 1126 50  0000 C CNN
-F 2 "" H 1150 1000 50  0001 C CNN
-F 3 "~" H 1150 1000 50  0001 C CNN
-	1    1150 1000
+P 1100 1700
+F 0 "J1" H 1018 1917 50  0000 C CNN
+F 1 "Conn_01x02" H 1018 1826 50  0000 C CNN
+F 2 "" H 1100 1700 50  0001 C CNN
+F 3 "~" H 1100 1700 50  0001 C CNN
+	1    1100 1700
 	-1   0    0    -1  
 $EndComp
 Wire Notes Line
-	1950 600  1950 1400
-Text Notes 2000 800  0    50   ~ 0
+	1900 1300 1900 2100
+Text Notes 1950 1500 0    50   ~ 0
 3.3V DC-DC Step-Down \nPower Module
 Wire Notes Line
-	1950 1400 3150 1400
+	1900 2100 3100 2100
 Wire Notes Line
-	3150 1400 3150 600 
+	3100 2100 3100 1300
 Wire Notes Line
-	3150 600  1950 600 
-Wire Wire Line
-	1350 1000 1700 1000
-Wire Wire Line
-	1350 1100 1700 1100
-$Comp
-L CustomLibraries_power:GND #PWR0101
-U 1 1 5EA41F46
-P 1700 1250
-F 0 "#PWR0101" H 1700 1000 50  0001 C CNN
-F 1 "GND" H 1705 1077 50  0000 C CNN
-F 2 "" H 1700 1250 50  0001 C CNN
-F 3 "" H 1700 1250 50  0001 C CNN
-	1    1700 1250
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+5V #PWR0102
-U 1 1 5EA42634
-P 1700 800
-F 0 "#PWR0102" H 1700 650 50  0001 C CNN
-F 1 "+5V" H 1715 973 50  0000 C CNN
-F 2 "" H 1700 800 50  0001 C CNN
-F 3 "" H 1700 800 50  0001 C CNN
-	1    1700 800 
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1700 800  1700 1000
-Connection ~ 1700 1000
-Wire Wire Line
-	1700 1100 1700 1250
-Connection ~ 1700 1100
-$Comp
-L CustomLibraries_power:+3.3V #PWR0103
-U 1 1 5EA4619F
-P 3350 800
-F 0 "#PWR0103" H 3350 650 50  0001 C CNN
-F 1 "+3.3V" H 3365 973 50  0000 C CNN
-F 2 "" H 3350 800 50  0001 C CNN
-F 3 "" H 3350 800 50  0001 C CNN
-	1    3350 800 
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3350 800  3350 1000
-$Comp
-L CustomLibraries_power:GND #PWR0104
-U 1 1 5EA488A9
-P 3350 1250
-F 0 "#PWR0104" H 3350 1000 50  0001 C CNN
-F 1 "GND" H 3355 1077 50  0000 C CNN
-F 2 "" H 3350 1250 50  0001 C CNN
-F 3 "" H 3350 1250 50  0001 C CNN
-	1    3350 1250
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3350 1100 3350 1250
-$Comp
-L CustomLibraries_connectors:Conn_02x02_Odd_Even J7
-U 1 1 5EA533B3
-P 2500 1000
-F 0 "J7" H 2550 800 50  0000 C CNN
-F 1 "3.3V DC-DC Step-Down Power Module" H 2550 700 31  0000 C CNN
-F 2 "" H 2500 1000 50  0001 C CNN
-F 3 "~" H 2500 1000 50  0001 C CNN
-	1    2500 1000
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1700 1000 2300 1000
-Wire Wire Line
-	1700 1100 2300 1100
-Wire Wire Line
-	2800 1000 3350 1000
-Wire Wire Line
-	2800 1100 3350 1100
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J11
-U 1 1 5EABE3ED
-P 7150 4750
-F 0 "J11" H 7100 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 6900 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 7150 4750 50  0001 C CNN
-F 3 "~" H 7150 4750 50  0001 C CNN
-	1    7150 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6950 4850 6950 4950
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J12
-U 1 1 5EAC7925
-P 8200 4750
-F 0 "J12" H 8150 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 7950 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 8200 4750 50  0001 C CNN
-F 3 "~" H 8200 4750 50  0001 C CNN
-	1    8200 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8000 4850 8000 4950
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K5
-U 1 1 5EAC792D
-P 7700 4750
-F 0 "K5" H 7700 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 7700 5026 50  0000 C CNN
-F 2 "" H 7700 4750 50  0001 L BNN
-F 3 "" H 7700 4750 50  0001 L BNN
-F 4 "IPC-7251" H 7700 4750 50  0001 L BNN "Campo4"
-	1    7700 4750
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J13
-U 1 1 5EACB51B
-P 9250 4750
-F 0 "J13" H 9200 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 9000 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 9250 4750 50  0001 C CNN
-F 3 "~" H 9250 4750 50  0001 C CNN
-	1    9250 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	9050 4850 9050 4950
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K6
-U 1 1 5EACB523
-P 8750 4750
-F 0 "K6" H 8750 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 8750 5026 50  0000 C CNN
-F 2 "" H 8750 4750 50  0001 L BNN
-F 3 "" H 8750 4750 50  0001 L BNN
-F 4 "IPC-7251" H 8750 4750 50  0001 L BNN "Campo4"
-	1    8750 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7400 5950 7400 4950
-Wire Wire Line
-	8450 6150 8450 4950
-Wire Wire Line
-	2900 6150 8450 6150
-Wire Wire Line
-	2900 5950 7400 5950
-Wire Wire Line
-	6350 5750 6350 4950
-Wire Wire Line
-	2900 5750 6350 5750
-Wire Wire Line
-	5300 5550 5300 4950
-Wire Wire Line
-	2900 5550 5300 5550
-Wire Wire Line
-	4250 5350 4250 4950
-Wire Wire Line
-	2900 5350 4250 5350
-Wire Wire Line
-	3200 5150 2900 5150
-Wire Wire Line
-	3200 4950 3200 5150
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K4
-U 1 1 5EABE3F5
-P 6650 4750
-F 0 "K4" H 6650 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 6650 5026 50  0000 C CNN
-F 2 "" H 6650 4750 50  0001 L BNN
-F 3 "" H 6650 4750 50  0001 L BNN
-F 4 "IPC-7251" H 6650 4750 50  0001 L BNN "Campo4"
-	1    6650 4750
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K3
-U 1 1 5EAB76ED
-P 5600 4750
-F 0 "K3" H 5600 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 5600 5026 50  0000 C CNN
-F 2 "" H 5600 4750 50  0001 L BNN
-F 3 "" H 5600 4750 50  0001 L BNN
-F 4 "IPC-7251" H 5600 4750 50  0001 L BNN "Campo4"
-	1    5600 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5900 4850 5900 4950
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J10
-U 1 1 5EAB76E5
-P 6100 4750
-F 0 "J10" H 6050 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 5850 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 6100 4750 50  0001 C CNN
-F 3 "~" H 6100 4750 50  0001 C CNN
-	1    6100 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3050 4300 4250 4300
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K2
-U 1 1 5EAAB714
-P 4550 4750
-F 0 "K2" H 4550 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 4550 5026 50  0000 C CNN
-F 2 "" H 4550 4750 50  0001 L BNN
-F 3 "" H 4550 4750 50  0001 L BNN
-F 4 "IPC-7251" H 4550 4750 50  0001 L BNN "Campo4"
-	1    4550 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4850 4850 4850 4950
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J9
-U 1 1 5EAAB71D
-P 5050 4750
-F 0 "J9" H 5000 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 4800 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 5050 4750 50  0001 C CNN
-F 3 "~" H 5050 4750 50  0001 C CNN
-	1    5050 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3800 4850 3800 4950
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J8
-U 1 1 5EAA035B
-P 4000 4750
-F 0 "J8" H 3950 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 3750 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 4000 4750 50  0001 C CNN
-F 3 "~" H 4000 4750 50  0001 C CNN
-	1    4000 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4250 4300 4250 4650
-Connection ~ 4250 4300
-Wire Wire Line
-	3050 4650 3200 4650
-Wire Wire Line
-	3050 4300 3050 4650
-$Comp
-L CustomLibraries_power:+5V #PWR0105
-U 1 1 5EA84F50
-P 6700 4200
-F 0 "#PWR0105" H 6700 4050 50  0001 C CNN
-F 1 "+5V" H 6715 4373 50  0000 C CNN
-F 2 "" H 6700 4200 50  0001 C CNN
-F 3 "" H 6700 4200 50  0001 C CNN
-	1    6700 4200
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+5V #PWR0106
-U 1 1 5EA6DE5A
-P 2900 6750
-F 0 "#PWR0106" H 2900 6600 50  0001 C CNN
-F 1 "+5V" V 2915 6878 50  0000 L CNN
-F 2 "" H 2900 6750 50  0001 C CNN
-F 3 "" H 2900 6750 50  0001 C CNN
-	1    2900 6750
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K1
-U 1 1 5EA66A89
-P 3500 4750
-F 0 "K1" H 3500 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 3500 5026 50  0000 C CNN
-F 2 "" H 3500 4750 50  0001 L BNN
-F 3 "" H 3500 4750 50  0001 L BNN
-F 4 "IPC-7251" H 3500 4750 50  0001 L BNN "Campo4"
-	1    3500 4750
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_ULN2803A:ULN2803A U1
-U 1 1 5EA612C4
-P 2400 6050
-F 0 "U1" H 2400 7217 50  0000 C CNN
-F 1 "ULN2803A" H 2400 7126 50  0000 C CNN
-F 2 "" H 2400 6050 50  0001 L BNN
-F 3 "" H 2400 6050 50  0001 L BNN
-F 4 "STMicroelectronics" H 2400 6050 50  0001 L BNN "Campo4"
-F 5 "IPC-7351B" H 2400 6050 50  0001 L BNN "Campo5"
-F 6 "3.93mm" H 2400 6050 50  0001 L BNN "Campo6"
-	1    2400 6050
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4250 4300 5300 4300
-Wire Wire Line
-	6700 4300 6700 4200
-Wire Wire Line
-	5300 4650 5300 4300
-Connection ~ 5300 4300
-Wire Wire Line
-	5300 4300 6350 4300
-Wire Wire Line
-	6350 4650 6350 4300
-Connection ~ 6350 4300
-Wire Wire Line
-	6350 4300 6700 4300
-Wire Wire Line
-	7400 4650 7400 4300
-Wire Wire Line
-	7400 4300 6700 4300
-Connection ~ 6700 4300
-Wire Wire Line
-	8450 4650 8450 4300
-Wire Wire Line
-	8450 4300 7400 4300
-Connection ~ 7400 4300
-Wire Wire Line
-	2900 6350 9850 6350
-Connection ~ 8450 4300
-Wire Wire Line
-	8450 4300 9850 4300
-Wire Wire Line
-	9850 4300 9850 4650
-Wire Wire Line
-	9850 6350 9850 4950
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K7
-U 1 1 5EACF577
-P 10150 4750
-F 0 "K7" H 10150 5117 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 10150 5026 50  0000 C CNN
-F 2 "" H 10150 4750 50  0001 L BNN
-F 3 "" H 10150 4750 50  0001 L BNN
-F 4 "IPC-7251" H 10150 4750 50  0001 L BNN "Campo4"
-	1    10150 4750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10450 4850 10450 4950
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J14
-U 1 1 5EACF56F
-P 10650 4750
-F 0 "J14" H 10600 4550 50  0000 L CNN
-F 1 "Conn_01x03" H 10400 4450 50  0000 L CNN
-F 2 "Custom_libraries:ScrewTerminal_01X03_5mm" H 10650 4750 50  0001 C CNN
-F 3 "~" H 10650 4750 50  0001 C CNN
-	1    10650 4750
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	9550 5400 11100 5400
-Wire Notes Line
-	11100 3950 9550 3950
-Wire Notes Line
-	2950 5400 9450 5400
-Wire Notes Line
-	9450 3950 2950 3950
-Text Notes 3050 4100 0    50   ~ 0
-Shutter Relays
-Text Notes 9600 4100 0    50   ~ 0
-Lamp Relay
-Wire Notes Line
-	9450 3950 9450 5400
-Wire Notes Line
-	2950 3950 2950 5400
-Wire Notes Line
-	9550 3950 9550 5400
-Wire Notes Line
-	11100 3950 11100 5400
-Wire Wire Line
-	1900 5150 1600 5150
-Wire Wire Line
-	1900 5350 1600 5350
-Wire Wire Line
-	1900 5550 1600 5550
-Wire Wire Line
-	1600 5750 1900 5750
-Wire Wire Line
-	1900 5950 1600 5950
-Wire Wire Line
-	1900 6150 1600 6150
-Wire Wire Line
-	1900 6350 1600 6350
-Wire Wire Line
-	1900 6550 1800 6550
-Text Label 1700 5150 0    50   ~ 0
-4
-Text Label 1700 5350 0    50   ~ 0
-5
-Text Label 1700 5550 0    50   ~ 0
-6
-Text Label 1700 5750 0    50   ~ 0
-7
-Text Label 1700 5950 0    50   ~ 0
-12
-Text Label 1700 6150 0    50   ~ 0
-13
-Text Label 1700 6350 0    50   ~ 0
-A0
-$Comp
-L CustomLibraries_power:GND #PWR0108
-U 1 1 5EBAB697
-P 1800 7200
-F 0 "#PWR0108" H 1800 6950 50  0001 C CNN
-F 1 "GND" H 1805 7027 50  0000 C CNN
-F 2 "" H 1800 7200 50  0001 C CNN
-F 3 "" H 1800 7200 50  0001 C CNN
-	1    1800 7200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1800 7200 1800 6550
-NoConn ~ 2900 6550
-NoConn ~ 5500 3400
-NoConn ~ 5400 3400
-NoConn ~ 5950 2150
-NoConn ~ 5950 2250
-NoConn ~ 5950 2350
-NoConn ~ 5800 1650
-NoConn ~ 5000 1150
-$Comp
-L CustomLibraries_power:GND #PWR0109
-U 1 1 5EBF56D4
-P 5800 2950
-F 0 "#PWR0109" H 5800 2700 50  0001 C CNN
-F 1 "GND" H 5805 2777 50  0000 C CNN
-F 2 "" H 5800 2950 50  0001 C CNN
-F 3 "" H 5800 2950 50  0001 C CNN
-	1    5800 2950
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5900 1650 5900 2050
-Wire Wire Line
-	8050 2050 8450 2050
-Wire Wire Line
-	8450 2200 8450 2050
-Connection ~ 8450 2050
-Wire Wire Line
-	8450 2050 8600 2050
-Wire Wire Line
-	8050 950  8450 950 
-Wire Wire Line
-	8450 850  8450 950 
-Connection ~ 8450 950 
-Wire Wire Line
-	8450 950  8900 950 
+	3100 1300 1900 1300
 $Comp
 L CustomLibraries_power:GND #PWR02
-U 1 1 5E9BAC72
-P 4700 2950
-F 0 "#PWR02" H 4700 2700 50  0001 C CNN
-F 1 "GND" H 4705 2777 50  0000 C CNN
-F 2 "" H 4700 2950 50  0001 C CNN
-F 3 "" H 4700 2950 50  0001 C CNN
-	1    4700 2950
+U 1 1 5EA41F46
+P 1650 1950
+F 0 "#PWR02" H 1650 1700 50  0001 C CNN
+F 1 "GND" H 1655 1777 50  0000 C CNN
+F 2 "" H 1650 1950 50  0001 C CNN
+F 3 "" H 1650 1950 50  0001 C CNN
+	1    1650 1950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4700 2950 4700 2050
+	1650 1500 1650 1700
+Connection ~ 1650 1700
+Wire Wire Line
+	1650 1800 1650 1950
+Connection ~ 1650 1800
 $Comp
-L CustomLibraries_power:GND #PWR0107
-U 1 1 5EA688B4
-P 3000 7200
-F 0 "#PWR0107" H 3000 6950 50  0001 C CNN
-F 1 "GND" H 3005 7027 50  0000 C CNN
-F 2 "" H 3000 7200 50  0001 C CNN
-F 3 "" H 3000 7200 50  0001 C CNN
-	1    3000 7200
+L CustomLibraries_power:+3.3V #PWR05
+U 1 1 5EA4619F
+P 3300 1500
+F 0 "#PWR05" H 3300 1350 50  0001 C CNN
+F 1 "+3.3V" H 3315 1673 50  0000 C CNN
+F 2 "" H 3300 1500 50  0001 C CNN
+F 3 "" H 3300 1500 50  0001 C CNN
+	1    3300 1500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3000 7200 3000 6950
+	3300 1500 3300 1700
+$Comp
+L CustomLibraries_power:GND #PWR06
+U 1 1 5EA488A9
+P 3300 1950
+F 0 "#PWR06" H 3300 1700 50  0001 C CNN
+F 1 "GND" H 3305 1777 50  0000 C CNN
+F 2 "" H 3300 1950 50  0001 C CNN
+F 3 "" H 3300 1950 50  0001 C CNN
+	1    3300 1950
+	1    0    0    -1  
+$EndComp
 Wire Wire Line
-	3000 6950 2900 6950
-Wire Notes Line
-	1950 2100 1950 3000
-Wire Notes Line
-	750  3000 750  2100
-Text Notes 800  2200 0    50   ~ 0
+	3300 1800 3300 1950
+$Comp
+L CustomLibraries_connectors:Conn_02x02_Odd_Even J2
+U 1 1 5EA533B3
+P 2450 1700
+F 0 "J2" H 2500 1500 50  0000 C CNN
+F 1 "3.3V DC-DC Step-Down Power Module" H 2500 1400 31  0000 C CNN
+F 2 "" H 2450 1700 50  0001 C CNN
+F 3 "~" H 2450 1700 50  0001 C CNN
+	1    2450 1700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1650 1700 2250 1700
+Wire Wire Line
+	1650 1800 2250 1800
+Wire Wire Line
+	2750 1700 3300 1700
+Wire Wire Line
+	2750 1800 3300 1800
+NoConn ~ 5900 2850
+NoConn ~ 5900 2950
+NoConn ~ 5900 3050
+NoConn ~ 5750 2350
+$Comp
+L CustomLibraries_power:GND #PWR010
+U 1 1 5EBF56D4
+P 5750 3650
+F 0 "#PWR010" H 5750 3400 50  0001 C CNN
+F 1 "GND" H 5755 3477 50  0000 C CNN
+F 2 "" H 5750 3650 50  0001 C CNN
+F 3 "" H 5750 3650 50  0001 C CNN
+	1    5750 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5850 2350 5850 2750
+$Comp
+L CustomLibraries_power:GND #PWR07
+U 1 1 5E9BAC72
+P 4650 3650
+F 0 "#PWR07" H 4650 3400 50  0001 C CNN
+F 1 "GND" H 4655 3477 50  0000 C CNN
+F 2 "" H 4650 3650 50  0001 C CNN
+F 3 "" H 4650 3650 50  0001 C CNN
+	1    4650 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4650 3650 4650 2750
+Text Notes 1800 5150 0    60   ~ 0
 ESP-13e
-Text Notes 1100 2550 0    50   ~ 10
-(No incluido)
 Wire Notes Line
-	4000 2000 4000 2300
+	3950 2700 3950 3000
 Wire Notes Line
-	4650 2300 4650 2000
-Text Notes 4050 2150 0    31   ~ 0
+	4600 3000 4600 2700
+Text Notes 4000 2850 0    31   ~ 0
 ESP13 (Tx) <-
-Text Notes 4050 2250 0    31   ~ 0
+Text Notes 4000 2950 0    31   ~ 0
 ESP13 (Rx) <-
 Wire Notes Line
-	4000 2000 4650 2000
+	3950 2700 4600 2700
 Wire Notes Line
-	4000 2300 4650 2300
-Text Notes 2200 2200 0    50   ~ 0
+	3950 3000 4600 3000
+Text Notes 2150 2900 0    50   ~ 0
 LCD 16x2 I2C
 $Comp
-L CustomLibraries_connectors:Conn_01x04 J15
+L CustomLibraries_connectors:Conn_01x04 J3
 U 1 1 5EA32128
-P 2800 2500
-F 0 "J15" H 2880 2492 50  0000 L CNN
-F 1 "Conn_01x04" H 2880 2401 50  0000 L CNN
-F 2 "" H 2800 2500 50  0001 C CNN
-F 3 "~" H 2800 2500 50  0001 C CNN
-	1    2800 2500
+P 2750 3200
+F 0 "J3" H 2830 3192 50  0000 L CNN
+F 1 "Conn_01x04" H 2830 3101 50  0000 L CNN
+F 2 "" H 2750 3200 50  0001 C CNN
+F 3 "~" H 2750 3200 50  0001 C CNN
+	1    2750 3200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2600 2400 2500 2400
+	2550 3100 2450 3100
 Wire Wire Line
-	2600 2500 2350 2500
+	2550 3200 2300 3200
 Wire Wire Line
-	2600 2600 2350 2600
+	2550 3300 2300 3300
 Wire Wire Line
-	2600 2700 2350 2700
+	2550 3400 2300 3400
 $Comp
-L CustomLibraries_power:GND #PWR08
+L CustomLibraries_power:GND #PWR04
 U 1 1 5EA49EAB
-P 2500 2850
-F 0 "#PWR08" H 2500 2600 50  0001 C CNN
-F 1 "GND" H 2505 2677 50  0000 C CNN
-F 2 "" H 2500 2850 50  0001 C CNN
-F 3 "" H 2500 2850 50  0001 C CNN
-	1    2500 2850
+P 2450 3550
+F 0 "#PWR04" H 2450 3300 50  0001 C CNN
+F 1 "GND" H 2455 3377 50  0000 C CNN
+F 2 "" H 2450 3550 50  0001 C CNN
+F 3 "" H 2450 3550 50  0001 C CNN
+	1    2450 3550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2500 2850 2500 2400
-Wire Wire Line
-	2350 2500 2350 2450
-$Comp
-L CustomLibraries_power:+5V #PWR04
-U 1 1 5EA685C8
-P 2350 2450
-F 0 "#PWR04" H 2350 2300 50  0001 C CNN
-F 1 "+5V" H 2365 2623 50  0000 C CNN
-F 2 "" H 2350 2450 50  0001 C CNN
-F 3 "" H 2350 2450 50  0001 C CNN
-	1    2350 2450
-	1    0    0    -1  
-$EndComp
-Text Label 2400 2700 0    39   ~ 0
+	2300 3200 2300 3150
+Text Label 2350 3400 0    39   ~ 0
 A4
 Wire Notes Line
-	2150 2100 3350 2100
-Wire Notes Line
-	1950 3000 750  3000
-Wire Notes Line
-	750  2100 1950 2100
-Text Label 2400 2600 0    39   ~ 0
+	2100 2800 3300 2800
+Text Label 2350 3300 0    39   ~ 0
 A5
 Wire Notes Line
-	3350 3100 2150 3100
+	3300 3800 2100 3800
 Wire Notes Line
-	3350 2100 3350 3100
+	3300 2800 3300 3800
 Wire Notes Line
-	2150 2100 2150 3100
+	2100 2800 2100 3800
+$Comp
+L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K1
+U 1 1 5EACF577
+P 8950 4350
+F 0 "K1" H 8950 4717 50  0000 C CNN
+F 1 "SRD-05VDC-SL-C" H 8950 4626 50  0000 C CNN
+F 2 "" H 8950 4350 50  0001 L BNN
+F 3 "" H 8950 4350 50  0001 L BNN
+F 4 "IPC-7251" H 8950 4350 50  0001 L BNN "Campo4"
+	1    8950 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Arduino_MiniPro U2
+U 1 1 5EA809AC
+P 5200 2950
+F 0 "U2" H 5200 2350 50  0000 C CNN
+F 1 "Arduino_MiniPro" H 5200 2250 50  0000 C CNN
+F 2 "Custom_libraries:Socket_Strip_Arduino_MiniPro" H 4950 2950 50  0001 C CNN
+F 3 "~" H 4950 2950 50  0001 C CNN
+	1    5200 2950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4950 4050 4950 4000
+Wire Wire Line
+	5050 4050 5050 4000
+Wire Wire Line
+	5350 4050 5350 4000
+Wire Wire Line
+	5450 4050 5450 4000
+NoConn ~ 5350 4050
+NoConn ~ 5450 4050
+Wire Wire Line
+	4950 1850 4950 2000
+Wire Wire Line
+	5050 1850 5050 2000
+Wire Wire Line
+	5150 1850 5150 2000
+Wire Wire Line
+	5250 1850 5250 2000
+Wire Wire Line
+	5350 1800 5350 2000
+Wire Wire Line
+	5450 1800 5450 2000
+NoConn ~ 4950 1850
+NoConn ~ 8650 4550
+NoConn ~ 8650 3900
+NoConn ~ 5900 3150
+NoConn ~ 5900 3250
+NoConn ~ 5900 3350
+NoConn ~ 4400 3350
+NoConn ~ 4400 3250
+NoConn ~ 4400 3150
+NoConn ~ 4400 3050
+NoConn ~ 4400 2950
+NoConn ~ 4400 2850
+$Comp
+L CustomLibraries_power:+5V #PWR0101
+U 1 1 5EB0B1CD
+P 2300 3150
+F 0 "#PWR0101" H 2300 3000 50  0001 C CNN
+F 1 "+5V" H 2315 3323 50  0000 C CNN
+F 2 "" H 2300 3150 50  0001 C CNN
+F 3 "" H 2300 3150 50  0001 C CNN
+	1    2300 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2450 3100 2450 3550
+$Comp
+L CustomLibraries_power:+5V #PWR0102
+U 1 1 5EB0FA34
+P 1650 1500
+F 0 "#PWR0102" H 1650 1350 50  0001 C CNN
+F 1 "+5V" H 1665 1673 50  0000 C CNN
+F 2 "" H 1650 1500 50  0001 C CNN
+F 3 "" H 1650 1500 50  0001 C CNN
+	1    1650 1500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1300 1800 1650 1800
+Wire Wire Line
+	1300 1700 1650 1700
+$Comp
+L CustomLibraries_connectors:Conn_01x04 J6
+U 1 1 5EA3215E
+P 8450 5600
+F 0 "J6" H 8530 5592 50  0000 L CNN
+F 1 "Conn_01x04" H 8530 5501 50  0000 L CNN
+F 2 "" H 8450 5600 50  0001 C CNN
+F 3 "~" H 8450 5600 50  0001 C CNN
+	1    8450 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J7
+U 1 1 5EA332C1
+P 9400 5600
+F 0 "J7" H 9480 5642 50  0000 L CNN
+F 1 "Conn_01x03" H 9480 5551 50  0000 L CNN
+F 2 "" H 9400 5600 50  0001 C CNN
+F 3 "~" H 9400 5600 50  0001 C CNN
+	1    9400 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L ESP8266:ESP-13-WROOM-02 U1
+U 1 1 5EA1DF21
+P 3800 6100
+F 0 "U1" H 3775 6865 50  0000 C CNN
+F 1 "ESP-13-WROOM-02" H 3775 6774 50  0000 C CNN
+F 2 "Custom_libraries:ESP-13-WROOM-02" H 3700 6100 50  0001 C CNN
+F 3 "http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/" H 3700 6100 50  0001 C CNN
+	1    3800 6100
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	6750 5000 6750 7500
+Wire Notes Line
+	850  5000 850  7500
+Wire Notes Line
+	7700 5050 7700 6200
+Wire Notes Line
+	7700 6200 10400 6200
+Wire Notes Line
+	10400 6200 10400 5050
+Wire Notes Line
+	10400 5050 7700 5050
+Text Notes 7750 5200 0    60   ~ 0
+Radio modules
+$Comp
+L CustomLibraries_power:+3V3 #PWR015
+U 1 1 5EA3091F
+P 2650 5400
+F 0 "#PWR015" H 2650 5250 50  0001 C CNN
+F 1 "+3V3" H 2665 5573 50  0000 C CNN
+F 2 "" H 2650 5400 50  0001 C CNN
+F 3 "" H 2650 5400 50  0001 C CNN
+	1    2650 5400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2800 5800 2650 5800
+Wire Wire Line
+	2650 5800 2650 5450
+$Comp
+L CustomLibraries_Device:R R7
+U 1 1 5EA34E10
+P 2400 5650
+F 0 "R7" H 2470 5696 50  0000 L CNN
+F 1 "10k" H 2470 5605 50  0000 L CNN
+F 2 "" V 2330 5650 50  0001 C CNN
+F 3 "~" H 2400 5650 50  0001 C CNN
+	1    2400 5650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2400 5450 2650 5450
+Connection ~ 2650 5450
+Wire Wire Line
+	2650 5450 2650 5400
+Wire Wire Line
+	2400 5500 2400 5450
+$Comp
+L CustomLibraries_Device:C C5
+U 1 1 5EA39A31
+P 2400 6050
+F 0 "C5" H 2285 6004 50  0000 R CNN
+F 1 "0.1uF" H 2285 6095 50  0000 R CNN
+F 2 "" H 2438 5900 50  0001 C CNN
+F 3 "~" H 2400 6050 50  0001 C CNN
+	1    2400 6050
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2400 5800 2400 5900
+Wire Wire Line
+	2800 5900 2400 5900
+$Comp
+L CustomLibraries_power:GND #PWR014
+U 1 1 5EA42901
+P 2400 6200
+F 0 "#PWR014" H 2400 5950 50  0001 C CNN
+F 1 "GND" H 2400 6050 50  0000 C CNN
+F 2 "" H 2400 6200 50  0001 C CNN
+F 3 "" H 2400 6200 50  0001 C CNN
+	1    2400 6200
+	1    0    0    -1  
+$EndComp
+NoConn ~ 2800 6000
+NoConn ~ 2800 6100
+NoConn ~ 2800 6200
+$Comp
+L CustomLibraries_power:GND #PWR016
+U 1 1 5EA52912
+P 2700 7000
+F 0 "#PWR016" H 2700 6750 50  0001 C CNN
+F 1 "GND" H 2705 6827 50  0000 C CNN
+F 2 "" H 2700 7000 50  0001 C CNN
+F 3 "" H 2700 7000 50  0001 C CNN
+	1    2700 7000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2700 7000 2700 6900
+Wire Wire Line
+	2700 6600 2800 6600
+NoConn ~ 4750 5900
+NoConn ~ 4750 6000
+$Comp
+L CustomLibraries_Device:R R9
+U 1 1 5EA62F4D
+P 5950 5850
+F 0 "R9" H 5750 5900 50  0000 L CNN
+F 1 "10k" H 5750 5800 50  0000 L CNN
+F 2 "" V 5880 5850 50  0001 C CNN
+F 3 "~" H 5950 5850 50  0001 C CNN
+	1    5950 5850
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:C C6
+U 1 1 5EA6419A
+P 5950 6300
+F 0 "C6" H 5835 6254 50  0000 R CNN
+F 1 "0.1uF" H 5835 6345 50  0000 R CNN
+F 2 "" H 5988 6150 50  0001 C CNN
+F 3 "~" H 5950 6300 50  0001 C CNN
+	1    5950 6300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR018
+U 1 1 5EA6D326
+P 5950 5700
+F 0 "#PWR018" H 5950 5550 50  0001 C CNN
+F 1 "+3V3" H 5965 5873 50  0000 C CNN
+F 2 "" H 5950 5700 50  0001 C CNN
+F 3 "" H 5950 5700 50  0001 C CNN
+	1    5950 5700
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR019
+U 1 1 5EA771AA
+P 5950 6550
+F 0 "#PWR019" H 5950 6300 50  0001 C CNN
+F 1 "GND" H 5955 6377 50  0000 C CNN
+F 2 "" H 5950 6550 50  0001 C CNN
+F 3 "" H 5950 6550 50  0001 C CNN
+	1    5950 6550
+	1    0    0    -1  
+$EndComp
+NoConn ~ 3800 7000
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J5
+U 1 1 5EA8DAF9
+P 5300 6400
+F 0 "J5" H 5380 6442 50  0000 L CNN
+F 1 "UART COM" H 5380 6351 50  0000 L CNN
+F 2 "" H 5300 6400 50  0001 C CNN
+F 3 "~" H 5300 6400 50  0001 C CNN
+	1    5300 6400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4750 6300 5050 6300
+Wire Wire Line
+	4750 6400 5100 6400
+Wire Wire Line
+	4750 6500 5100 6500
+$Comp
+L CustomLibraries_power:GND #PWR017
+U 1 1 5EAAC6E5
+P 5050 6800
+F 0 "#PWR017" H 5050 6550 50  0001 C CNN
+F 1 "GND" H 5055 6627 50  0000 C CNN
+F 2 "" H 5050 6800 50  0001 C CNN
+F 3 "" H 5050 6800 50  0001 C CNN
+	1    5050 6800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5050 6800 5050 6300
+Connection ~ 5050 6300
+Wire Wire Line
+	5050 6300 5100 6300
+Wire Wire Line
+	5050 6300 5050 5800
+Wire Wire Line
+	5050 5800 4750 5800
+$Comp
+L CustomLibraries_Switch:SW_Push SW5
+U 1 1 5EABBA7B
+P 6350 6100
+F 0 "SW5" H 6500 6350 50  0000 L CNN
+F 1 "SW_Push" H 6400 6250 50  0000 L CNN
+F 2 "" H 6350 6300 50  0001 C CNN
+F 3 "~" H 6350 6300 50  0001 C CNN
+	1    6350 6100
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R8
+U 1 1 5EAF50ED
+P 2550 6700
+F 0 "R8" H 2350 6750 50  0000 L CNN
+F 1 "10k" H 2350 6650 50  0000 L CNN
+F 2 "" V 2480 6700 50  0001 C CNN
+F 3 "~" H 2550 6700 50  0001 C CNN
+	1    2550 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR01
+U 1 1 5EAF6562
+P 1750 6650
+F 0 "#PWR01" H 1750 6400 50  0001 C CNN
+F 1 "GND" H 1755 6477 50  0000 C CNN
+F 2 "" H 1750 6650 50  0001 C CNN
+F 3 "" H 1750 6650 50  0001 C CNN
+	1    1750 6650
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R6
+U 1 1 5EB01587
+P 2050 6050
+F 0 "R6" H 1900 6000 50  0000 C CNN
+F 1 "10k" H 1900 6100 50  0000 C CNN
+F 2 "" V 1980 6050 50  0001 C CNN
+F 3 "~" H 2050 6050 50  0001 C CNN
+	1    2050 6050
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR03
+U 1 1 5EB09053
+P 1950 5650
+F 0 "#PWR03" H 1950 5500 50  0001 C CNN
+F 1 "+3V3" V 1950 5900 50  0000 C CNN
+F 2 "" H 1950 5650 50  0001 C CNN
+F 3 "" H 1950 5650 50  0001 C CNN
+	1    1950 5650
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x02 J4
+U 1 1 5EB23EC5
+P 1500 6500
+F 0 "J4" H 1800 6500 50  0000 C CNN
+F 1 "BOOT OPTION" H 1850 6400 50  0000 C CNN
+F 2 "" H 1500 6500 50  0001 C CNN
+F 3 "~" H 1500 6500 50  0001 C CNN
+	1    1500 6500
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R5
+U 1 1 5EB2F921
+P 1850 6050
+F 0 "R5" H 2000 6000 50  0000 C CNN
+F 1 "10k" H 2000 6100 50  0000 C CNN
+F 2 "" V 1780 6050 50  0001 C CNN
+F 3 "~" H 1850 6050 50  0001 C CNN
+	1    1850 6050
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1850 5900 1950 5900
+Connection ~ 1950 5900
+Wire Wire Line
+	1950 5900 2050 5900
+Connection ~ 2400 5900
+Wire Wire Line
+	2550 6300 2800 6300
+Wire Wire Line
+	2050 6200 2050 6400
+Wire Wire Line
+	2050 6400 2800 6400
+Wire Wire Line
+	1850 6500 1850 6200
+Wire Wire Line
+	1850 6500 2800 6500
+Wire Wire Line
+	2550 6550 2550 6300
+Wire Wire Line
+	2700 6900 2550 6900
+Wire Wire Line
+	2550 6900 2550 6850
+Connection ~ 2700 6900
+Wire Wire Line
+	2700 6900 2700 6600
+Connection ~ 1850 6500
+Wire Wire Line
+	1700 6600 1750 6600
+Wire Wire Line
+	1750 6600 1750 6650
+Wire Wire Line
+	1850 6500 1700 6500
+Wire Wire Line
+	1950 5900 1950 5650
+Wire Wire Line
+	6550 6100 6550 6500
+Wire Wire Line
+	6550 6500 5950 6500
+Wire Wire Line
+	5950 6500 5950 6450
+Wire Wire Line
+	5950 6550 5950 6500
+Connection ~ 5950 6500
+Wire Wire Line
+	6150 6100 5950 6100
+Wire Wire Line
+	5950 6100 5950 6000
+Wire Wire Line
+	5950 6150 5950 6100
+Connection ~ 5950 6100
+Wire Wire Line
+	4750 6100 5950 6100
+Wire Notes Line
+	850  5000 6750 5000
+Wire Notes Line
+	850  7500 6750 7500
 $EndSCHEMATC

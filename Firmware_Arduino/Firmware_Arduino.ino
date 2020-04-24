@@ -222,7 +222,7 @@ void initWifiFunction(){
   status = WL_IDLE_STATUS;
   failed = 0;
   
-  Serial1.begin(2400);
+  Serial.begin(2400);
   WiFi.init(&Serial1);
   
   // check for the presence of the shield:

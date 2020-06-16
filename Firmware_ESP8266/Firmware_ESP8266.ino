@@ -9,6 +9,7 @@
 #define ADDRESS_I2C_LCD 0x3F
 #define TO_IDLE_SECONDS 10
 #define UPDATE_SCREEN_SECONDS 30
+#define DEBOUNCE_TIME_MILLIS 100
 
 enum State {
   IDLE,
@@ -223,7 +224,7 @@ void deBounceFunction(){
 
 void IRAM_ATTR isrButtons(){
   Buttons.detach();
-  Buttons.attach_ms(100, deBounceFunction);
+  Buttons.attach_ms(DEBOUNCE_TIME_MILLIS, deBounceFunction);
 }
 
 int buttonPressed(){
@@ -446,6 +447,7 @@ void initButtonsFunction(){
 
 void sendAudioFeedback(char type){
   Wire.beginTransmission(8); // transmit to device #8
+  Wire.write('X');        // This should wake up the device
   Wire.write(type);        // sends five bytes
   Wire.endTransmission();    // stop transmitting
 }

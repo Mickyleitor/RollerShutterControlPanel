@@ -1,5 +1,13 @@
 // Macros for PIN and PORTs
+#define PIN_BUTTON_USER 2
+#define PIN_RF_RX 3
+
 #define PIN_BUZZER 5
+#define PIN_RF_TX 9
+#define PIN_RELAY 13 // 7
+
+#define PIN_I2C_SCL A5
+#define PIN_I2C_SDA A4
 
 // Macros for buzzer volume selections
 #define BUZZER_LOW_VOLUME 17000

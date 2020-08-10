@@ -1,5 +1,8 @@
-// Domotic Shutter sketch
+// Domotic Shutter sketch by Mickyleitor
 // This sketch is in development and uses ATmega368P.
+// 
+// Libraries used and need to be installed from Arduino IDE
+// - Low-Power by rocketscream/ version 1.6.0 : https://github.com/rocketscream/Low-Power
 // 
 // Current protocol for I2C messages with master is as follows:
 // - Two first LSB bits indicates roller action.
@@ -20,10 +23,7 @@
 #include <Wire.h>
 #include "basic_defines.h"
 #include "LowPower.h"
-#include "somfy.h"
-
-#define BUZZER_TIME_MILLIS 100
-#define DEBOUNCE_TIME_MILLIS 100
+#include "remote.h"
 
 int buzzer_running = 1;
 
@@ -43,6 +43,7 @@ void setup(){
   Serial.begin(9600);
   Wire.begin(I2C_SLAVE);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
+  Wire.onRequest(requestEvent);
   tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
   delay(200);
   tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
@@ -54,7 +55,9 @@ void setup(){
 void loop(){
   switch( SystemState ) {
     case IDLING : {
-      delay(10); // Aqui se debería ir a bajo consumo...
+      // Pendiente hacer modo bajo consumo
+      // LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
+      delay(10);
       break;
     }
     case SWITCH_RELAY : {
@@ -68,6 +71,8 @@ void loop(){
       unsigned long LastTimeSounded = 0;
       while (Wire.available()) {
         char cmd = Wire.read();         // receive byte as a character
+        Serial.print("Received :");
+        Serial.println(cmd,BIN);
         // Process buzzer commands
         if((cmd & 0x80) == 0x80){
           Serial.println("Buzzer command");
@@ -120,6 +125,13 @@ void loop(){
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany) {
   SystemState = PROCCESS_I2C;
+}
+
+// function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent() {
+  Wire.write(0x3); // respond with message of 1 byte
+  // as expected by master
 }
 
 void isrButton(){

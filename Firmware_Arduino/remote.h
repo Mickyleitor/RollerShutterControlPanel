@@ -1,5 +1,5 @@
 // ***************************************************************************
-// Somfy module for Arduino Mini Pro by Mickyleitor
+// Remote RF module (potentially Somfy) for Arduino Mini Pro by Mickyleitor
 // 
 // This header need a non-included keydata.h file which contains
 // the frames and authentication data hidden due to security reasons.
@@ -8,9 +8,12 @@
 
 #include "keydata.h"
 
-#define SOMFY_SYMBOL 490 // symbol width in microseconds
+#define REMOTE_SYMBOL 490 // symbol width in microseconds
 
 bool sendCommand(int persiana,int comando){
+  #ifndef SOMFY_KEYDATA_PRESENT
+    return false;
+  #endif
   if(persiana > 2 || comando > 2 ) return false;
   byte KeyPacket [SOMFY_PACKET_LENGTH];
   // First we need gather the data from the PROGMEM.
@@ -23,7 +26,7 @@ bool sendCommand(int persiana,int comando){
   for(int index = 0; index < SOMFY_PACKET_LENGTH ; index++){
     for(bits = 7; bits >= 0; bits--){
       bitWrite(PUERTO_TX,PIN_RF_TX,(KeyPacket[index] >> bits) & 1);
-      delayMicroseconds(SOMFY_SYMBOL);
+      delayMicroseconds(REMOTE_SYMBOL);
     }
   }
   // Free the 433 Mhz channel making it a floating port

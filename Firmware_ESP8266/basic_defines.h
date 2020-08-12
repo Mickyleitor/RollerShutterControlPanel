@@ -1,29 +1,15 @@
-// Macros for PIN and PORTs
-#define PIN_BUTTON_USER 2
+#define TO_IDLE_SECONDS 10
+#define ADDRESS_I2C_LCD 0x3F
+#define ADDRESS_I2C_SLAVE 0x8
+
+#ifndef TZ_Europe_Madrid
+#define TZ_Europe_Madrid 2 * 3600
+#endif
+#define MYTZ TZ_Europe_Madrid
+#define UPDATE_SCREEN_SECONDS 1
 #define DEBOUNCE_TIME_MILLIS 100
-// Radio
-#define PUERTO_RX PIND
-#define PIN_RF_RX 2
-#define PUERTO_TX PORTD
-#define PIN_RF_TX 3
-
-// Buzzer
-#define PIN_BUZZER 5
-
-// Relay
-#define PIN_RELAY 13 // 7
-
-#define PIN_I2C_SCL A5
-#define PIN_I2C_SDA A4
-
-// Macros for buzzer volume selections
-#define BUZZER_LOW_VOLUME 17000
-#define BUZZER_MEDIUM_VOLUME 300
-#define BUZZER_HIGH_VOLUME 5000
-#define BUZZER_TIME_MILLIS 100
-
-// Macros for LCD handing
-#define I2C_SLAVE 8
+#define SHUTTER_DURATION_MILLIS 27000
+#define SYSTEM_MANAGER_SECONDS 60
 
 // Flag mask macro for I2C message
 #define FLAG_BIT_BUZZER 0x80

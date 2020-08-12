@@ -13,12 +13,18 @@
 // 0x1 : Left roller shutter
 // 0x2 : Center roller shutter
 // 0x4 : Right roller shutter
-// - First three MSB bits indicates a buzzer command.
+// - First three MSB bits indicates a buzzer or switch change command.
+// The folling fields are only valid if the first bit is high.
 // 0x0 : Low volume
 // 0x1 : Medium volume
 // 0x2 : Maximum volume
 // 0x3 : Switch on/off volume
 // 0x4 : Indicates a buzzer command is issued.
+// The folling fields are only valid if the first bit is low
+// 0x0 : Intentionally unused
+// 0x1 : Switch ON relay
+// 0x2 : Switch OFF relay
+// 0x3 : Change the state of the switch relay
 
 #include <Wire.h>
 #include "basic_defines.h"
@@ -40,7 +46,7 @@ void setup(){
   pinMode(PIN_RELAY,OUTPUT);
   initButtonsFunction();
   
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin(I2C_SLAVE);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent);
@@ -74,25 +80,25 @@ void loop(){
         Serial.print("Received :");
         Serial.println(cmd,BIN);
         // Process buzzer commands
-        if((cmd & 0x80) == 0x80){
+        if((cmd & FLAG_BIT_BUZZER) == FLAG_BIT_BUZZER){
           Serial.println("Buzzer command");
           // Switch on/off volume
-          if( (cmd & 0xE0) == 0xE0 ){
+          if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_CHANGE ){
             Serial.println("Buzzer switch on/off");
             buzzer_running = 1 ^ buzzer_running;
           }else{
             // If the buzzer is not silenced..
             // Sound the buzzer at low,medium,high volume.
             if(buzzer_running){
-              if( (cmd & 0xE0) == 0x80 ){
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_LOW_VOLUME ){
                 Serial.println("Buzzer low volume");
                 tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
               }
-              if( (cmd & 0xE0) == 0xA0 ){
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_MEDIUM_VOLUME ){
                 Serial.println("Buzzer medium volume");
                 tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
               }
-              if( (cmd & 0xE0) == 0xC0 ){
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_HIGH_VOLUME ){
                 Serial.println("Buzzer high volume");
                 tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
               }
@@ -110,11 +116,28 @@ void loop(){
             }
           }
         }
+        // Process Switch relay commands
+        if(((cmd & FLAG_BIT_BUZZER) == 0) && ((cmd & FLAG_MASK_LIGHT) >= 1)){
+          Serial.println("Switch relay command");
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_ON ){
+            Serial.println("Switch ON relay");
+            digitalWrite(PIN_RELAY,HIGH);
+          }
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_OFF ){
+            Serial.println("Switch OFF relay");
+            digitalWrite(PIN_RELAY,LOW);
+          }
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_CHANGE ){
+            Serial.println("Change the state of the switch relay");
+            digitalWrite(PIN_RELAY,!digitalRead(PIN_RELAY));
+          }
+        }
       }
       // Necesitamos esperar, al menos, un tiempo minimo de BUZZER_TIME_MILLIS
       // Para que al volver a IDLING no se duerma mientras siguen saltando
       // las interrupciones del Timer2 usado por tone()
-      while( abs(millis() - LastTimeSounded) <= BUZZER_TIME_MILLIS);
+      while( abs(millis() - LastTimeSounded) <= BUZZER_TIME_MILLIS );
+      // Volvemos a IDLING pues ya hemos procesado todas las tareas
       SystemState = IDLING;
       break;
     }

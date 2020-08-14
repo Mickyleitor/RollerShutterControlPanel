@@ -7,9 +7,9 @@
 #endif
 #define MYTZ TZ_Europe_Madrid
 #define UPDATE_SCREEN_SECONDS 60
-#define DEBOUNCE_TIME_MILLIS 100
 #define SHUTTER_DURATION_SECONDS 27
 #define SYSTEM_MANAGER_SECONDS 60
+#define DEBOUNCE_TIME_MILLIS 100
 
 // Flag mask macro for I2C message
 #define FLAG_BIT_BUZZER 0x80

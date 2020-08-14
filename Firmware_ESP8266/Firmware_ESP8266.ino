@@ -56,11 +56,7 @@ struct ShutterParameters {
   int LastMoved = 0;
 } ShutterData [3];
 
-struct ScheduledParameters {
-  bool scheduled [31];
-  bool isDone [31];
-} ScheduledData[12] ;
-
+char ScheduledData[12][31] ;
 int ScheduledDataResetValue = 0;
 
 Ticker TimeOutTask, ButtonsISRTask,SystemFunctionTask;
@@ -77,8 +73,7 @@ void setup() {
   currentButton = NONE;
   for(int mes = 0; mes < 12 ; mes++){
     for(int dia = 0; dia < 31 ; dia ++ ){
-      ScheduledData[mes].scheduled[dia] = false;
-      ScheduledData[mes].isDone[dia] = false;
+      ScheduledData[mes][dia] = 0;
     }
   }
   Serial.begin(115200);
@@ -105,6 +100,8 @@ void loop() {
               SystemState = SHUTTER_MANAGER;
           yield();
         }
+        // Update Weather condition every wake up?
+        // getWeatherDataFunction();
         if(SystemState == SHUTTER_MANAGER){
           encenderBrilloPantalla();
           if (seleccionMenu == OPTION)  
@@ -117,20 +114,16 @@ void loop() {
         switch (buttonPressed()) {
           case LEFT : {
               seleccionarAnterior();
-              if (seleccionMenu == OPTION) {
-                SystemState = MENU_JOB_MODE;
-                actualizarMenuPantalla();
-              }
-              else actualizarMenuPantalla();
+              if (seleccionMenu == OPTION)
+                  SystemState = MENU_JOB_MODE;
+              actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
               seleccionarSiguiente();
-              if (seleccionMenu == OPTION) {
-                SystemState = MENU_JOB_MODE;
-                actualizarMenuPantalla();
-              }
-              else actualizarMenuPantalla();
+              if (seleccionMenu == OPTION)
+                  SystemState = MENU_JOB_MODE;
+              actualizarMenuPantalla();
               break;
             }
           case UP : {
@@ -381,14 +374,11 @@ void SystemFunctionManager(){
     timenow = gmtime(&nowSecondsUTC);
     // Check if a reset of the data is needed
     resetScheduledData(timenow);
-    // Check if today there is a scheduled task.
-    if(ScheduledData[timenow->tm_mon].scheduled[timenow->tm_mday-1]){
-      // Check if the scheduled task isn't done yet.
-      if(!ScheduledData[timenow->tm_mon].isDone[timenow->tm_mday-1]){
-        // Switch to true the notification flag and change the system state
-        ScheduledData[timenow->tm_mon].isDone[timenow->tm_mday-1] = true;
-        SystemState = SLEEP_MANAGER;
-      }
+    // Check if today there is a scheduled task and isn't done yet.
+    if(ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
+      // Switch to true the notification flag and change the system state
+      ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
+      SystemState = SLEEP_MANAGER;
     }
     
   }
@@ -399,7 +389,7 @@ void resetScheduledData(struct tm * timenow){
   if(timenow->tm_yday == 0 && ScheduledDataResetValue == 0){
     for(int mes = 0; mes < 12 ; mes++){
       for(int dia = 0; dia < 31 ; dia ++ ){
-        ScheduledData[mes].isDone[dia] = false;
+        ScheduledData[mes][dia] &= 0x1;
       }
     }
     ScheduledDataResetValue = 1;
@@ -630,7 +620,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
 };
 
 String makeLcdStringDate( int sday, int smonth) {
-  String date;
+  String date = "";
   if (sday < 10) date += "0";
   date += sday;
   date += "/";
@@ -640,26 +630,24 @@ String makeLcdStringDate( int sday, int smonth) {
 }
 
 void procesoDesactivarTarea() {
-  int newday = 1, newmonth = 1;
-  if (procesoSeleccionarFecha(newday, newmonth)) {
+  int sday = 1, smonth = 1;
+  if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Desactivar tarea en fecha seleccionada");
-    ScheduledData[newmonth-1].scheduled[newday-1] = false;
-    ScheduledData[newmonth-1].isDone[newday-1] = true;
-    Serial.print(newday);
+    ScheduledData[smonth-1][sday-1] &= 0x2;
+    Serial.print(sday);
     Serial.print("-");
-    Serial.println(newmonth);
+    Serial.println(smonth);
   }
 }
 
 void procesoActivarTarea() {
-  int newday = 1, newmonth = 1;
-  if (procesoSeleccionarFecha(newday, newmonth)) {
+  int sday = 1, smonth = 1;
+  if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Activar tarea en fecha seleccionada");
-    ScheduledData[newmonth-1].scheduled[newday-1] = true;
-    ScheduledData[newmonth-1].isDone[newday-1] = false;
-    Serial.print(newday);
+    ScheduledData[smonth-1][sday-1] = 0x1;
+    Serial.print(sday);
     Serial.print("-");
-    Serial.println(newmonth);
+    Serial.println(smonth);
   }
 }
 

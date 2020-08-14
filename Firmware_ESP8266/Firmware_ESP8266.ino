@@ -5,7 +5,6 @@
 // - Shield manager ESP8266 by ESP8266 Community version 2.6.3 : http://arduino.esp8266.com/stable/package_esp8266com_index.json
 // - NTPClient by Fabrice Weinberg 3.2.0 : https://github.com/arduino-libraries/NTPClient
 // - LiquidCrystal_PCF8574 by mathertel 1.2.0  : https://github.com/mathertel/LiquidCrystal_PCF8574
-// - LinkedList by Luis Llamas version 1.0.0  : https://github.com/luisllamasbinaburo/Arduino-LinkedList
 
 
 #include <Ticker.h>
@@ -19,11 +18,12 @@
 
 enum State {
   IDLE,
-  SHUTTERMANAGER,
-  MODE_JOB_TASK,
-  MODE_SLEEP_TASK,
-  MODE_ON_SLEEP_TASK,
-  MODE_OFF_SLEEP_TASK
+  SHUTTER_MANAGER,
+  SLEEP_MANAGER,
+  MENU_JOB_MODE,
+  MENU_SLEEP_MODE,
+  MENU_ACTIVATE_SLEEP_MODE,
+  MENU_DEACTIVATE_SLEEP_MODE
 } SystemState ;
 
 enum ButtonInput {
@@ -35,17 +35,17 @@ enum ButtonInput {
 } currentButton;
 
 enum MenuSeleccion {
-  PERSIANA_IZQUIERDA,
-  PERSIANA_CENTRAL,
-  PERSIANA_DERECHA,
-  OPTION
+  PERSIANA_IZQUIERDA = 0,
+  PERSIANA_CENTRAL = 1,
+  PERSIANA_DERECHA = 2,
+  OPTION = 3
 } seleccionMenu ;
 
 struct WeatherData {
   double SunAzimuth = 0;
   double SunElevation = 0;
-  time_t sunriseTimeSecondsUTC = 0;
-  time_t sunsetTimeSecondsUTC = 0;
+  time_t sunriseSecondsUTC = 0;
+  time_t sunsetSecondsUTC = 0;
   unsigned long timezoneshift = MYTZ;
   double Cloudiness = 0;
   double TemperatureDegree = 0;
@@ -57,9 +57,9 @@ struct ShutterParameters {
 } ShutterData [3];
 
 struct ScheduledParameters {
-  bool scheduled = false;
-  bool isDone = false;
-} ScheduledData[365] ;
+  bool scheduled [31];
+  bool isDone [31];
+} ScheduledData[12] ;
 
 int ScheduledDataResetValue = 0;
 
@@ -75,6 +75,12 @@ void setup() {
   SystemState = IDLE;
   seleccionMenu = PERSIANA_CENTRAL;
   currentButton = NONE;
+  for(int mes = 0; mes < 12 ; mes++){
+    for(int dia = 0; dia < 31 ; dia ++ ){
+      ScheduledData[mes].scheduled[dia] = false;
+      ScheduledData[mes].isDone[dia] = false;
+    }
+  }
   Serial.begin(115200);
   initLCDFunction();
   initWifiFunction();
@@ -82,6 +88,8 @@ void setup() {
   initButtonsFunction();
   checkSlaveConnection();
   getWeatherDataFunction();
+  SystemFunctionTask.detach();
+  SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
 }
 
 void loop() {
@@ -93,22 +101,24 @@ void loop() {
         TimeOutTask.detach();
         TimeOutTask.attach(UPDATE_SCREEN_SECONDS, mostrarHoraPantalla);
         while (SystemState == IDLE) {
-          if (buttonPressed() != NONE) {
-            SystemState = SHUTTERMANAGER;
-          }
+          if (buttonPressed() != NONE) 
+              SystemState = SHUTTER_MANAGER;
           yield();
         }
-        encenderBrilloPantalla();
-        if (seleccionMenu == OPTION) SystemState = MODE_JOB_TASK;
-        actualizarMenuPantalla();
+        if(SystemState == SHUTTER_MANAGER){
+          encenderBrilloPantalla();
+          if (seleccionMenu == OPTION)  
+              SystemState = MENU_JOB_MODE;
+          actualizarMenuPantalla();
+        }
         break;
       }
-    case SHUTTERMANAGER : {
+    case SHUTTER_MANAGER : {
         switch (buttonPressed()) {
           case LEFT : {
               seleccionarAnterior();
               if (seleccionMenu == OPTION) {
-                SystemState = MODE_JOB_TASK;
+                SystemState = MENU_JOB_MODE;
                 actualizarMenuPantalla();
               }
               else actualizarMenuPantalla();
@@ -117,7 +127,7 @@ void loop() {
           case RIGHT : {
               seleccionarSiguiente();
               if (seleccionMenu == OPTION) {
-                SystemState = MODE_JOB_TASK;
+                SystemState = MENU_JOB_MODE;
                 actualizarMenuPantalla();
               }
               else actualizarMenuPantalla();
@@ -144,25 +154,25 @@ void loop() {
         }
         break;
       }
-    case MODE_JOB_TASK : {
+    case MENU_JOB_MODE : {
         switch (buttonPressed()) {
           case UP : {
               activarModoTrabajo();
               break;
             }
           case DOWN : {
-              SystemState = MODE_SLEEP_TASK;
+              SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
           case LEFT : {
-              SystemState = SHUTTERMANAGER;
+              SystemState = SHUTTER_MANAGER;
               seleccionMenu = PERSIANA_DERECHA;
               actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
-              SystemState = SHUTTERMANAGER;
+              SystemState = SHUTTER_MANAGER;
               seleccionMenu = PERSIANA_IZQUIERDA;
               actualizarMenuPantalla();
               break;
@@ -170,28 +180,28 @@ void loop() {
         }
         break;
       }
-    case MODE_SLEEP_TASK : {
+    case MENU_SLEEP_MODE : {
         switch (buttonPressed()) {
           case LEFT : {
-              SystemState = SHUTTERMANAGER;
+              SystemState = SHUTTER_MANAGER;
               seleccionMenu = PERSIANA_DERECHA;
               actualizarMenuPantalla();
               break;
             }
           case UP : {
-              SystemState = MODE_JOB_TASK;
+              SystemState = MENU_JOB_MODE;
               actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
-              SystemState = MODE_ON_SLEEP_TASK;
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
         }
         break;
       }
-    case MODE_ON_SLEEP_TASK : {
+    case MENU_ACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
           case RIGHT : {
               procesoActivarTarea();
@@ -199,20 +209,19 @@ void loop() {
               break;
             }
           case DOWN : {
-              SystemState = MODE_OFF_SLEEP_TASK;
+              SystemState = MENU_DEACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
           case LEFT : {
-              SystemState = MODE_SLEEP_TASK;
+              SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
-
         }
         break;
       }
-    case MODE_OFF_SLEEP_TASK : {
+    case MENU_DEACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
           case RIGHT : {
               procesoDesactivarTarea();
@@ -220,17 +229,26 @@ void loop() {
               break;
             }
           case UP : {
-              SystemState = MODE_ON_SLEEP_TASK;
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
           case LEFT : {
-              SystemState = MODE_SLEEP_TASK;
+              SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
-
         }
+        break;
+      }
+    case SLEEP_MANAGER : {
+        Serial.println("Modo dormir activado");
+        sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
+        delay(200);
+        bajarPersiana(PERSIANA_DERECHA);
+        delay(200);
+        bajarPersiana(PERSIANA_CENTRAL);
+        SystemState = IDLE;
         break;
       }
   }
@@ -323,14 +341,14 @@ void subirPersiana(int persiana) {
   ShutterData[persiana].LastMoved = millis();
   sendRollerCommand(persiana, 1);
   SystemFunctionTask.detach();
-  SystemFunctionTask.attach_ms(SHUTTER_DURATION_MILLIS,SystemFunctionManager);
+  SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
 };
 void bajarPersiana(int persiana) {
   ShutterData[persiana].status = 2;
   ShutterData[persiana].LastMoved = millis();
   sendRollerCommand(persiana, 2);
   SystemFunctionTask.detach();
-  SystemFunctionTask.attach_ms(SHUTTER_DURATION_MILLIS,SystemFunctionManager);
+  SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
 };
 void PararPersiana(int persiana) {
   ShutterData[persiana].status = 0;
@@ -343,59 +361,52 @@ void SystemFunctionManager(){
   
   // Check Roller Shutter status
   for(int index = 0; index < 3 ; index ++ ){
+    // Is this roller(supposedly) not stopped?
     if(ShutterData[index].status != 0){
-      if( abs(millis() - ShutterData[index].LastMoved) > SHUTTER_DURATION_MILLIS){
+      // Is the total duration of the movement time out for this roller?
+      if( abs(millis() - ShutterData[index].LastMoved) > SHUTTER_DURATION_SECONDS){
+        // This roller is for sure reached the limit.
         ShutterData[index].status = 0;
       }else{
+        // Check again next time
         SystemFunctionTask.detach();
-        SystemFunctionTask.attach_ms(SHUTTER_DURATION_MILLIS,SystemFunctionManager);
+        SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
       }
     }
-  }  
-  time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
-  if(nowSecondsUTC >= MyWeather.sunriseTimeSecondsUTC){
-    time_t now = time(NULL);
-    struct tm * timeinfo;
-    timeinfo = gmtime(&now);
-    resetScheduledData(timeinfo);
-    
-    int DaysYear = timeinfo->tm_yday;
-    if(DaysYear > 58 && isYearLeap(timeinfo->tm_year + 1900)) DaysYear--;
-    if(ScheduledData[DaysYear].scheduled && !ScheduledData[DaysYear].isDone){
-      ScheduledData[DaysYear].isDone = true;
-      activarModoDormir();
+  } 
+  // Check if time is ahead from sunrise time.
+  time_t nowSecondsUTC = time(NULL);
+  if( (nowSecondsUTC % (60 * 60 * 24)) >= MyWeather.sunriseSecondsUTC){
+    struct tm * timenow;
+    timenow = gmtime(&nowSecondsUTC);
+    // Check if a reset of the data is needed
+    resetScheduledData(timenow);
+    // Check if today there is a scheduled task.
+    if(ScheduledData[timenow->tm_mon].scheduled[timenow->tm_mday-1]){
+      // Check if the scheduled task isn't done yet.
+      if(!ScheduledData[timenow->tm_mon].isDone[timenow->tm_mday-1]){
+        // Switch to true the notification flag and change the system state
+        ScheduledData[timenow->tm_mon].isDone[timenow->tm_mday-1] = true;
+        SystemState = SLEEP_MANAGER;
+      }
     }
+    
   }
   Serial.println("System Manager updated");
 }
 
-void resetScheduledData(struct tm * timeinfo){
-  if(timeinfo->tm_yday == 0 && ScheduledDataResetValue == 0){
-    for(int index = 0; index < 365 ; index ++ ) ScheduledData[index].isDone = false;
+void resetScheduledData(struct tm * timenow){
+  if(timenow->tm_yday == 0 && ScheduledDataResetValue == 0){
+    for(int mes = 0; mes < 12 ; mes++){
+      for(int dia = 0; dia < 31 ; dia ++ ){
+        ScheduledData[mes].isDone[dia] = false;
+      }
+    }
     ScheduledDataResetValue = 1;
-  }else if(timeinfo->tm_yday != 0 && ScheduledDataResetValue != 0){
+  }else if(timenow->tm_yday != 0 && ScheduledDataResetValue != 0){
     ScheduledDataResetValue = 0;
   }
 }
-
-bool isYearLeap(int year){
-  if (year%400 == 0) // Exactly divisible by 400 e.g. 1600, 2000
-    return true;
-  else if (year%100 == 0) // Exactly divisible by 100 and not by 400 e.g. 1900, 2100
-    return false;
-  else if (year%4 == 0) // Exactly divisible by 4 and neither by 100 nor 400 e.g. 2020
-    return true;
-  else // Not divisible by 4 or 100 or 400 e.g. 2017, 2018, 2019
-    return false;
-}
-
-void activarModoDormir() {
-  Serial.println("Modo trabajo activado");
-  sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
-  bajarPersiana(PERSIANA_DERECHA);
-  delay(500);
-  bajarPersiana(PERSIANA_CENTRAL);
-};
 
 void activarModoTrabajo() {
   Serial.println("Modo trabajo activado");
@@ -403,7 +414,7 @@ void activarModoTrabajo() {
   getWeatherDataFunction();
   time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
   // According to Requirements the current time should be between sunrise and sunset time.
-  if((MyWeather.sunriseTimeSecondsUTC <= nowSecondsUTC) && (nowSecondsUTC <= MyWeather.sunsetTimeSecondsUTC)){
+  if((MyWeather.sunriseSecondsUTC <= nowSecondsUTC) && (nowSecondsUTC <= MyWeather.sunsetSecondsUTC)){
     // According to Requirements there is no need if the Cloudiness is less than 75%
     if(MyWeather.Cloudiness < 75){
       // Both shutter lowered when 60 < SunAzimuth < 260
@@ -482,16 +493,16 @@ int getWeatherDataFunction(){
     Serial.println("No Cloudiness JSON object found");
   }
   if(client.find("\"sunrise\":")){
-    MyWeather.sunriseTimeSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
-    Serial.print("Current Sunset Local time: ");
-    Serial.print(ctime(&MyWeather.sunriseTimeSecondsUTC));
+    MyWeather.sunriseSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
+    Serial.print("Current Sunrise UTC time: ");
+    Serial.print(ctime(&MyWeather.sunriseSecondsUTC));
   }else{
     Serial.println("No sunrise JSON object found");
   }
   if(client.find("\"sunset\":")){
-    MyWeather.sunsetTimeSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
-    Serial.print("Current Sunset Local time: ");
-    Serial.print(ctime(&MyWeather.sunsetTimeSecondsUTC));    
+    MyWeather.sunsetSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
+    Serial.print("Current Sunset UTC time: ");
+    Serial.print(ctime(&MyWeather.sunsetSecondsUTC));    
   }else{
     Serial.println("No sunsetTime JSON object found");
   }
@@ -511,15 +522,15 @@ int getWeatherDataFunction(){
 int procesoSeleccionarFecha(int & sday, int & smonth){
   int SleepTaskState = 0;
   bool FechaConfirmada = false;
-  int daysOfMonths [] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  while (SystemState == MODE_ON_SLEEP_TASK || SystemState == MODE_OFF_SLEEP_TASK)
+  int daysOfMonths [] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  while (SystemState == MENU_ACTIVATE_SLEEP_MODE || SystemState == MENU_DEACTIVATE_SLEEP_MODE)
   {
     switch (SleepTaskState) {
       case 0 : {
           lcd.clear(); lcd.home();
           lcd.print("SEL. FECHA ");
           lcd.setCursor(11, 0);
-          mostrarFechaPantalla(sday, smonth);
+          lcd.print(makeLcdStringDate(sday, smonth));
           lcd.setCursor(0, 1);
           lcd.print("<    +    -  Mes");
           SleepTaskState = 1;
@@ -534,7 +545,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                   sday = 1;
                 } else sday += 1;
                 lcd.setCursor(11, 0);
-                mostrarFechaPantalla(sday, smonth);
+                lcd.print(makeLcdStringDate(sday, smonth));
                 break;
               }
             case DOWN : {
@@ -544,11 +555,11 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                   sday = daysOfMonths[smonth - 1];
                 } else sday -= 1;
                 lcd.setCursor(11, 0);
-                mostrarFechaPantalla(sday, smonth);
+                lcd.print(makeLcdStringDate(sday, smonth));
                 break;
               }
             case LEFT : {
-                SystemState = MODE_SLEEP_TASK;
+                SystemState = MENU_SLEEP_MODE;
                 break;
               }
             case RIGHT : {
@@ -567,7 +578,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 else smonth++;
                 if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
                 lcd.setCursor(11, 0);
-                mostrarFechaPantalla(sday, smonth);
+                lcd.print(makeLcdStringDate(sday, smonth));
                 break;
               }
             case DOWN : {
@@ -575,7 +586,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 else smonth--;
                 if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
                 lcd.setCursor(11, 0);
-                mostrarFechaPantalla(sday, smonth);
+                lcd.print(makeLcdStringDate(sday, smonth));
                 break;
               }
             case LEFT : {
@@ -589,7 +600,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 lcd.print("CONFIRMAR  FECHA");
                 lcd.setCursor(0, 1);
                 lcd.print("<    ");
-                mostrarFechaPantalla(sday, smonth);
+                lcd.print(makeLcdStringDate(sday, smonth));
                 lcd.print("    OK");
                 SleepTaskState = 3;
                 break;
@@ -606,7 +617,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
             case RIGHT : {
                 // Guardar fecha
                 FechaConfirmada = true;
-                SystemState = MODE_SLEEP_TASK;
+                SystemState = MENU_SLEEP_MODE;
                 break;
               }
           }
@@ -618,19 +629,22 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
   return FechaConfirmada;
 };
 
-void mostrarFechaPantalla( int sday, int smonth) {
-  if (sday < 10) lcd.print('0');
-  lcd.print(sday, DEC);
-  lcd.print("/");
-  if (smonth < 10) lcd.print('0');
-  lcd.print(smonth, DEC);
+String makeLcdStringDate( int sday, int smonth) {
+  String date;
+  if (sday < 10) date += "0";
+  date += sday;
+  date += "/";
+  if (smonth < 10) date += "0";
+  date += smonth;
+  return date;
 }
 
 void procesoDesactivarTarea() {
   int newday = 1, newmonth = 1;
   if (procesoSeleccionarFecha(newday, newmonth)) {
     Serial.println("Desactivar tarea en fecha seleccionada");
-    
+    ScheduledData[newmonth-1].scheduled[newday-1] = false;
+    ScheduledData[newmonth-1].isDone[newday-1] = true;
     Serial.print(newday);
     Serial.print("-");
     Serial.println(newmonth);
@@ -641,7 +655,8 @@ void procesoActivarTarea() {
   int newday = 1, newmonth = 1;
   if (procesoSeleccionarFecha(newday, newmonth)) {
     Serial.println("Activar tarea en fecha seleccionada");
-    
+    ScheduledData[newmonth-1].scheduled[newday-1] = true;
+    ScheduledData[newmonth-1].isDone[newday-1] = false;
     Serial.print(newday);
     Serial.print("-");
     Serial.println(newmonth);
@@ -651,21 +666,21 @@ void procesoActivarTarea() {
 void mostrarHoraPantalla() {
   time_t now;
   struct tm * timeinfo;
-  now = time(&now) + MYTZ;
+  now = time(&now) + MyWeather.timezoneshift;
   timeinfo = localtime(&now);
   lcd.clear();
-  lcd.setCursor(1, 0);
+  lcd.setCursor(3, 0);
   if ((timeinfo->tm_hour) < 10) lcd.print('0');
   lcd.print((timeinfo->tm_hour), DEC);
 
   lcd.print(':');
   if ((timeinfo->tm_min) < 10) lcd.print('0');
   lcd.print((timeinfo->tm_min), DEC);
-
+/*
   lcd.print(':');
   if ((timeinfo->tm_sec) < 10) lcd.print('0');
   lcd.print((timeinfo->tm_sec), DEC);
-
+*/
   lcd.setCursor(12, 0);
   if (((int)MyWeather.TemperatureDegree) < 10) lcd.print('0');
   lcd.print(((int)MyWeather.TemperatureDegree), DEC);
@@ -718,7 +733,7 @@ void mostrarHoraPantalla() {
 void actualizarMenuPantalla() {
   lcd.clear(); lcd.home();
   switch (SystemState) {
-    case SHUTTERMANAGER : {
+    case SHUTTER_MANAGER : {
         if (seleccionMenu < 3) {
           String namePersiana [] = {" PERSIANA IZQDA ", "PERSIANA CENTRAL", "PERSIANA DERECHA", "  ERROR MENU  "};
           lcd.print(namePersiana[seleccionMenu]);
@@ -739,25 +754,25 @@ void actualizarMenuPantalla() {
         }
         break;
       }
-    case MODE_JOB_TASK : {
+    case MENU_JOB_MODE : {
         lcd.print("  MODO TRABAJO  ");
         lcd.setCursor(0, 1);
         lcd.print("<   OK   SIG.  >");
         break;
       }
-    case MODE_SLEEP_TASK : {
+    case MENU_SLEEP_MODE : {
         lcd.print("  MODO DORMIR   ");
         lcd.setCursor(0, 1);
         lcd.print("<  ANT.       OK");
         break;
       }
-    case MODE_ON_SLEEP_TASK : {
+    case MENU_ACTIVATE_SLEEP_MODE : {
         lcd.print("ACT. MODO DORMIR");
         lcd.setCursor(0, 1);
         lcd.print("<        SIG. OK");
         break;
       }
-    case MODE_OFF_SLEEP_TASK : {
+    case MENU_DEACTIVATE_SLEEP_MODE : {
         lcd.print("DES. MODO DORMIR");
         lcd.setCursor(0, 1);
         lcd.print("<  ANT.       OK");

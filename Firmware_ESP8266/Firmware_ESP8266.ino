@@ -580,15 +580,15 @@ int procesoConfirmarFecha(int & sday, int & smonth){
   bool ConfirmationState = false;
   lcd.clear(); lcd.home();
   if(sday == -1){
-    lcd.print("ACTIVAR SIEMPRE?");
+    lcd.print("ATTIVA  SIEMPRE?");
     lcd.setCursor(0, 1);
     lcd.print("<             OK");
   }else if(sday == -2){
-    lcd.print(" CANCELAR TODO? ");
+    lcd.print("CANCELLA  TUTTO?");
     lcd.setCursor(0, 1);
     lcd.print("<             OK");
   }else{
-    lcd.print("CONFIRMAR  FECHA");
+    lcd.print("CONFIRMARE  DATA");
     lcd.setCursor(0, 1);
     lcd.print("<    ");
     lcd.print(makeLcdStringDate(sday, smonth));
@@ -621,11 +621,11 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
     switch (SleepTaskState) {
       case 0 : {
           lcd.clear(); lcd.home();
-          lcd.print("SEL. FECHA ");
+          lcd.print("SEL. DATA  ");
           lcd.setCursor(11, 0);
           lcd.print(makeLcdStringDate(sday, smonth));
           lcd.setCursor(0, 1);
-          lcd.print("<    +    -  Mes");
+          lcd.print("<    -    +  Mes");
           SleepTaskState = 1;
           break;
         }
@@ -658,7 +658,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
             case RIGHT : {
                 SleepTaskState = 2;
                 lcd.setCursor(0, 1);
-                lcd.print("Dia  +    -   OK");
+                lcd.print("Dia  -    +   OK");
                 break;
               }
           }
@@ -684,7 +684,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
               }
             case LEFT : {
                 lcd.setCursor(0, 1);
-                lcd.print("<    +    -  Mes");
+                lcd.print("<    -    +  Mes");
                 SleepTaskState = 1;
                 break;
               }
@@ -816,7 +816,7 @@ void actualizarMenuPantalla() {
   switch (SystemState) {
     case SHUTTER_MANAGER : {
         if (seleccionMenu < 3) {
-          String namePersiana [] = {" PERSIANA IZQDA ", "PERSIANA CENTRAL", "PERSIANA DERECHA", "  ERROR MENU  "};
+          String namePersiana [] = {"  PERSIANA SX   ", "PERSIANA CENTRAL", "  PERSIANA DX  ", "  ERROR MENU  "};
           lcd.print(namePersiana[seleccionMenu]);
           lcd.setCursor(0, 1);
           lcd.print("<");
@@ -836,7 +836,7 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_JOB_MODE : {
-        lcd.print("  MODO TRABAJO  ");
+        lcd.print("  MODO LAVORO  ");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);
@@ -844,15 +844,15 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_SLEEP_MODE : {
-        lcd.print("  MODO DORMIR   ");
+        lcd.print("  MODO DORMIRE  ");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);
         lcd.print("   OK    >");
         break;
       }
-    case MENU_ACTIVATE_SLEEP_MODE : {   
-        lcd.print(" ACTIVAR UN DIA ");
+    case MENU_ACTIVATE_SLEEP_MODE : {
+        lcd.print("ATTIVA UN GIORNO");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);
@@ -860,7 +860,7 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
-        lcd.print("CANCELAR UN DIA ");
+        lcd.print("ANULLA UN GIORNO");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);
@@ -868,7 +868,7 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_ACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print("ACTIVAR  SIEMPRE");
+        lcd.print(" ATTIVA  SEMPRE ");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);
@@ -876,7 +876,7 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print(" CANCELAR TODO  ");
+        lcd.print(" CANCELLA TUTTO ");
         lcd.setCursor(0, 1);
         lcd.print("<    ");
         lcd.write(2);

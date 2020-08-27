@@ -8,6 +8,7 @@
 
 
 #include <Ticker.h>
+#include <EEPROM.h>
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <ESP8266WiFi.h>
@@ -23,7 +24,9 @@ enum State {
   MENU_JOB_MODE,
   MENU_SLEEP_MODE,
   MENU_ACTIVATE_SLEEP_MODE,
-  MENU_DEACTIVATE_SLEEP_MODE
+  MENU_DEACTIVATE_SLEEP_MODE,
+  MENU_ACTIVATE_ALL_SLEEP_MODE,
+  MENU_DEACTIVATE_ALL_SLEEP_MODE
 } SystemState ;
 
 enum ButtonInput {
@@ -71,12 +74,10 @@ void setup() {
   SystemState = IDLE;
   seleccionMenu = PERSIANA_CENTRAL;
   currentButton = NONE;
-  for(int mes = 0; mes < 12 ; mes++){
-    for(int dia = 0; dia < 31 ; dia ++ ){
-      ScheduledData[mes][dia] = 0;
-    }
-  }
   Serial.begin(115200);
+  EEPROM_Read(); 
+  // Put this in case it's the first time we power up the ESP
+  // EEPROM_Write(); 
   initLCDFunction();
   initWifiFunction();
   initTimeFunction();
@@ -182,30 +183,36 @@ void loop() {
               break;
             }
           case UP : {
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
+              actualizarMenuPantalla();
+              break;
+            }
+          case DOWN : {
               SystemState = MENU_JOB_MODE;
               actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
-              SystemState = MENU_ACTIVATE_SLEEP_MODE;
+              SystemState = SHUTTER_MANAGER;
+              seleccionMenu = PERSIANA_IZQUIERDA;
               actualizarMenuPantalla();
               break;
-            }
+          }
         }
         break;
       }
     case MENU_ACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case RIGHT : {
+          case UP : {
               procesoActivarTarea();
               actualizarMenuPantalla();
               break;
-            }
+          }
           case DOWN : {
               SystemState = MENU_DEACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
-            }
+          }
           case LEFT : {
               SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
@@ -216,16 +223,72 @@ void loop() {
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case RIGHT : {
+          case UP : {
               procesoDesactivarTarea();
               actualizarMenuPantalla();
               break;
-            }
+          }
+          case DOWN : {
+              SystemState = MENU_ACTIVATE_ALL_SLEEP_MODE;
+              actualizarMenuPantalla();
+              break;
+          }
+          case LEFT : {
+              SystemState = MENU_SLEEP_MODE;
+              actualizarMenuPantalla();
+              break;
+          }
+        }
+        break;
+      }
+    case MENU_ACTIVATE_ALL_SLEEP_MODE : {
+        switch (buttonPressed()) {
           case UP : {
-              SystemState = MENU_ACTIVATE_SLEEP_MODE;
+              int snumber = -1;
+              if(procesoConfirmarFecha(snumber,snumber)){
+                for(int mes = 0; mes < 12 ; mes++){
+                  for(int dia = 0; dia < 31 ; dia ++ ){
+                    ScheduledData[mes][dia] |= 0x1;
+                  }
+                }
+                EEPROM_Write();
+              }
+              actualizarMenuPantalla();
+              break;
+          }
+          case DOWN : {
+              SystemState = MENU_DEACTIVATE_ALL_SLEEP_MODE;
+              actualizarMenuPantalla();
+              break;
+          }
+          case LEFT : {
+              SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
+        }
+        break;
+      }
+    case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
+        switch (buttonPressed()) {
+          case UP : {
+              int snumber = -2;
+              if(procesoConfirmarFecha(snumber,snumber)){
+                for(int mes = 0; mes < 12 ; mes++){
+                  for(int dia = 0; dia < 31 ; dia ++ ){
+                    ScheduledData[mes][dia] &= 0x2;
+                  }
+                }
+                EEPROM_Write();
+              }
+              actualizarMenuPantalla();
+              break;
+          }
+          case DOWN : {
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
+              actualizarMenuPantalla();
+              break;
+          }
           case LEFT : {
               SystemState = MENU_SLEEP_MODE;
               actualizarMenuPantalla();
@@ -236,12 +299,14 @@ void loop() {
       }
     case SLEEP_MANAGER : {
         Serial.println("Modo dormir activado");
+        EEPROM_Write();
         sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
         delay(200);
         bajarPersiana(PERSIANA_DERECHA);
         delay(200);
         bajarPersiana(PERSIANA_CENTRAL);
         SystemState = IDLE;
+		    EEPROM_Read();
         break;
       }
   }
@@ -268,10 +333,10 @@ void IRAM_ATTR isrButtons() {
 int buttonPressed() {
   while ( Serial.available() ) {
     char c = (char)Serial.read();
-    if ( c == '1' ) currentButton = LEFT;
-    if ( c == '2' ) currentButton = UP;
-    if ( c == '3' ) currentButton = DOWN;
-    if ( c == '4' ) currentButton = RIGHT;
+    if ( c == '4' or c == 'g') currentButton = LEFT;
+    if ( c == '2' or c == 'h') currentButton = DOWN;
+    if ( c == '8' or c == 'j') currentButton = UP;
+    if ( c == '6' or c == 'k') currentButton = RIGHT;
   }
   if (currentButton != NONE) {
     Serial.print("------- [DEBUG] PULSADO : ");
@@ -360,6 +425,7 @@ void SystemFunctionManager(){
       if( abs(millis() - ShutterData[index].LastMoved) > SHUTTER_DURATION_SECONDS){
         // This roller is for sure reached the limit.
         ShutterData[index].status = 0;
+        actualizarMenuPantalla();
       }else{
         // Check again next time
         SystemFunctionTask.detach();
@@ -368,15 +434,15 @@ void SystemFunctionManager(){
     }
   } 
   // Check if time is ahead from sunrise time.
-  time_t nowSecondsUTC = time(NULL);
-  if( (nowSecondsUTC % (60 * 60 * 24)) >= MyWeather.sunriseSecondsUTC){
+  time_t nowSecondsUTC = time(NULL) + MyWeather.timezoneshift;
+  if( (nowSecondsUTC % (60 * 60 * 24)) >= (MyWeather.sunriseSecondsUTC+MyWeather.timezoneshift)){
     struct tm * timenow;
     timenow = gmtime(&nowSecondsUTC);
     // Check if a reset of the data is needed
     resetScheduledData(timenow);
     // Check if today there is a scheduled task and isn't done yet.
     if(ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
-      // Switch to true the notification flag and change the system state
+      // Switch to true the notification flag
       ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
       SystemState = SLEEP_MANAGER;
     }
@@ -392,6 +458,7 @@ void resetScheduledData(struct tm * timenow){
         ScheduledData[mes][dia] &= 0x1;
       }
     }
+    EEPROM_Write();
     ScheduledDataResetValue = 1;
   }else if(timenow->tm_yday != 0 && ScheduledDataResetValue != 0){
     ScheduledDataResetValue = 0;
@@ -509,11 +576,47 @@ int getWeatherDataFunction(){
   return 0;
 }
 
+int procesoConfirmarFecha(int & sday, int & smonth){
+  bool ConfirmationState = false;
+  lcd.clear(); lcd.home();
+  if(sday == -1){
+    lcd.print("ACTIVAR SIEMPRE?");
+    lcd.setCursor(0, 1);
+    lcd.print("<             OK");
+  }else if(sday == -2){
+    lcd.print(" CANCELAR TODO? ");
+    lcd.setCursor(0, 1);
+    lcd.print("<             OK");
+  }else{
+    lcd.print("CONFIRMAR  FECHA");
+    lcd.setCursor(0, 1);
+    lcd.print("<    ");
+    lcd.print(makeLcdStringDate(sday, smonth));
+    lcd.print("    OK");
+  }
+  while (SystemState != IDLE && SystemState != MENU_SLEEP_MODE)
+  {
+    switch (buttonPressed()) {
+      case LEFT : {
+          SystemState = MENU_SLEEP_MODE;
+          break;
+        }
+      case RIGHT : {
+          ConfirmationState = true;
+          SystemState= MENU_SLEEP_MODE;
+          break;
+        }
+    }
+    yield();
+  }
+  return ConfirmationState;
+};
+
 int procesoSeleccionarFecha(int & sday, int & smonth){
   int SleepTaskState = 0;
   bool FechaConfirmada = false;
   int daysOfMonths [] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  while (SystemState == MENU_ACTIVATE_SLEEP_MODE || SystemState == MENU_DEACTIVATE_SLEEP_MODE)
+  while (SystemState != IDLE && SystemState != MENU_SLEEP_MODE)
   {
     switch (SleepTaskState) {
       case 0 : {
@@ -586,28 +689,16 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 break;
               }
             case RIGHT : {
+                /*
                 lcd.clear(); lcd.home();
                 lcd.print("CONFIRMAR  FECHA");
                 lcd.setCursor(0, 1);
                 lcd.print("<    ");
                 lcd.print(makeLcdStringDate(sday, smonth));
                 lcd.print("    OK");
-                SleepTaskState = 3;
-                break;
-              }
-          }
-          break;
-        }
-      case 3 : {
-          switch (buttonPressed()) {
-            case LEFT : {
-                SleepTaskState = 0;
-                break;
-              }
-            case RIGHT : {
-                // Guardar fecha
-                FechaConfirmada = true;
-                SystemState = MENU_SLEEP_MODE;
+                */
+                FechaConfirmada = procesoConfirmarFecha(sday,smonth);
+                if(!FechaConfirmada) SleepTaskState = 0;
                 break;
               }
           }
@@ -637,6 +728,7 @@ void procesoDesactivarTarea() {
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
+    EEPROM_Write();
   }
 }
 
@@ -648,6 +740,7 @@ void procesoActivarTarea() {
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
+    EEPROM_Write();
   }
 }
 
@@ -680,8 +773,8 @@ void mostrarHoraPantalla() {
   lcd.print((timeinfo->tm_mday), DEC);
 
   lcd.print('/');
-  if ((timeinfo->tm_mon) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_mon), DEC);
+  if ((timeinfo->tm_mon+1) < 10) lcd.print('0');
+  lcd.print((timeinfo->tm_mon+1), DEC);
 
   lcd.print('/');
   lcd.print((timeinfo->tm_year) + 1900, DEC);
@@ -729,13 +822,13 @@ void actualizarMenuPantalla() {
           lcd.print("<");
           lcd.setCursor(5, 1);
 
-          if (ShutterData[seleccionMenu].status == 1) lcd.write(4);
-          else lcd.write(1);
+          if (ShutterData[seleccionMenu].status == 2) lcd.write(4);
+          else lcd.write(2);
 
           lcd.setCursor(10, 1);
 
-          if (ShutterData[seleccionMenu].status == 2) lcd.write(4);
-          else lcd.write(2);
+          if (ShutterData[seleccionMenu].status == 1) lcd.write(4);
+          else lcd.write(1);
 
           lcd.setCursor(15, 1);
           lcd.print(">");
@@ -745,25 +838,49 @@ void actualizarMenuPantalla() {
     case MENU_JOB_MODE : {
         lcd.print("  MODO TRABAJO  ");
         lcd.setCursor(0, 1);
-        lcd.print("<   OK   SIG.  >");
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK    >");
         break;
       }
     case MENU_SLEEP_MODE : {
         lcd.print("  MODO DORMIR   ");
         lcd.setCursor(0, 1);
-        lcd.print("<  ANT.       OK");
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK    >");
         break;
       }
-    case MENU_ACTIVATE_SLEEP_MODE : {
-        lcd.print("ACT. MODO DORMIR");
+    case MENU_ACTIVATE_SLEEP_MODE : {   
+        lcd.print(" ACTIVAR UN DIA ");
         lcd.setCursor(0, 1);
-        lcd.print("<        SIG. OK");
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK");
         break;
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
-        lcd.print("DES. MODO DORMIR");
+        lcd.print("CANCELAR UN DIA ");
         lcd.setCursor(0, 1);
-        lcd.print("<  ANT.       OK");
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK");
+        break;
+      }
+    case MENU_ACTIVATE_ALL_SLEEP_MODE : {
+        lcd.print("ACTIVAR  SIEMPRE");
+        lcd.setCursor(0, 1);
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK");
+        break;
+      }
+    case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
+        lcd.print(" CANCELAR TODO  ");
+        lcd.setCursor(0, 1);
+        lcd.print("<    ");
+        lcd.write(2);
+        lcd.print("   OK");
         break;
       }
     default : {
@@ -800,7 +917,7 @@ int initLCDFunction() {
     /* Flecha abajo     */  {0x00, 0x00, 0x11, 0x1B, 0x1F, 0x0E, 0x04, 0x00},
     /* Flecha derecha   */  {0x00, 0x1C, 0x0E, 0x07, 0x07, 0x0E, 0x1C, 0x00},
     /* Flecha STOP      */  {0x00, 0x0E, 0x1B, 0x11, 0x11, 0x1B, 0x0E, 0x00},
-    /* Vacio            */  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+    /* Flecha arribacan */  {0x04, 0x0E, 0x1F, 0x15, 0x04, 0x04, 0x07, 0x00}
   };
   for ( byte i = 0 ; i < 6 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
   lcd.home(); lcd.clear();
@@ -874,4 +991,32 @@ void checkSlaveConnection() {
     delay(200);
     yield();
   };
+}
+
+void EEPROM_Write(){
+  EEPROM.begin(EEPROM_SIZE);
+  // store values in EEPROM
+  for (int mes = 0; mes < 12; mes++){
+    for(int dia = 0 ; dia < 31 ; dia ++)
+  		if(ScheduledData[mes][dia] != EEPROM.read( EEPROMStartAdress + ((mes*31)+dia)))
+  			EEPROM.write( EEPROMStartAdress + ((mes*31)+dia), ScheduledData[mes][dia]);
+  }
+  EEPROM.commit();
+  EEPROM.end();
+}
+
+void EEPROM_Read(){
+  EEPROM.begin(EEPROM_SIZE);
+  for (int mes = 0; mes < 12; mes++){
+    for(int dia = 0 ; dia < 31 ; dia ++){
+      ScheduledData[mes][dia] = EEPROM.read( EEPROMStartAdress + ((mes*31)+dia));
+      Serial.print("Mes: ");
+      Serial.print(mes);
+      Serial.print(" Dia: ");
+      Serial.print(dia);
+      Serial.print(" Valor: ");
+      Serial.println(ScheduledData[mes][dia],HEX);
+    }
+  }
+  EEPROM.end();
 }

@@ -1,6 +1,8 @@
 #define TO_IDLE_SECONDS 10
 #define ADDRESS_I2C_LCD 0x3F
 #define ADDRESS_I2C_SLAVE 0x8
+#define EEPROM_SIZE 380
+#define EEPROMStartAdress 0
 
 #ifndef TZ_Europe_Madrid
 #define TZ_Europe_Madrid 2 * 3600

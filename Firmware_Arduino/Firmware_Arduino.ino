@@ -45,6 +45,10 @@ void setup(){
   pinMode(PIN_RF_RX,INPUT);
   pinMode(PIN_RELAY,OUTPUT);
   initButtonsFunction();
+  pinMode(8,INPUT);
+  pinMode(9,INPUT);
+  pinMode(10,INPUT);
+  pinMode(11,INPUT);
   
   Serial.begin(115200);
   Wire.begin(I2C_SLAVE);                // join i2c bus with address #8

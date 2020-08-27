@@ -195,14 +195,6 @@ Wire Wire Line
 Wire Wire Line
 	7600 1950 7600 2050
 Connection ~ 6750 1950
-Text Label 4850 2350 0    50   ~ 0
-8
-Text Label 5700 2350 0    50   ~ 0
-9
-Text Label 6550 2350 0    50   ~ 0
-10
-Text Label 7400 2350 0    50   ~ 0
-11
 Wire Notes Line
 	4600 1600 4600 3450
 Wire Wire Line
@@ -457,12 +449,10 @@ Wire Wire Line
 	950  1200 1300 1200
 Wire Wire Line
 	950  1100 1300 1100
-NoConn ~ 8100 5500
-NoConn ~ 8100 5100
 Wire Notes Line
 	4200 3900 10100 3900
 Wire Wire Line
-	8100 5000 9300 5000
+	8100 5000 8850 5000
 Connection ~ 9300 5000
 Wire Wire Line
 	9300 5050 9300 5000
@@ -650,8 +640,6 @@ F 3 "" H 5900 5900 50  0001 C CNN
 	1    5900 5900
 	1    0    0    -1  
 $EndComp
-NoConn ~ 6150 5100
-NoConn ~ 6150 5000
 $Comp
 L CustomLibraries_power:GND #PWR014
 U 1 1 5EA42901
@@ -730,10 +718,7 @@ Text Notes 5150 4050 0    60   ~ 0
 ESP-13e
 Wire Notes Line
 	3950 6850 3950 3900
-NoConn ~ 2100 5450
-NoConn ~ 2100 5550
 NoConn ~ 2100 5650
-NoConn ~ 2100 5750
 NoConn ~ 2100 5850
 NoConn ~ 2100 5950
 NoConn ~ 3600 5950
@@ -1053,4 +1038,69 @@ Text Label 2250 6700 0    39   ~ 0
 I2C_SCL
 Text Label 2250 6800 0    39   ~ 0
 I2C_SDA
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J?
+U 1 1 5F3D7AAB
+P 9250 1100
+F 0 "J?" H 9330 1142 50  0000 L CNN
+F 1 "Conn_01x03" H 9330 1051 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 9250 1100 50  0001 C CNN
+F 3 "~" H 9250 1100 50  0001 C CNN
+	1    9250 1100
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	8750 1550 9900 1550
+Wire Notes Line
+	9900 1550 9900 600 
+Wire Notes Line
+	9900 600  8750 600 
+Wire Notes Line
+	8750 600  8750 1550
+Text Notes 8800 700  0    39   ~ 0
+Lamp button
+Wire Wire Line
+	6150 5000 5900 5000
+Wire Wire Line
+	6150 5100 5900 5100
+Wire Wire Line
+	8100 5500 8350 5500
+Wire Wire Line
+	8100 5100 8350 5100
+Text Label 5900 5000 0    39   ~ 0
+GPIO12
+Text Label 5900 5100 0    39   ~ 0
+GPIO13
+Text Label 8150 5500 0    39   ~ 0
+GPIO4
+Text Label 8150 5100 0    39   ~ 0
+GPIO5
+Text Label 4750 2350 0    39   ~ 0
+GPIO4
+Text Label 5600 2350 0    39   ~ 0
+GPIO5
+Text Label 6450 2350 0    39   ~ 0
+GPIO12
+Text Label 7300 2350 0    39   ~ 0
+GPIO13
+$Comp
+L CustomLibraries_connectors:Conn_01x02 J?
+U 1 1 5F401437
+P 8650 4700
+F 0 "J?" H 8600 4400 50  0000 C CNN
+F 1 "Conn_01x02" H 8800 4500 50  0000 C CNN
+F 2 "" H 8650 4700 50  0001 C CNN
+F 3 "~" H 8650 4700 50  0001 C CNN
+	1    8650 4700
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	8850 4700 8850 5000
+Connection ~ 8850 5000
+Wire Wire Line
+	8850 5000 9300 5000
+Text Label 8850 4550 0    39   ~ 0
+Reset
+Wire Wire Line
+	8850 4600 8850 4500
 $EndSCHEMATC

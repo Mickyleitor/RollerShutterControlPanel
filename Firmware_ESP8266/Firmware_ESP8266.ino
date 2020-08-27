@@ -148,7 +148,9 @@ void loop() {
     case MENU_JOB_MODE : {
         switch (buttonPressed()) {
           case DOWN : {
+			  apagarBrilloPantalla();
               activarModoTrabajo();
+			  encenderBrilloPantalla();
               break;
           }
           case LEFT : {

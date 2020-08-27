@@ -1,12 +1,5 @@
-/**
- * Simple Write. 
- * 
- * Check if the mouse is over a rectangle and writes the status to the serial port. 
- * This example works with the Wiring / Arduino program that follows below.
- */
-
-
 import processing.serial.*;
+import processing.sound.*;
 
 Serial myPort;  // Create object from Serial class
 int val;        // Data received from the serial port
@@ -15,10 +8,12 @@ boolean stopped = true;
 int time_previous = 0;
 int time_recorded = 0;
 int buttons_number = 0;
+SoundFile buzzer;
 
 void setup() 
 {
   size(1100, 500);
+  buzzer = new SoundFile(this, "beep.wav");
   // I know that the first port in the serial list on my mac
   // is always my  FTDI adaptor, so I open Serial.list()[0].
   // On Windows machines, this generally opens COM1.
@@ -43,13 +38,13 @@ void draw() {
       }
       if(layout > 0){
         fill(128 - (mouseOverUp2()*100));
-        rect(820, 200, 100, 100,10);         // Draw a square
+        rect(710, 200, 100, 100,10);         // Draw a square
         fill(128 - (mouseOverLeft2()*100));
         rect(600, 200, 100, 100,10);         // Draw a square
         fill(128 - (mouseOverRight2()*100));
         rect(930, 200, 100, 100,10);         // Draw a square
         fill(128 - (mouseOverDown2()*100));
-        rect(710, 200, 100, 100,10);         // Draw a square
+        rect(820, 200, 100, 100,10);         // Draw a square
       }
    }else{
       fill(128);
@@ -98,11 +93,11 @@ int mouseOverLeft2() { // Test if mouse is over square
   if ((mouseX >= 600) && (mouseX <= 700) && (mouseY >= 200) && (mouseY <= 300)) return 1;
   else return 0;
 }
-int mouseOverDown2() { // Test if mouse is over square
+int mouseOverUp2() { // Test if mouse is over square
   if ((mouseX >= 710) && (mouseX <= 810) && (mouseY >= 200) && (mouseY <= 300)) return 1;
   else return 0;
 }
-int mouseOverUp2() { // Test if mouse is over square
+int mouseOverDown2() { // Test if mouse is over square
   if ((mouseX >= 820) && (mouseX <= 920) && (mouseY >= 200) && (mouseY <= 300)) return 1;
   else return 0;
 }
@@ -127,18 +122,22 @@ void stop() {
 void mouseClicked() {
   if(mouseOverUp()==1 || mouseOverUp2()==1){
     myPort.write("8");
+    buzzer.play();
     buttons_number++;
   }
   if(mouseOverRight()==1 || mouseOverRight2()==1){
     myPort.write("6");
+    buzzer.play();
     buttons_number++;
   }
     if(mouseOverLeft()==1 || mouseOverLeft2()==1){
     myPort.write("4");
+    buzzer.play();
     buttons_number++;
   }
   if(mouseOverDown()==1 || mouseOverDown2()==1){
     myPort.write("2");
+    buzzer.play();
     buttons_number++;
   }
 }
@@ -151,9 +150,9 @@ void keyPressed() {
     stopped = !stopped;
     if(stopped){
       time_recorded = millis() - time_previous;
-      buttons_number = 0;
     }else{
       time_previous = millis();
+      buttons_number = 0;
     }
   }
 }

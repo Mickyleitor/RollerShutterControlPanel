@@ -41,7 +41,8 @@ enum MenuSeleccion {
   PERSIANA_IZQUIERDA = 0,
   PERSIANA_CENTRAL = 1,
   PERSIANA_DERECHA = 2,
-  OPTION = 3
+  OPTION_JOB_MODE = 3,
+  OPTION_SLEEP_MODE = 4
 } seleccionMenu ;
 
 struct WeatherData {
@@ -105,8 +106,8 @@ void loop() {
         // getWeatherDataFunction();
         if(SystemState == SHUTTER_MANAGER){
           encenderBrilloPantalla();
-          if (seleccionMenu == OPTION)  
-              SystemState = MENU_JOB_MODE;
+          if (seleccionMenu == OPTION_JOB_MODE) SystemState = MENU_JOB_MODE;
+          if (seleccionMenu == OPTION_SLEEP_MODE) SystemState = MENU_SLEEP_MODE;
           actualizarMenuPantalla();
         }
         break;
@@ -115,15 +116,11 @@ void loop() {
         switch (buttonPressed()) {
           case LEFT : {
               seleccionarAnterior();
-              if (seleccionMenu == OPTION)
-                  SystemState = MENU_JOB_MODE;
               actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
               seleccionarSiguiente();
-              if (seleccionMenu == OPTION)
-                  SystemState = MENU_JOB_MODE;
               actualizarMenuPantalla();
               break;
             }
@@ -150,24 +147,17 @@ void loop() {
       }
     case MENU_JOB_MODE : {
         switch (buttonPressed()) {
-          case UP : {
+          case DOWN : {
               activarModoTrabajo();
               break;
-            }
-          case DOWN : {
-              SystemState = MENU_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-            }
+          }
           case LEFT : {
-              SystemState = SHUTTER_MANAGER;
-              seleccionMenu = PERSIANA_DERECHA;
+              seleccionarAnterior();
               actualizarMenuPantalla();
               break;
             }
           case RIGHT : {
-              SystemState = SHUTTER_MANAGER;
-              seleccionMenu = PERSIANA_IZQUIERDA;
+              seleccionarSiguiente();
               actualizarMenuPantalla();
               break;
             }
@@ -177,24 +167,17 @@ void loop() {
     case MENU_SLEEP_MODE : {
         switch (buttonPressed()) {
           case LEFT : {
-              SystemState = SHUTTER_MANAGER;
-              seleccionMenu = PERSIANA_DERECHA;
-              actualizarMenuPantalla();
-              break;
-            }
-          case UP : {
-              SystemState = MENU_ACTIVATE_SLEEP_MODE;
+              seleccionarAnterior();
               actualizarMenuPantalla();
               break;
             }
           case DOWN : {
-              SystemState = MENU_JOB_MODE;
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
-            }
+          }
           case RIGHT : {
-              SystemState = SHUTTER_MANAGER;
-              seleccionMenu = PERSIANA_IZQUIERDA;
+              seleccionarSiguiente();
               actualizarMenuPantalla();
               break;
           }
@@ -203,12 +186,12 @@ void loop() {
       }
     case MENU_ACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case UP : {
+          case DOWN : {
               procesoActivarTarea();
               actualizarMenuPantalla();
               break;
           }
-          case DOWN : {
+          case RIGHT : {
               SystemState = MENU_DEACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
@@ -223,18 +206,18 @@ void loop() {
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case UP : {
+          case DOWN : {
               procesoDesactivarTarea();
               actualizarMenuPantalla();
               break;
           }
-          case DOWN : {
+          case RIGHT : {
               SystemState = MENU_ACTIVATE_ALL_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
           }
           case LEFT : {
-              SystemState = MENU_SLEEP_MODE;
+              SystemState = MENU_ACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
           }
@@ -243,7 +226,7 @@ void loop() {
       }
     case MENU_ACTIVATE_ALL_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case UP : {
+          case DOWN : {
               int snumber = -1;
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
@@ -256,13 +239,13 @@ void loop() {
               actualizarMenuPantalla();
               break;
           }
-          case DOWN : {
-              SystemState = MENU_DEACTIVATE_ALL_SLEEP_MODE;
+          case LEFT : {
+              SystemState = MENU_DEACTIVATE_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
           }
-          case LEFT : {
-              SystemState = MENU_SLEEP_MODE;
+          case RIGHT : {
+              SystemState = MENU_DEACTIVATE_ALL_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
@@ -271,7 +254,7 @@ void loop() {
       }
     case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
         switch (buttonPressed()) {
-          case UP : {
+          case DOWN : {
               int snumber = -2;
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
@@ -284,13 +267,8 @@ void loop() {
               actualizarMenuPantalla();
               break;
           }
-          case DOWN : {
-              SystemState = MENU_ACTIVATE_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
           case LEFT : {
-              SystemState = MENU_SLEEP_MODE;
+              SystemState = MENU_ACTIVATE_ALL_SLEEP_MODE;
               actualizarMenuPantalla();
               break;
             }
@@ -351,7 +329,8 @@ int buttonPressed() {
 void seleccionarAnterior() {
   switch (seleccionMenu) {
     case PERSIANA_IZQUIERDA : {
-        seleccionMenu = OPTION;
+        seleccionMenu = OPTION_SLEEP_MODE;
+        SystemState = MENU_SLEEP_MODE;
         break;
       };
     case PERSIANA_CENTRAL : {
@@ -362,10 +341,16 @@ void seleccionarAnterior() {
         seleccionMenu = PERSIANA_CENTRAL;
         break;
       };
-    case OPTION : {
+    case OPTION_JOB_MODE : {
         seleccionMenu = PERSIANA_DERECHA;
+        SystemState = SHUTTER_MANAGER;
         break;
-      };
+    };
+    case OPTION_SLEEP_MODE : {
+        seleccionMenu = OPTION_JOB_MODE;
+        SystemState = MENU_JOB_MODE;
+        break;
+    };
   }
 }
 void seleccionarSiguiente() {
@@ -379,13 +364,20 @@ void seleccionarSiguiente() {
         break;
       };
     case PERSIANA_DERECHA : {
-        seleccionMenu = OPTION;
+        seleccionMenu = OPTION_JOB_MODE;
+        SystemState = MENU_JOB_MODE;
         break;
       };
-    case OPTION : {
+    case OPTION_JOB_MODE : {
+        seleccionMenu = OPTION_SLEEP_MODE;
+        SystemState = MENU_SLEEP_MODE;
+        break;
+    };
+    case OPTION_SLEEP_MODE : {
         seleccionMenu = PERSIANA_IZQUIERDA;
+        SystemState = SHUTTER_MANAGER;
         break;
-      };
+    };
   }
 }
 void apagarBrilloPantalla()  {
@@ -590,9 +582,9 @@ int procesoConfirmarFecha(int & sday, int & smonth){
   }else{
     lcd.print("CONFIRMAR  FECHA");
     lcd.setCursor(0, 1);
-    lcd.print("<    ");
+    lcd.print("<             OK");
+    lcd.setCursor(5, 1);
     lcd.print(makeLcdStringDate(sday, smonth));
-    lcd.print("    OK");
   }
   while (SystemState != IDLE && SystemState != MENU_SLEEP_MODE)
   {
@@ -821,15 +813,15 @@ void actualizarMenuPantalla() {
           lcd.setCursor(0, 1);
           lcd.print("<");
           lcd.setCursor(5, 1);
-
-          if (ShutterData[seleccionMenu].status == 2) lcd.write(4);
-          else lcd.write(2);
-
-          lcd.setCursor(10, 1);
-
+          
           if (ShutterData[seleccionMenu].status == 1) lcd.write(4);
           else lcd.write(1);
-
+          
+          lcd.setCursor(10, 1);
+          
+          if (ShutterData[seleccionMenu].status == 2) lcd.write(4);
+          else lcd.write(2);
+          
           lcd.setCursor(15, 1);
           lcd.print(">");
         }
@@ -838,53 +830,38 @@ void actualizarMenuPantalla() {
     case MENU_JOB_MODE : {
         lcd.print("  MODO TRABAJO  ");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK    >");
+        lcd.print("<        OK    >");
         break;
       }
     case MENU_SLEEP_MODE : {
         lcd.print("  MODO DORMIR   ");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK    >");
+        lcd.print("<        OK    >");
         break;
       }
     case MENU_ACTIVATE_SLEEP_MODE : {   
         lcd.print(" ACTIVAR UN DIA ");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK");
+        lcd.write(5);
+        lcd.print("        OK    >");
         break;
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
         lcd.print("CANCELAR UN DIA ");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK");
+        lcd.print("<        OK    >");
         break;
       }
     case MENU_ACTIVATE_ALL_SLEEP_MODE : {
         lcd.print("ACTIVAR  SIEMPRE");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK");
+        lcd.print("<        OK    >");
         break;
       }
     case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
         lcd.print(" CANCELAR TODO  ");
         lcd.setCursor(0, 1);
-        lcd.print("<    ");
-        lcd.write(2);
-        lcd.print("   OK");
-        break;
-      }
-    default : {
-        lcd.print("   ERROR MENU   ");
+        lcd.print("<        OK     ");
         break;
       }
   }

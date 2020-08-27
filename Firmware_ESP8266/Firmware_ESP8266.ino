@@ -148,9 +148,10 @@ void loop() {
     case MENU_JOB_MODE : {
         switch (buttonPressed()) {
           case DOWN : {
-			  apagarBrilloPantalla();
+			        apagarBrilloPantalla();
+              delay(200);
+              encenderBrilloPantalla();
               activarModoTrabajo();
-			  encenderBrilloPantalla();
               break;
           }
           case LEFT : {
@@ -419,7 +420,7 @@ void SystemFunctionManager(){
       if( abs(millis() - ShutterData[index].LastMoved) > SHUTTER_DURATION_SECONDS){
         // This roller is for sure reached the limit.
         ShutterData[index].status = 0;
-        actualizarMenuPantalla();
+        if(SystemState == SHUTTER_MANAGER) actualizarMenuPantalla();
       }else{
         // Check again next time
         SystemFunctionTask.detach();
@@ -619,7 +620,8 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
           lcd.setCursor(11, 0);
           lcd.print(makeLcdStringDate(sday, smonth));
           lcd.setCursor(0, 1);
-          lcd.print("<    +    -  Mes");
+          lcd.write(5);
+          lcd.print("    +    -    >");
           SleepTaskState = 1;
           break;
         }
@@ -652,7 +654,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
             case RIGHT : {
                 SleepTaskState = 2;
                 lcd.setCursor(0, 1);
-                lcd.print("Dia  +    -   OK");
+                lcd.print("<    +    -   OK");
                 break;
               }
           }
@@ -677,9 +679,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 break;
               }
             case LEFT : {
-                lcd.setCursor(0, 1);
-                lcd.print("<    +    -  Mes");
-                SleepTaskState = 1;
+                SleepTaskState = 0;
                 break;
               }
             case RIGHT : {

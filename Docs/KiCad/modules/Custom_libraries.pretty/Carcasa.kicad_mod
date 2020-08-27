@@ -1,4 +1,4 @@
-(module Carcasa (layer F.Cu) (tedit 5E9E0740)
+(module Carcasa (layer F.Cu) (tedit 5F4A2AFD)
   (fp_text reference REF** (at 0 -45) (layer F.SilkS) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
@@ -18,6 +18,6 @@
   (model ${KIPRJMOD}/modules/packages3d/Carcasa.wrl
     (at (xyz 0 0 0))
     (scale (xyz 10 10 10))
-    (rotate (xyz 180 0 90))
+    (rotate (xyz 0 0 90))
   )
 )

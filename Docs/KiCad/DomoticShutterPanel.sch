@@ -363,50 +363,50 @@ Wire Wire Line
 	2400 1100 2950 1100
 Wire Wire Line
 	2400 1200 2950 1200
-Text Notes 8750 2200 0    50   ~ 0
+Text Notes 8350 2550 0    50   ~ 0
 LCD 16x2 I2C
 $Comp
 L CustomLibraries_connectors:Conn_01x04 J3
 U 1 1 5EA32128
-P 9350 2500
-F 0 "J3" H 9430 2492 50  0000 L CNN
-F 1 "Conn_01x04" H 9430 2401 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 9350 2500 50  0001 C CNN
-F 3 "~" H 9350 2500 50  0001 C CNN
-	1    9350 2500
+P 8950 2850
+F 0 "J3" H 9030 2842 50  0000 L CNN
+F 1 "Conn_01x04" H 9030 2751 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8950 2850 50  0001 C CNN
+F 3 "~" H 8950 2850 50  0001 C CNN
+	1    8950 2850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9150 2400 9050 2400
+	8750 2750 8650 2750
 Wire Wire Line
-	9150 2500 8900 2500
+	8750 2850 8500 2850
 Wire Wire Line
-	9150 2600 8900 2600
+	8750 2950 8500 2950
 Wire Wire Line
-	9150 2700 8900 2700
+	8750 3050 8500 3050
 $Comp
 L CustomLibraries_power:GND #PWR04
 U 1 1 5EA49EAB
-P 9050 2850
-F 0 "#PWR04" H 9050 2600 50  0001 C CNN
-F 1 "GND" H 9055 2677 50  0000 C CNN
-F 2 "" H 9050 2850 50  0001 C CNN
-F 3 "" H 9050 2850 50  0001 C CNN
-	1    9050 2850
+P 8650 3200
+F 0 "#PWR04" H 8650 2950 50  0001 C CNN
+F 1 "GND" H 8655 3027 50  0000 C CNN
+F 2 "" H 8650 3200 50  0001 C CNN
+F 3 "" H 8650 3200 50  0001 C CNN
+	1    8650 3200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8900 2500 8900 2450
-Text Label 8950 2700 0    39   ~ 0
+	8500 2850 8500 2800
+Text Label 8550 3050 0    39   ~ 0
 I2C_SCL
 Wire Notes Line
-	8700 2100 9900 2100
+	8300 2450 9500 2450
 Wire Notes Line
-	9900 3100 8700 3100
+	9500 3450 8300 3450
 Wire Notes Line
-	9900 2100 9900 3100
+	9500 2450 9500 3450
 Wire Notes Line
-	8700 2100 8700 3100
+	8300 2450 8300 3450
 $Comp
 L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K1
 U 1 1 5EACF577
@@ -424,16 +424,16 @@ NoConn ~ 1300 2400
 $Comp
 L CustomLibraries_power:+5V #PWR0101
 U 1 1 5EB0B1CD
-P 8900 2450
-F 0 "#PWR0101" H 8900 2300 50  0001 C CNN
-F 1 "+5V" H 8915 2623 50  0000 C CNN
-F 2 "" H 8900 2450 50  0001 C CNN
-F 3 "" H 8900 2450 50  0001 C CNN
-	1    8900 2450
+P 8500 2800
+F 0 "#PWR0101" H 8500 2650 50  0001 C CNN
+F 1 "+5V" H 8515 2973 50  0000 C CNN
+F 2 "" H 8500 2800 50  0001 C CNN
+F 3 "" H 8500 2800 50  0001 C CNN
+	1    8500 2800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9050 2400 9050 2850
+	8650 2750 8650 3200
 $Comp
 L CustomLibraries_power:+5V #PWR0102
 U 1 1 5EB0FA34
@@ -714,8 +714,8 @@ F 3 "http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all
 	1    7150 5000
 	1    0    0    -1  
 $EndComp
-Text Notes 5150 4050 0    60   ~ 0
-ESP-13e
+Text Notes 4300 4050 0    60   ~ 0
+ESP-WROOM-02
 Wire Notes Line
 	3950 6850 3950 3900
 NoConn ~ 2100 5650
@@ -851,8 +851,6 @@ Text Label 3150 6650 3    60   ~ 0
 A6
 Text Label 3050 6650 3    60   ~ 0
 A7
-Wire Notes Line
-	1875 4100 3050 4100
 Text Label 3600 5450 0    60   ~ 0
 A3
 Text Label 3600 5550 0    60   ~ 0
@@ -1020,7 +1018,7 @@ Wire Wire Line
 Connection ~ 5900 5800
 Wire Wire Line
 	5900 5800 6050 5800
-Text Label 8950 2600 0    39   ~ 0
+Text Label 8550 2950 0    39   ~ 0
 I2C_SDA
 Wire Wire Line
 	2650 6600 2650 6700
@@ -1041,23 +1039,15 @@ I2C_SDA
 $Comp
 L CustomLibraries_connectors:Conn_01x03 J?
 U 1 1 5F3D7AAB
-P 9250 1100
-F 0 "J?" H 9330 1142 50  0000 L CNN
-F 1 "Conn_01x03" H 9330 1051 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 9250 1100 50  0001 C CNN
-F 3 "~" H 9250 1100 50  0001 C CNN
-	1    9250 1100
+P 8950 2050
+F 0 "J?" H 9030 2092 50  0000 L CNN
+F 1 "Conn_01x03" H 9030 2001 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 8950 2050 50  0001 C CNN
+F 3 "~" H 8950 2050 50  0001 C CNN
+	1    8950 2050
 	1    0    0    -1  
 $EndComp
-Wire Notes Line
-	8750 1550 9900 1550
-Wire Notes Line
-	9900 1550 9900 600 
-Wire Notes Line
-	9900 600  8750 600 
-Wire Notes Line
-	8750 600  8750 1550
-Text Notes 8800 700  0    39   ~ 0
+Text Notes 8350 1700 0    39   ~ 0
 Lamp button
 Wire Wire Line
 	6150 5000 5900 5000
@@ -1103,4 +1093,82 @@ Text Label 8850 4550 0    39   ~ 0
 Reset
 Wire Wire Line
 	8850 4600 8850 4500
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5F493D6E
+P 10000 2700
+F 0 "#PWR?" H 10000 2550 50  0001 C CNN
+F 1 "+3V3" H 10015 2873 50  0000 C CNN
+F 2 "" H 10000 2700 50  0001 C CNN
+F 3 "" H 10000 2700 50  0001 C CNN
+	1    10000 2700
+	1    0    0    -1  
+$EndComp
+Text Label 10150 3200 0    39   ~ 0
+I2C_SCL
+Text Label 10150 3300 0    39   ~ 0
+I2C_SDA
+Text Notes 9700 2450 0    39   ~ 0
+I2C PULLUP RESISTOR
+Wire Notes Line
+	8300 2400 9500 2400
+Wire Notes Line
+	8300 2400 8300 1600
+Wire Notes Line
+	8300 1600 9500 1600
+Wire Notes Line
+	9500 1600 9500 2400
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F4B85F8
+P 10100 2950
+F 0 "R?" H 10170 2996 50  0000 L CNN
+F 1 "8.2k" H 10170 2905 50  0000 L CNN
+F 2 "" V 10030 2950 50  0001 C CNN
+F 3 "~" H 10100 2950 50  0001 C CNN
+	1    10100 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F4B940D
+P 9900 2950
+F 0 "R?" H 9700 3000 50  0000 L CNN
+F 1 "8.2k" H 9650 2900 50  0000 L CNN
+F 2 "" V 9830 2950 50  0001 C CNN
+F 3 "~" H 9900 2950 50  0001 C CNN
+	1    9900 2950
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	9600 3450 10450 3450
+Wire Notes Line
+	9600 2300 10450 2300
+Wire Notes Line
+	10450 2300 10450 3450
+Wire Notes Line
+	9600 2300 9600 3450
+Wire Wire Line
+	9900 3100 9900 3200
+Connection ~ 9900 3200
+Wire Wire Line
+	9900 3200 10400 3200
+Wire Wire Line
+	10100 3100 10100 3300
+Connection ~ 10100 3300
+Wire Wire Line
+	10100 3300 10400 3300
+Wire Wire Line
+	9900 2800 9900 2700
+Wire Wire Line
+	9900 2700 10000 2700
+Wire Wire Line
+	10100 2800 10100 2700
+Wire Wire Line
+	10100 2700 10000 2700
+Connection ~ 10000 2700
+Wire Wire Line
+	9700 3200 9900 3200
+Wire Wire Line
+	9700 3300 10100 3300
 $EndSCHEMATC

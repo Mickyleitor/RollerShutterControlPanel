@@ -6,7 +6,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Roller Shutter Controller Panel"
-Date "2020-04-24"
+Date "2020-08-30"
 Rev ""
 Comp ""
 Comment1 "Radio Approach"
@@ -262,31 +262,6 @@ Wire Wire Line
 Connection ~ 6300 1950
 Wire Wire Line
 	6300 1950 6750 1950
-Wire Wire Line
-	1300 2400 1300 2750
-Wire Wire Line
-	1900 2950 1900 3050
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J9
-U 1 1 5EACF56F
-P 2100 2850
-F 0 "J9" H 2050 2650 50  0000 L CNN
-F 1 "Conn_01x03" H 1850 2550 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2100 2850 50  0001 C CNN
-F 3 "~" H 2100 2850 50  0001 C CNN
-	1    2100 2850
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	1000 3500 2550 3500
-Wire Notes Line
-	2550 2050 1000 2050
-Text Notes 1050 2200 0    60   ~ 0
-Lamp Relay
-Wire Notes Line
-	1000 2050 1000 3500
-Wire Notes Line
-	2550 2050 2550 3500
 $Comp
 L CustomLibraries_connectors:Conn_01x02 J1
 U 1 1 5EA2AF4A
@@ -403,20 +378,6 @@ Wire Notes Line
 	9500 2450 9500 3450
 Wire Notes Line
 	8300 2450 8300 3450
-$Comp
-L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K1
-U 1 1 5EACF577
-P 1600 2850
-F 0 "K1" H 1600 3217 50  0000 C CNN
-F 1 "SRD-05VDC-SL-C" H 1600 3126 50  0000 C CNN
-F 2 "Custom_libraries:RELAY_SRD-05VDC-SL-C" H 1600 2850 50  0001 L BNN
-F 3 "" H 1600 2850 50  0001 L BNN
-F 4 "IPC-7251" H 1600 2850 50  0001 L BNN "Campo4"
-	1    1600 2850
-	1    0    0    -1  
-$EndComp
-NoConn ~ 1300 3050
-NoConn ~ 1300 2400
 $Comp
 L CustomLibraries_power:+5V #PWR0101
 U 1 1 5EB0B1CD
@@ -1020,7 +981,7 @@ Text Label 10150 3200 0    39   ~ 0
 I2C_SCL
 Text Label 10150 3300 0    39   ~ 0
 I2C_SDA
-Text Notes 9700 2450 0    39   ~ 0
+Text Notes 9700 2400 0    39   ~ 0
 I2C PULLUP RESISTOR
 $Comp
 L CustomLibraries_Device:R R?
@@ -1278,4 +1239,173 @@ Text Label 2300 5950 2    39   ~ 0
 U2_GPIO7
 Text Label 2650 4500 1    39   ~ 0
 U2_DTR
+$Comp
+L CustomLibraries_Device:Speaker LS?
+U 1 1 5F4B04D1
+P 10150 1550
+F 0 "LS?" H 10320 1546 50  0000 L CNN
+F 1 "Speaker" H 10320 1455 50  0000 L CNN
+F 2 "" H 10150 1350 50  0001 C CNN
+F 3 "~" H 10140 1500 50  0001 C CNN
+	1    10150 1550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9950 1650 9850 1650
+Wire Wire Line
+	9850 1650 9850 1800
+Wire Wire Line
+	9950 1550 9650 1550
+Text Label 9950 1550 2    39   ~ 0
+U2_GPIO5
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F4C460A
+P 9850 1800
+F 0 "#PWR?" H 9850 1550 50  0001 C CNN
+F 1 "GND" H 9855 1627 50  0000 C CNN
+F 2 "" H 9850 1800 50  0001 C CNN
+F 3 "" H 9850 1800 50  0001 C CNN
+	1    9850 1800
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	9600 1100 9600 2100
+Wire Notes Line
+	9600 2100 10650 2100
+Wire Notes Line
+	10650 2100 10650 1100
+Wire Notes Line
+	9600 1100 10650 1100
+Text Notes 9700 1200 0    39   ~ 0
+Buzzer
+Wire Wire Line
+	3600 900  3600 950 
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F4B3969
+P 3600 1350
+F 0 "#PWR?" H 3600 1100 50  0001 C CNN
+F 1 "GND" H 3605 1177 50  0000 C CNN
+F 2 "" H 3600 1350 50  0001 C CNN
+F 3 "" H 3600 1350 50  0001 C CNN
+	1    3600 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5F4B3972
+P 3600 900
+F 0 "#PWR?" H 3600 750 50  0001 C CNN
+F 1 "+3V3" H 3615 1073 50  0000 C CNN
+F 2 "" H 3600 900 50  0001 C CNN
+F 3 "" H 3600 900 50  0001 C CNN
+	1    3600 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5F4D102B
+P 3600 1100
+F 0 "C?" H 3350 1150 50  0000 L CNN
+F 1 "10uF" H 3300 1050 50  0000 L CNN
+F 2 "" H 3638 950 50  0001 C CNN
+F 3 "~" H 3600 1100 50  0001 C CNN
+	1    3600 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3600 1250 3600 1350
+Wire Wire Line
+	3850 900  3850 950 
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F4DD2EB
+P 3850 1350
+F 0 "#PWR?" H 3850 1100 50  0001 C CNN
+F 1 "GND" H 3855 1177 50  0000 C CNN
+F 2 "" H 3850 1350 50  0001 C CNN
+F 3 "" H 3850 1350 50  0001 C CNN
+	1    3850 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5F4DD2F1
+P 3850 900
+F 0 "#PWR?" H 3850 750 50  0001 C CNN
+F 1 "+3V3" H 3865 1073 50  0000 C CNN
+F 2 "" H 3850 900 50  0001 C CNN
+F 3 "" H 3850 900 50  0001 C CNN
+	1    3850 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5F4DD2F7
+P 3850 1100
+F 0 "C?" H 3965 1146 50  0000 L CNN
+F 1 "0.1uF" H 3965 1055 50  0000 L CNN
+F 2 "" H 3888 950 50  0001 C CNN
+F 3 "~" H 3850 1100 50  0001 C CNN
+	1    3850 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 1250 3850 1350
+Wire Notes Line
+	2550 2050 2550 3500
+Wire Notes Line
+	1000 2050 1000 3500
+Text Notes 1050 2200 0    60   ~ 0
+Lamp Relay
+Wire Notes Line
+	2550 2050 1000 2050
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J9
+U 1 1 5EACF56F
+P 2100 2850
+F 0 "J9" H 2050 2650 50  0000 L CNN
+F 1 "Conn_01x03" H 1850 2550 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2100 2850 50  0001 C CNN
+F 3 "~" H 2100 2850 50  0001 C CNN
+	1    2100 2850
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	1000 3500 2550 3500
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F4E22CF
+P 1700 3200
+F 0 "#PWR?" H 1700 2950 50  0001 C CNN
+F 1 "GND" H 1705 3027 50  0000 C CNN
+F 2 "" H 1700 3200 50  0001 C CNN
+F 3 "" H 1700 3200 50  0001 C CNN
+	1    1700 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1700 2950 1700 3200
+Wire Wire Line
+	1700 2950 1900 2950
+Wire Wire Line
+	1900 2750 1700 2750
+Wire Wire Line
+	1700 2750 1700 2500
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F50527A
+P 1700 2500
+F 0 "#PWR?" H 1700 2350 50  0001 C CNN
+F 1 "+5V" H 1715 2673 50  0000 C CNN
+F 2 "" H 1700 2500 50  0001 C CNN
+F 3 "" H 1700 2500 50  0001 C CNN
+	1    1700 2500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1900 2850 1350 2850
+Text Label 1350 2850 0    39   ~ 0
+U2_GPIO7
 $EndSCHEMATC

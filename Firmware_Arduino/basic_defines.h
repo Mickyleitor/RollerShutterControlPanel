@@ -11,7 +11,7 @@
 #define PIN_BUZZER 5
 
 // Relay
-#define PIN_RELAY 13 // 7
+#define PIN_RELAY 7
 
 #define PIN_I2C_SCL A5
 #define PIN_I2C_SDA A4

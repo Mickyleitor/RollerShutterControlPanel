@@ -123,51 +123,49 @@ Wire Wire Line
 $Comp
 L CustomLibraries_Device:R R1
 U 1 1 5E9E8880
-P 5050 2200
-F 0 "R1" H 5120 2246 50  0000 L CNN
-F 1 "15k" H 5120 2155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 4980 2200 50  0001 C CNN
-F 3 "~" H 5050 2200 50  0001 C CNN
-	1    5050 2200
+P 5050 2150
+F 0 "R1" H 5120 2196 50  0000 L CNN
+F 1 "15k" H 5120 2105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 4980 2150 50  0001 C CNN
+F 3 "~" H 5050 2150 50  0001 C CNN
+	1    5050 2150
 	1    0    0    -1  
 $EndComp
 Connection ~ 5050 2350
 $Comp
 L CustomLibraries_Device:R R2
 U 1 1 5E9E9134
-P 5900 2200
-F 0 "R2" H 5970 2246 50  0000 L CNN
-F 1 "15k" H 5970 2155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5830 2200 50  0001 C CNN
-F 3 "~" H 5900 2200 50  0001 C CNN
-	1    5900 2200
+P 5900 2150
+F 0 "R2" H 5970 2196 50  0000 L CNN
+F 1 "15k" H 5970 2105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5830 2150 50  0001 C CNN
+F 3 "~" H 5900 2150 50  0001 C CNN
+	1    5900 2150
 	1    0    0    -1  
 $EndComp
 Connection ~ 5900 2350
 $Comp
 L CustomLibraries_Device:R R3
 U 1 1 5E9E963F
-P 6750 2200
-F 0 "R3" H 6820 2246 50  0000 L CNN
-F 1 "15k" H 6820 2155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 6680 2200 50  0001 C CNN
-F 3 "~" H 6750 2200 50  0001 C CNN
-	1    6750 2200
+P 6750 2150
+F 0 "R3" H 6820 2196 50  0000 L CNN
+F 1 "15k" H 6820 2105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 6680 2150 50  0001 C CNN
+F 3 "~" H 6750 2150 50  0001 C CNN
+	1    6750 2150
 	1    0    0    -1  
 $EndComp
-Connection ~ 6750 2350
 $Comp
 L CustomLibraries_Device:R R4
 U 1 1 5E9E9CE9
-P 7600 2200
-F 0 "R4" H 7670 2246 50  0000 L CNN
-F 1 "15k" H 7670 2155 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 7530 2200 50  0001 C CNN
-F 3 "~" H 7600 2200 50  0001 C CNN
-	1    7600 2200
+P 7600 2150
+F 0 "R4" H 7670 2196 50  0000 L CNN
+F 1 "15k" H 7670 2105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 7530 2150 50  0001 C CNN
+F 3 "~" H 7600 2150 50  0001 C CNN
+	1    7600 2150
 	1    0    0    -1  
 $EndComp
-Connection ~ 7600 2350
 Wire Wire Line
 	6750 3050 7300 3050
 $Comp
@@ -182,18 +180,16 @@ F 3 "" H 6300 1850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5050 1950 5050 2050
-Wire Wire Line
-	5900 2050 5900 1950
+	5050 1950 5050 2000
 Connection ~ 5900 1950
 Wire Wire Line
 	5900 1950 5050 1950
 Wire Wire Line
-	6750 1950 6750 2050
+	6750 1950 6750 2000
 Wire Wire Line
 	6750 1950 7600 1950
 Wire Wire Line
-	7600 1950 7600 2050
+	7600 1950 7600 2000
 Connection ~ 6750 1950
 Wire Notes Line
 	4600 1600 4600 3450
@@ -451,8 +447,6 @@ Wire Wire Line
 	950  1100 1300 1100
 Wire Notes Line
 	4200 3900 10100 3900
-Wire Wire Line
-	8100 5000 8850 5000
 Connection ~ 9300 5000
 Wire Wire Line
 	9300 5050 9300 5000
@@ -720,11 +714,9 @@ Wire Notes Line
 	3950 6850 3950 3900
 NoConn ~ 2100 5650
 NoConn ~ 2100 5850
-NoConn ~ 2100 5950
 NoConn ~ 3600 5950
 NoConn ~ 3600 5850
 NoConn ~ 3600 5750
-NoConn ~ 2650 4450
 Wire Wire Line
 	3150 4400 3150 4600
 Wire Wire Line
@@ -743,8 +735,6 @@ Wire Wire Line
 	3150 6650 3150 6600
 Wire Wire Line
 	3050 6650 3050 6600
-Wire Wire Line
-	2350 6250 2350 5350
 $Comp
 L CustomLibraries_power:GND #PWR07
 U 1 1 5E9BAC72
@@ -819,10 +809,6 @@ Wire Wire Line
 Wire Wire Line
 	2450 5850 2100 5850
 Wire Wire Line
-	2100 5750 2450 5750
-Wire Wire Line
-	2450 5650 2100 5650
-Wire Wire Line
 	2450 5550 2100 5550
 Wire Wire Line
 	2100 5450 2450 5450
@@ -845,8 +831,6 @@ F 3 "" H 3300 4450 50  0000 C CNN
 	1    3300 4450
 	1    0    0    -1  
 $EndComp
-Text Label 2750 4450 1    60   ~ 0
-1(Tx)
 Text Label 3150 6650 3    60   ~ 0
 A6
 Text Label 3050 6650 3    60   ~ 0
@@ -871,30 +855,8 @@ Text Label 2100 6150 0    60   ~ 0
 9
 Text Label 2100 6050 0    60   ~ 0
 8
-Text Label 2100 5950 0    60   ~ 0
-7
-Text Label 2100 5850 0    60   ~ 0
-6
-Text Label 2100 5750 0    60   ~ 0
-5
-Text Label 2100 5650 0    60   ~ 0
-4
-Text Label 2100 5550 0    60   ~ 0
-3
-Text Label 2100 5450 0    60   ~ 0
-2
-Text Label 3600 5250 0    60   ~ 0
-Reset
-Text Label 2100 5250 0    60   ~ 0
-Reset
-Text Label 2100 5150 0    60   ~ 0
-0(Rx)
-Text Label 2100 5050 0    60   ~ 0
-1(Tx)
-Text Label 2850 4450 1    60   ~ 0
-0(Rx)
-Text Label 2650 4450 1    60   ~ 0
-DTR
+Text Label 2300 5450 2    39   ~ 0
+U2_GPIO2
 Text Label 3450 4950 1    60   ~ 0
 RAW
 Wire Notes Line
@@ -903,17 +865,6 @@ Wire Notes Line
 	8150 3450 8150 1600
 Wire Notes Line
 	4600 3450 8150 3450
-$Comp
-L CustomLibraries_connectors:Arduino_MiniPro U2
-U 1 1 5EA809AC
-P 2900 5550
-F 0 "U2" H 2900 4950 50  0000 C CNN
-F 1 "Arduino_MiniPro" H 2900 4850 50  0000 C CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_MiniPro" H 2650 5550 50  0001 C CNN
-F 3 "~" H 2650 5550 50  0001 C CNN
-	1    2900 5550
-	1    0    0    -1  
-$EndComp
 Text Notes 1900 4025 0    60   ~ 0
 Shield Arduino Pro Mini \n
 Wire Notes Line
@@ -925,35 +876,31 @@ Wire Notes Line
 Wire Notes Line
 	4200 6400 10100 6400
 Wire Notes Line
-	4100 2250 2800 2250
-Wire Notes Line
-	4100 3450 4100 2250
+	4100 2000 2800 2000
 Wire Notes Line
 	2800 3450 4100 3450
-Wire Notes Line
-	2800 2250 2800 3450
-Text Notes 2850 2400 0    60   ~ 0
+Text Notes 2850 2150 0    60   ~ 0
 Radio modules
 $Comp
-L CustomLibraries_connectors:Conn_01x03 J7
+L CustomLibraries_connectors:Conn_01x03 J?
 U 1 1 5EA332C1
-P 3450 2750
-F 0 "J7" H 3530 2792 50  0000 L CNN
-F 1 "Conn_01x03" H 3530 2701 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 3450 2750 50  0001 C CNN
-F 3 "~" H 3450 2750 50  0001 C CNN
-	1    3450 2750
+P 3650 2650
+F 0 "J?" H 3730 2692 50  0000 L CNN
+F 1 "RF_Tx" H 3730 2601 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 3650 2650 50  0001 C CNN
+F 3 "~" H 3650 2650 50  0001 C CNN
+	1    3650 2650
 	1    0    0    -1  
 $EndComp
 $Comp
-L CustomLibraries_connectors:Conn_01x04 J6
+L CustomLibraries_connectors:Conn_01x04 J?
 U 1 1 5EA3215E
-P 3450 3100
-F 0 "J6" H 3530 3092 50  0000 L CNN
-F 1 "Conn_01x04" H 3530 3001 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 3450 3100 50  0001 C CNN
-F 3 "~" H 3450 3100 50  0001 C CNN
-	1    3450 3100
+P 3650 3000
+F 0 "J?" H 3730 2992 50  0000 L CNN
+F 1 "RF_Rx" H 3730 2901 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 3650 3000 50  0001 C CNN
+F 3 "~" H 3650 3000 50  0001 C CNN
+	1    3650 3000
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1022,12 +969,8 @@ Text Label 8550 2950 0    39   ~ 0
 I2C_SDA
 Wire Wire Line
 	2650 6600 2650 6700
-Text Label 2750 6600 3    60   ~ 0
-A4
 Wire Wire Line
 	2750 6600 2750 6800
-Text Label 2650 6700 1    60   ~ 0
-A5
 Wire Wire Line
 	2200 6700 2650 6700
 Wire Wire Line
@@ -1036,18 +979,7 @@ Text Label 2250 6700 0    39   ~ 0
 I2C_SCL
 Text Label 2250 6800 0    39   ~ 0
 I2C_SDA
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J?
-U 1 1 5F3D7AAB
-P 8950 2050
-F 0 "J?" H 9030 2092 50  0000 L CNN
-F 1 "Conn_01x03" H 9030 2001 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 8950 2050 50  0001 C CNN
-F 3 "~" H 8950 2050 50  0001 C CNN
-	1    8950 2050
-	1    0    0    -1  
-$EndComp
-Text Notes 8350 1700 0    39   ~ 0
+Text Notes 8350 1100 0    39   ~ 0
 Lamp button
 Wire Wire Line
 	6150 5000 5900 5000
@@ -1058,41 +990,21 @@ Wire Wire Line
 Wire Wire Line
 	8100 5100 8350 5100
 Text Label 5900 5000 0    39   ~ 0
-GPIO12
+U1_GPIO12
 Text Label 5900 5100 0    39   ~ 0
-GPIO13
-Text Label 8150 5500 0    39   ~ 0
-GPIO4
-Text Label 8150 5100 0    39   ~ 0
-GPIO5
-Text Label 4750 2350 0    39   ~ 0
-GPIO4
-Text Label 5600 2350 0    39   ~ 0
-GPIO5
-Text Label 6450 2350 0    39   ~ 0
-GPIO12
-Text Label 7300 2350 0    39   ~ 0
-GPIO13
-$Comp
-L CustomLibraries_connectors:Conn_01x02 J?
-U 1 1 5F401437
-P 8650 4700
-F 0 "J?" H 8600 4400 50  0000 C CNN
-F 1 "Conn_01x02" H 8800 4500 50  0000 C CNN
-F 2 "" H 8650 4700 50  0001 C CNN
-F 3 "~" H 8650 4700 50  0001 C CNN
-	1    8650 4700
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	8850 4700 8850 5000
-Connection ~ 8850 5000
-Wire Wire Line
-	8850 5000 9300 5000
-Text Label 8850 4550 0    39   ~ 0
-Reset
-Wire Wire Line
-	8850 4600 8850 4500
+U1_GPIO13
+Text Label 8100 5500 0    39   ~ 0
+U1_GPIO4
+Text Label 8100 5100 0    39   ~ 0
+U1_GPIO5
+Text Label 5000 2350 2    39   ~ 0
+U1_GPIO4
+Text Label 5850 2350 2    39   ~ 0
+U1_GPIO5
+Text Label 6700 2350 2    39   ~ 0
+U1_GPIO12
+Text Label 7550 2350 2    39   ~ 0
+U1_GPIO13
 $Comp
 L CustomLibraries_power:+3V3 #PWR?
 U 1 1 5F493D6E
@@ -1110,14 +1022,6 @@ Text Label 10150 3300 0    39   ~ 0
 I2C_SDA
 Text Notes 9700 2450 0    39   ~ 0
 I2C PULLUP RESISTOR
-Wire Notes Line
-	8300 2400 9500 2400
-Wire Notes Line
-	8300 2400 8300 1600
-Wire Notes Line
-	8300 1600 9500 1600
-Wire Notes Line
-	9500 1600 9500 2400
 $Comp
 L CustomLibraries_Device:R R?
 U 1 1 5F4B85F8
@@ -1171,4 +1075,207 @@ Wire Wire Line
 	9700 3200 9900 3200
 Wire Wire Line
 	9700 3300 10100 3300
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5F5F7A87
+P 8900 1900
+F 0 "SW?" V 8950 2050 50  0000 L CNN
+F 1 "SW_Push" V 9050 2000 50  0000 L CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 8900 2100 50  0001 C CNN
+F 3 "~" H 8900 2100 50  0001 C CNN
+	1    8900 1900
+	0    1    1    0   
+$EndComp
+$Comp
+L CustomLibraries_Device:CP C?
+U 1 1 5F5F7A8D
+P 8600 1900
+F 0 "C?" H 8700 1850 50  0000 L CNN
+F 1 "1uF" H 8700 1750 50  0000 L CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 8638 1750 50  0001 C CNN
+F 3 "~" H 8600 1900 50  0001 C CNN
+	1    8600 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8900 1550 8900 1650
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F5F7A95
+P 8900 1400
+F 0 "R?" H 8970 1446 50  0000 L CNN
+F 1 "15k" H 8970 1355 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 8830 1400 50  0001 C CNN
+F 3 "~" H 8900 1400 50  0001 C CNN
+	1    8900 1400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8600 1650 8900 1650
+Wire Wire Line
+	8600 2150 8750 2150
+Wire Wire Line
+	8600 2050 8600 2150
+Wire Wire Line
+	8900 2100 8900 2150
+$Comp
+L CustomLibraries_power:+3.3V #PWR?
+U 1 1 5F615A0E
+P 8900 1250
+F 0 "#PWR?" H 8900 1100 50  0001 C CNN
+F 1 "+3.3V" H 8915 1423 50  0000 C CNN
+F 2 "" H 8900 1250 50  0001 C CNN
+F 3 "" H 8900 1250 50  0001 C CNN
+	1    8900 1250
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	8300 1000 9500 1000
+Wire Notes Line
+	9500 1000 9500 2400
+Wire Notes Line
+	9500 2400 8300 2400
+Wire Notes Line
+	8300 1000 8300 2400
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F6352A6
+P 8750 2150
+F 0 "#PWR?" H 8750 1900 50  0001 C CNN
+F 1 "GND" H 8755 1977 50  0000 C CNN
+F 2 "" H 8750 2150 50  0001 C CNN
+F 3 "" H 8750 2150 50  0001 C CNN
+	1    8750 2150
+	1    0    0    -1  
+$EndComp
+Connection ~ 8750 2150
+Wire Wire Line
+	8750 2150 8900 2150
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F64D813
+P 3300 3250
+F 0 "#PWR?" H 3300 3000 50  0001 C CNN
+F 1 "GND" H 3300 3100 50  0000 C CNN
+F 2 "" H 3300 3250 50  0001 C CNN
+F 3 "" H 3300 3250 50  0001 C CNN
+	1    3300 3250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3450 3200 3300 3200
+Wire Wire Line
+	3300 3200 3300 3250
+Wire Wire Line
+	3450 2550 3300 2550
+Wire Wire Line
+	3300 2550 3300 3200
+Connection ~ 3300 3200
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F674A36
+P 3150 2450
+F 0 "#PWR?" H 3150 2300 50  0001 C CNN
+F 1 "+5V" H 3165 2623 50  0000 C CNN
+F 2 "" H 3150 2450 50  0001 C CNN
+F 3 "" H 3150 2450 50  0001 C CNN
+	1    3150 2450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3450 2650 3150 2650
+Wire Wire Line
+	3450 2900 3150 2900
+Wire Wire Line
+	3150 2900 3150 2650
+Connection ~ 3150 2650
+Wire Notes Line
+	4100 2000 4100 3450
+Wire Notes Line
+	2800 2000 2800 3450
+Wire Wire Line
+	3150 2650 3150 2450
+Wire Wire Line
+	3450 2750 2850 2750
+Wire Wire Line
+	3450 3000 3400 3000
+Wire Wire Line
+	3450 3100 3400 3100
+Wire Wire Line
+	3400 3100 3400 3000
+Connection ~ 3400 3000
+Wire Wire Line
+	3400 3000 2850 3000
+Text Label 2900 2750 0    39   ~ 0
+DATA_Tx
+Text Label 2900 3000 0    39   ~ 0
+DATA_Rx
+Text Label 2300 5550 2    39   ~ 0
+DATA_Tx
+Text Label 8850 1650 2    39   ~ 0
+U2_GPIO2
+Wire Wire Line
+	8600 1750 8600 1650
+Connection ~ 8900 1650
+Wire Wire Line
+	8900 1650 8900 1700
+Wire Wire Line
+	8100 5000 9300 5000
+Text Label 8100 5000 0    39   ~ 0
+Reset
+Wire Wire Line
+	5050 2300 5050 2350
+Wire Wire Line
+	5900 2000 5900 1950
+Wire Wire Line
+	5900 2300 5900 2350
+Wire Wire Line
+	6750 2300 6750 2350
+Connection ~ 6750 2350
+Wire Wire Line
+	7600 2300 7600 2350
+Connection ~ 7600 2350
+$Comp
+L CustomLibraries_connectors:Arduino_MiniPro U2
+U 1 1 5EA809AC
+P 2900 5550
+F 0 "U2" H 2900 4950 50  0000 C CNN
+F 1 "Arduino_MiniPro" H 2900 4850 50  0000 C CNN
+F 2 "Custom_libraries:Socket_Strip_Arduino_MiniPro" H 2650 5550 50  0001 C CNN
+F 3 "~" H 2650 5550 50  0001 C CNN
+	1    2900 5550
+	1    0    0    -1  
+$EndComp
+Text Label 2300 5750 2    39   ~ 0
+U2_GPIO5
+Text Label 2100 5850 0    60   ~ 0
+6
+Wire Wire Line
+	2450 5650 2100 5650
+Wire Wire Line
+	2100 5750 2450 5750
+Wire Wire Line
+	2350 6250 2350 5350
+Text Label 2100 5650 0    60   ~ 0
+4
+Text Label 8100 5300 0    39   ~ 0
+U1_TXD
+Text Label 8100 5400 0    39   ~ 0
+U1_RXD
+Text Label 2750 4500 1    39   ~ 0
+U2_TXD
+Text Label 2850 4500 1    39   ~ 0
+U2_RXD
+Text Label 2300 5050 2    39   ~ 0
+U2_TXD
+Text Label 2300 5150 2    39   ~ 0
+U2_TXD
+Text Label 2300 5250 2    39   ~ 0
+Reset
+Text Label 3600 5250 0    39   ~ 0
+Reset
+Text Label 2300 5950 2    39   ~ 0
+U2_GPIO7
+Text Label 2650 4500 1    39   ~ 0
+U2_DTR
 $EndSCHEMATC

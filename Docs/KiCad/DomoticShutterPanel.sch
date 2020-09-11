@@ -6,1406 +6,1749 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Roller Shutter Controller Panel"
-Date "2020-08-30"
-Rev ""
-Comp ""
+Date "2020-09-11"
+Rev "1.0"
+Comp "Michele La Malva Moreno"
 Comment1 "Radio Approach"
-Comment2 "NOT FINISHED"
+Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-$Comp
-L CustomLibraries_Switch:SW_Push SW1
-U 1 1 5E9CB25B
-P 5050 2700
-F 0 "SW1" V 5100 2850 50  0000 L CNN
-F 1 "SW_Push" V 5200 2750 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 5050 2900 50  0001 C CNN
-F 3 "~" H 5050 2900 50  0001 C CNN
-	1    5050 2700
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_Switch:SW_Push SW2
-U 1 1 5E9CB5A7
-P 5900 2700
-F 0 "SW2" V 5950 2850 50  0000 L CNN
-F 1 "SW_Push" V 6050 2800 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 5900 2900 50  0001 C CNN
-F 3 "~" H 5900 2900 50  0001 C CNN
-	1    5900 2700
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_Switch:SW_Push SW4
-U 1 1 5E9CBCA4
-P 7600 2700
-F 0 "SW4" V 7650 2850 50  0000 L CNN
-F 1 "SW_Push" V 7750 2800 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 7600 2900 50  0001 C CNN
-F 3 "~" H 7600 2900 50  0001 C CNN
-	1    7600 2700
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_Switch:SW_Push SW3
-U 1 1 5E9CC698
-P 6750 2700
-F 0 "SW3" V 6800 2850 50  0000 L CNN
-F 1 "SW_Push" V 6900 2800 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 6750 2900 50  0001 C CNN
-F 3 "~" H 6750 2900 50  0001 C CNN
-	1    6750 2700
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_Device:CP C3
-U 1 1 5E9CCFC0
-P 6450 2700
-F 0 "C3" H 6550 2650 50  0000 L CNN
-F 1 "1uF" H 6550 2550 50  0000 L CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 6488 2550 50  0001 C CNN
-F 3 "~" H 6450 2700 50  0001 C CNN
-	1    6450 2700
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:CP C4
-U 1 1 5E9D1B46
-P 7300 2700
-F 0 "C4" H 7400 2650 50  0000 L CNN
-F 1 "1uF" H 7400 2550 50  0000 L CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 7338 2550 50  0001 C CNN
-F 3 "~" H 7300 2700 50  0001 C CNN
-	1    7300 2700
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:CP C2
-U 1 1 5E9D37C0
-P 5600 2700
-F 0 "C2" H 5700 2650 50  0000 L CNN
-F 1 "1uF" H 5700 2550 50  0000 L CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 5638 2550 50  0001 C CNN
-F 3 "~" H 5600 2700 50  0001 C CNN
-	1    5600 2700
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:GND #PWR013
-U 1 1 5E9D458F
-P 6300 3200
-F 0 "#PWR013" H 6300 2950 50  0001 C CNN
-F 1 "GND" H 6305 3027 50  0000 C CNN
-F 2 "" H 6300 3200 50  0001 C CNN
-F 3 "" H 6300 3200 50  0001 C CNN
-	1    6300 3200
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
-	6750 2900 6750 3050
+	6000 6050 6100 6050
 Wire Wire Line
-	7600 2900 7600 3050
-Connection ~ 6750 3050
-Wire Wire Line
-	5900 3050 5900 2900
-Connection ~ 5900 3050
-Wire Wire Line
-	5050 3050 5050 2900
-Wire Wire Line
-	5050 2350 5050 2500
-Wire Wire Line
-	5900 2350 5900 2500
-Wire Wire Line
-	6750 2350 6750 2500
-Wire Wire Line
-	7600 2350 7600 2500
-$Comp
-L CustomLibraries_Device:R R1
-U 1 1 5E9E8880
-P 5050 2150
-F 0 "R1" H 5120 2196 50  0000 L CNN
-F 1 "15k" H 5120 2105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 4980 2150 50  0001 C CNN
-F 3 "~" H 5050 2150 50  0001 C CNN
-	1    5050 2150
-	1    0    0    -1  
-$EndComp
-Connection ~ 5050 2350
-$Comp
-L CustomLibraries_Device:R R2
-U 1 1 5E9E9134
-P 5900 2150
-F 0 "R2" H 5970 2196 50  0000 L CNN
-F 1 "15k" H 5970 2105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5830 2150 50  0001 C CNN
-F 3 "~" H 5900 2150 50  0001 C CNN
-	1    5900 2150
-	1    0    0    -1  
-$EndComp
-Connection ~ 5900 2350
-$Comp
-L CustomLibraries_Device:R R3
-U 1 1 5E9E963F
-P 6750 2150
-F 0 "R3" H 6820 2196 50  0000 L CNN
-F 1 "15k" H 6820 2105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 6680 2150 50  0001 C CNN
-F 3 "~" H 6750 2150 50  0001 C CNN
-	1    6750 2150
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:R R4
-U 1 1 5E9E9CE9
-P 7600 2150
-F 0 "R4" H 7670 2196 50  0000 L CNN
-F 1 "15k" H 7670 2105 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 7530 2150 50  0001 C CNN
-F 3 "~" H 7600 2150 50  0001 C CNN
-	1    7600 2150
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6750 3050 7300 3050
-$Comp
-L CustomLibraries_power:+3.3V #PWR012
-U 1 1 5E9EBD42
-P 6300 1850
-F 0 "#PWR012" H 6300 1700 50  0001 C CNN
-F 1 "+3.3V" H 6315 2023 50  0000 C CNN
-F 2 "" H 6300 1850 50  0001 C CNN
-F 3 "" H 6300 1850 50  0001 C CNN
-	1    6300 1850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5050 1950 5050 2000
-Connection ~ 5900 1950
-Wire Wire Line
-	5900 1950 5050 1950
-Wire Wire Line
-	6750 1950 6750 2000
-Wire Wire Line
-	6750 1950 7600 1950
-Wire Wire Line
-	7600 1950 7600 2000
-Connection ~ 6750 1950
-Wire Notes Line
-	4600 1600 4600 3450
-Wire Wire Line
-	4750 2850 4750 3050
-Wire Wire Line
-	4750 3050 5050 3050
-Connection ~ 5050 3050
-Wire Wire Line
-	4750 2550 4750 2350
-Wire Wire Line
-	4750 2350 5050 2350
-$Comp
-L CustomLibraries_Device:CP C1
-U 1 1 5E9D2266
-P 4750 2700
-F 0 "C1" H 4850 2650 50  0000 L CNN
-F 1 "1uF" H 4850 2550 50  0000 L CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 4788 2550 50  0001 C CNN
-F 3 "~" H 4750 2700 50  0001 C CNN
-	1    4750 2700
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5600 2350 5600 2550
-Wire Wire Line
-	5600 2350 5900 2350
-Wire Wire Line
-	5600 2850 5600 3050
-Connection ~ 5600 3050
-Wire Wire Line
-	5600 3050 5050 3050
-Wire Wire Line
-	5600 3050 5900 3050
-Wire Wire Line
-	6450 2550 6450 2350
-Wire Wire Line
-	6450 2850 6450 3050
-Connection ~ 6450 3050
-Wire Wire Line
-	7300 2850 7300 3050
-Connection ~ 7300 3050
-Wire Wire Line
-	7300 2550 7300 2350
-Wire Wire Line
-	7300 2350 7600 2350
-Wire Wire Line
-	6450 2350 6750 2350
-Wire Wire Line
-	6450 3050 6750 3050
-Wire Wire Line
-	7300 3050 7600 3050
-Text Notes 4700 1750 0    60   ~ 0
-Button setup
-Wire Notes Line
-	4600 1800 5350 1800
-Wire Notes Line
-	5350 1800 5350 1600
-Wire Wire Line
-	5900 3050 6300 3050
-Wire Wire Line
-	6300 3200 6300 3050
-Connection ~ 6300 3050
-Wire Wire Line
-	6300 3050 6450 3050
-Wire Wire Line
-	5900 1950 6300 1950
-Wire Wire Line
-	6300 1850 6300 1950
-Connection ~ 6300 1950
-Wire Wire Line
-	6300 1950 6750 1950
-$Comp
-L CustomLibraries_connectors:Conn_01x02 J1
-U 1 1 5EA2AF4A
-P 750 1100
-F 0 "J1" H 668 1317 50  0000 C CNN
-F 1 "Conn_01x02" H 668 1226 50  0000 C CNN
-F 2 "Custom_libraries:PinSocket_1x02_P2.54mm_Vertical" H 750 1100 50  0001 C CNN
-F 3 "~" H 750 1100 50  0001 C CNN
-	1    750  1100
-	-1   0    0    -1  
-$EndComp
-Wire Notes Line
-	1550 700  1550 1500
-Text Notes 1600 900  0    50   ~ 0
-3.3V DC-DC Step-Down \nPower Module
-Wire Notes Line
-	1550 1500 2750 1500
-Wire Notes Line
-	2750 1500 2750 700 
-Wire Notes Line
-	2750 700  1550 700 
-$Comp
-L CustomLibraries_power:GND #PWR02
-U 1 1 5EA41F46
-P 1300 1350
-F 0 "#PWR02" H 1300 1100 50  0001 C CNN
-F 1 "GND" H 1305 1177 50  0000 C CNN
-F 2 "" H 1300 1350 50  0001 C CNN
-F 3 "" H 1300 1350 50  0001 C CNN
-	1    1300 1350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1300 900  1300 1100
-Connection ~ 1300 1100
-Wire Wire Line
-	1300 1200 1300 1350
-Connection ~ 1300 1200
-Wire Wire Line
-	2950 900  2950 1100
-$Comp
-L CustomLibraries_power:GND #PWR06
-U 1 1 5EA488A9
-P 2950 1350
-F 0 "#PWR06" H 2950 1100 50  0001 C CNN
-F 1 "GND" H 2955 1177 50  0000 C CNN
-F 2 "" H 2950 1350 50  0001 C CNN
-F 3 "" H 2950 1350 50  0001 C CNN
-	1    2950 1350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	2950 1200 2950 1350
-$Comp
-L CustomLibraries_connectors:Conn_02x02_Odd_Even J2
-U 1 1 5EA533B3
-P 2100 1100
-F 0 "J2" H 2150 900 50  0000 C CNN
-F 1 "3.3V DC-DC Step-Down Power Module" H 2150 800 31  0000 C CNN
-F 2 "Custom_libraries:DCDC_3v3_PowerModule" H 2100 1100 50  0001 C CNN
-F 3 "~" H 2100 1100 50  0001 C CNN
-	1    2100 1100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1300 1100 1900 1100
-Wire Wire Line
-	1300 1200 1900 1200
-Wire Wire Line
-	2400 1100 2950 1100
-Wire Wire Line
-	2400 1200 2950 1200
-Text Notes 8350 2550 0    50   ~ 0
-LCD 16x2 I2C
-$Comp
-L CustomLibraries_connectors:Conn_01x04 J3
-U 1 1 5EA32128
-P 8950 2850
-F 0 "J3" H 9030 2842 50  0000 L CNN
-F 1 "Conn_01x04" H 9030 2751 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8950 2850 50  0001 C CNN
-F 3 "~" H 8950 2850 50  0001 C CNN
-	1    8950 2850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8750 2750 8650 2750
-Wire Wire Line
-	8750 2850 8500 2850
-Wire Wire Line
-	8750 2950 8500 2950
-Wire Wire Line
-	8750 3050 8500 3050
-$Comp
-L CustomLibraries_power:GND #PWR04
-U 1 1 5EA49EAB
-P 8650 3200
-F 0 "#PWR04" H 8650 2950 50  0001 C CNN
-F 1 "GND" H 8655 3027 50  0000 C CNN
-F 2 "" H 8650 3200 50  0001 C CNN
-F 3 "" H 8650 3200 50  0001 C CNN
-	1    8650 3200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8500 2850 8500 2800
-Text Label 8550 3050 0    39   ~ 0
-I2C_SCL
-Wire Notes Line
-	8300 2450 9500 2450
-Wire Notes Line
-	9500 3450 8300 3450
-Wire Notes Line
-	9500 2450 9500 3450
-Wire Notes Line
-	8300 2450 8300 3450
-$Comp
-L CustomLibraries_power:+5V #PWR0101
-U 1 1 5EB0B1CD
-P 8500 2800
-F 0 "#PWR0101" H 8500 2650 50  0001 C CNN
-F 1 "+5V" H 8515 2973 50  0000 C CNN
-F 2 "" H 8500 2800 50  0001 C CNN
-F 3 "" H 8500 2800 50  0001 C CNN
-	1    8500 2800
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8650 2750 8650 3200
-$Comp
-L CustomLibraries_power:+5V #PWR0102
-U 1 1 5EB0FA34
-P 1300 900
-F 0 "#PWR0102" H 1300 750 50  0001 C CNN
-F 1 "+5V" H 1315 1073 50  0000 C CNN
-F 2 "" H 1300 900 50  0001 C CNN
-F 3 "" H 1300 900 50  0001 C CNN
-	1    1300 900 
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	950  1200 1300 1200
-Wire Wire Line
-	950  1100 1300 1100
-Wire Notes Line
-	4200 3900 10100 3900
-Connection ~ 9300 5000
-Wire Wire Line
-	9300 5050 9300 5000
-Wire Wire Line
-	9300 5000 9300 4900
-Wire Wire Line
-	9500 5000 9300 5000
-Connection ~ 9300 5400
-Wire Wire Line
-	9300 5450 9300 5400
-Wire Wire Line
-	9300 5400 9300 5350
-Wire Wire Line
-	9900 5400 9300 5400
-Wire Wire Line
-	9900 5000 9900 5400
-Wire Wire Line
-	5100 5500 5100 5550
-Wire Wire Line
-	5050 5500 5100 5500
-Wire Wire Line
-	6050 5800 6050 5500
-Wire Wire Line
-	5100 5400 5100 5300
-$Comp
-L CustomLibraries_Device:R R5
-U 1 1 5EB2F921
-P 5100 5150
-F 0 "R5" H 5250 5100 50  0000 C CNN
-F 1 "10k" H 5250 5200 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5030 5150 50  0001 C CNN
-F 3 "~" H 5100 5150 50  0001 C CNN
-	1    5100 5150
-	-1   0    0    1   
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x02 J4
-U 1 1 5EB23EC5
-P 4850 5400
-F 0 "J4" H 5150 5400 50  0000 C CNN
-F 1 "BOOT OPTION" H 5200 5300 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4850 5400 50  0001 C CNN
-F 3 "~" H 4850 5400 50  0001 C CNN
-	1    4850 5400
-	-1   0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3V3 #PWR03
-U 1 1 5EB09053
-P 5100 4900
-F 0 "#PWR03" H 5100 4750 50  0001 C CNN
-F 1 "+3V3" V 5100 5150 50  0000 C CNN
-F 2 "" H 5100 4900 50  0001 C CNN
-F 3 "" H 5100 4900 50  0001 C CNN
-	1    5100 4900
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:GND #PWR01
-U 1 1 5EAF6562
-P 5100 5550
-F 0 "#PWR01" H 5100 5300 50  0001 C CNN
-F 1 "GND" H 5105 5377 50  0000 C CNN
-F 2 "" H 5100 5550 50  0001 C CNN
-F 3 "" H 5100 5550 50  0001 C CNN
-	1    5100 5550
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:R R8
-U 1 1 5EAF50ED
-P 5750 5600
-F 0 "R8" H 5550 5650 50  0000 L CNN
-F 1 "10k" H 5550 5550 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5680 5600 50  0001 C CNN
-F 3 "~" H 5750 5600 50  0001 C CNN
-	1    5750 5600
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Switch:SW_Push SW5
-U 1 1 5EABBA7B
-P 9700 5000
-F 0 "SW5" H 9850 5250 50  0000 L CNN
-F 1 "SW_Push" H 9750 5150 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 9700 5200 50  0001 C CNN
-F 3 "~" H 9700 5200 50  0001 C CNN
-	1    9700 5000
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8400 4700 8100 4700
-Wire Wire Line
-	8400 5200 8400 4700
-Wire Wire Line
-	8400 5200 8450 5200
-Connection ~ 8400 5200
-Wire Wire Line
-	8400 5700 8400 5200
-$Comp
-L CustomLibraries_power:GND #PWR017
-U 1 1 5EAAC6E5
-P 8400 5700
-F 0 "#PWR017" H 8400 5450 50  0001 C CNN
-F 1 "GND" H 8405 5527 50  0000 C CNN
-F 2 "" H 8400 5700 50  0001 C CNN
-F 3 "" H 8400 5700 50  0001 C CNN
-	1    8400 5700
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8100 5400 8450 5400
-Wire Wire Line
-	8100 5300 8450 5300
-Wire Wire Line
-	8100 5200 8400 5200
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J5
-U 1 1 5EA8DAF9
-P 8650 5300
-F 0 "J5" H 8730 5342 50  0000 L CNN
-F 1 "UART COM" H 8730 5251 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 8650 5300 50  0001 C CNN
-F 3 "~" H 8650 5300 50  0001 C CNN
-	1    8650 5300
-	1    0    0    -1  
-$EndComp
-NoConn ~ 7150 5900
-$Comp
-L CustomLibraries_power:GND #PWR019
-U 1 1 5EA771AA
-P 9300 5450
-F 0 "#PWR019" H 9300 5200 50  0001 C CNN
-F 1 "GND" H 9305 5277 50  0000 C CNN
-F 2 "" H 9300 5450 50  0001 C CNN
-F 3 "" H 9300 5450 50  0001 C CNN
-	1    9300 5450
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3V3 #PWR018
-U 1 1 5EA6D326
-P 9300 4600
-F 0 "#PWR018" H 9300 4450 50  0001 C CNN
-F 1 "+3V3" H 9315 4773 50  0000 C CNN
-F 2 "" H 9300 4600 50  0001 C CNN
-F 3 "" H 9300 4600 50  0001 C CNN
-	1    9300 4600
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:C C6
-U 1 1 5EA6419A
-P 9300 5200
-F 0 "C6" H 9185 5154 50  0000 R CNN
-F 1 "0.1uF" H 9185 5245 50  0000 R CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 9338 5050 50  0001 C CNN
-F 3 "~" H 9300 5200 50  0001 C CNN
-	1    9300 5200
-	-1   0    0    1   
-$EndComp
-$Comp
-L CustomLibraries_Device:R R9
-U 1 1 5EA62F4D
-P 9300 4750
-F 0 "R9" H 9100 4800 50  0000 L CNN
-F 1 "10k" H 9100 4700 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 9230 4750 50  0001 C CNN
-F 3 "~" H 9300 4750 50  0001 C CNN
-	1    9300 4750
-	1    0    0    -1  
-$EndComp
-NoConn ~ 8100 4900
-NoConn ~ 8100 4800
-Wire Wire Line
-	6050 5500 6150 5500
-$Comp
-L CustomLibraries_power:GND #PWR016
-U 1 1 5EA52912
-P 5900 5900
-F 0 "#PWR016" H 5900 5650 50  0001 C CNN
-F 1 "GND" H 5905 5727 50  0000 C CNN
-F 2 "" H 5900 5900 50  0001 C CNN
-F 3 "" H 5900 5900 50  0001 C CNN
-	1    5900 5900
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:GND #PWR014
-U 1 1 5EA42901
-P 5450 4800
-F 0 "#PWR014" H 5450 4550 50  0001 C CNN
-F 1 "GND" V 5350 4650 50  0000 C CNN
-F 2 "" H 5450 4800 50  0001 C CNN
-F 3 "" H 5450 4800 50  0001 C CNN
-	1    5450 4800
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	6150 4800 5750 4800
-Wire Wire Line
-	5750 4700 5750 4800
-$Comp
-L CustomLibraries_Device:C C5
-U 1 1 5EA39A31
-P 5600 4800
-F 0 "C5" V 5450 4850 50  0000 R CNN
-F 1 "0.1uF" V 5350 4900 50  0000 R CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 5638 4650 50  0001 C CNN
-F 3 "~" H 5600 4800 50  0001 C CNN
-	1    5600 4800
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	5750 4400 5750 4350
-Wire Wire Line
-	6000 4350 6000 4300
-Connection ~ 6000 4350
-Wire Wire Line
-	5750 4350 6000 4350
-$Comp
-L CustomLibraries_Device:R R7
-U 1 1 5EA34E10
-P 5750 4550
-F 0 "R7" H 5820 4596 50  0000 L CNN
-F 1 "10k" H 5820 4505 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5680 4550 50  0001 C CNN
-F 3 "~" H 5750 4550 50  0001 C CNN
-	1    5750 4550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6000 4700 6000 4350
-Wire Wire Line
-	6150 4700 6000 4700
-$Comp
-L CustomLibraries_power:+3V3 #PWR015
-U 1 1 5EA3091F
-P 6000 4300
-F 0 "#PWR015" H 6000 4150 50  0001 C CNN
-F 1 "+3V3" H 6015 4473 50  0000 C CNN
-F 2 "" H 6000 4300 50  0001 C CNN
-F 3 "" H 6000 4300 50  0001 C CNN
-	1    6000 4300
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	4200 3900 4200 6400
-Wire Notes Line
-	10100 3900 10100 6400
-$Comp
-L ESP8266:ESP-13-WROOM-02 U1
-U 1 1 5EA1DF21
-P 7150 5000
-F 0 "U1" H 7125 5765 50  0000 C CNN
-F 1 "ESP-13-WROOM-02" H 7125 5674 50  0000 C CNN
-F 2 "Custom_libraries:ESP-13-WROOM-02" H 7050 5000 50  0001 C CNN
-F 3 "http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/" H 7050 5000 50  0001 C CNN
-	1    7150 5000
-	1    0    0    -1  
-$EndComp
-Text Notes 4300 4050 0    60   ~ 0
-ESP-WROOM-02
-Wire Notes Line
-	3950 6850 3950 3900
-NoConn ~ 2100 5650
-NoConn ~ 2100 5850
-NoConn ~ 3600 5950
-NoConn ~ 3600 5850
-NoConn ~ 3600 5750
-Wire Wire Line
-	3150 4400 3150 4600
-Wire Wire Line
-	3050 4400 3050 4600
-Wire Wire Line
-	2950 4450 2950 4600
-Wire Wire Line
-	2850 4450 2850 4600
-Wire Wire Line
-	2750 4450 2750 4600
-Wire Wire Line
-	2650 4450 2650 4600
-NoConn ~ 3150 6650
-NoConn ~ 3050 6650
-Wire Wire Line
-	3150 6650 3150 6600
-Wire Wire Line
-	3050 6650 3050 6600
-$Comp
-L CustomLibraries_power:GND #PWR07
-U 1 1 5E9BAC72
-P 2350 6250
-F 0 "#PWR07" H 2350 6000 50  0001 C CNN
-F 1 "GND" H 2355 6077 50  0000 C CNN
-F 2 "" H 2350 6250 50  0001 C CNN
-F 3 "" H 2350 6250 50  0001 C CNN
-	1    2350 6250
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3550 4950 3550 5350
-$Comp
-L CustomLibraries_power:GND #PWR010
-U 1 1 5EBF56D4
-P 3450 6250
-F 0 "#PWR010" H 3450 6000 50  0001 C CNN
-F 1 "GND" H 3455 6077 50  0000 C CNN
-F 2 "" H 3450 6250 50  0001 C CNN
-F 3 "" H 3450 6250 50  0001 C CNN
-	1    3450 6250
-	1    0    0    -1  
-$EndComp
-NoConn ~ 3450 4950
-NoConn ~ 3600 5650
-NoConn ~ 3600 5550
-NoConn ~ 3600 5450
-Connection ~ 3150 4400
-Wire Wire Line
-	3300 4400 3300 4450
-Wire Wire Line
-	3150 4400 3300 4400
-Wire Wire Line
-	3050 4400 3150 4400
-Text Notes 2750 5050 0    60   ~ 0
-1
-Wire Wire Line
-	3350 6150 3600 6150
-Wire Wire Line
-	3600 6050 3350 6050
-Wire Wire Line
-	3350 5950 3600 5950
-Wire Wire Line
-	3600 5850 3350 5850
-Wire Wire Line
-	3350 5750 3600 5750
-Wire Wire Line
-	3600 5650 3350 5650
-Wire Wire Line
-	3350 5550 3600 5550
-Wire Wire Line
-	3600 5450 3350 5450
-Wire Wire Line
-	3350 5250 3600 5250
-Wire Wire Line
-	3350 5350 3550 5350
-Wire Wire Line
-	3450 5150 3450 6250
-Wire Wire Line
-	3350 5150 3450 5150
-Wire Wire Line
-	3450 5050 3350 5050
-Wire Wire Line
-	3450 4950 3450 5050
-Wire Wire Line
-	2450 6150 2100 6150
-Wire Wire Line
-	2450 6050 2100 6050
-Wire Wire Line
-	2100 5950 2450 5950
-Wire Wire Line
-	2450 5850 2100 5850
-Wire Wire Line
-	2450 5550 2100 5550
-Wire Wire Line
-	2100 5450 2450 5450
-Wire Wire Line
-	2450 5250 2100 5250
-Wire Wire Line
-	2100 5150 2450 5150
-Wire Wire Line
-	2450 5050 2100 5050
-Wire Wire Line
-	2450 5350 2350 5350
-$Comp
-L CustomLibraries_power:GND #PWR09
-U 1 1 56D7539A
-P 3300 4450
-F 0 "#PWR09" H 3300 4200 50  0001 C CNN
-F 1 "GND" H 3450 4400 50  0000 C CNN
-F 2 "" H 3300 4450 50  0000 C CNN
-F 3 "" H 3300 4450 50  0000 C CNN
-	1    3300 4450
-	1    0    0    -1  
-$EndComp
-Text Label 3150 6650 3    60   ~ 0
-A6
-Text Label 3050 6650 3    60   ~ 0
-A7
-Text Label 3600 5450 0    60   ~ 0
-A3
-Text Label 3600 5550 0    60   ~ 0
-A2
-Text Label 3600 5650 0    60   ~ 0
-A1
-Text Label 3600 5750 0    60   ~ 0
-A0
-Text Label 3600 5850 0    60   ~ 0
-13
-Text Label 3600 5950 0    60   ~ 0
-12
-Text Label 3600 6050 0    60   ~ 0
-11
-Text Label 3600 6150 0    60   ~ 0
-10
-Text Label 2100 6150 0    60   ~ 0
-9
-Text Label 2100 6050 0    60   ~ 0
-8
-Text Label 2300 5450 2    39   ~ 0
-U2_GPIO2
-Text Label 3450 4950 1    60   ~ 0
-RAW
-Wire Notes Line
-	8150 1600 4600 1600
-Wire Notes Line
-	8150 3450 8150 1600
-Wire Notes Line
-	4600 3450 8150 3450
-Text Notes 1900 4025 0    60   ~ 0
-Shield Arduino Pro Mini \n
-Wire Notes Line
-	1850 6850 1850 3900
-Wire Notes Line
-	1850 3900 3950 3900
-Wire Notes Line
-	3950 6850 1850 6850
-Wire Notes Line
-	4200 6400 10100 6400
-Wire Notes Line
-	4100 2000 2800 2000
-Wire Notes Line
-	2800 3450 4100 3450
-Text Notes 2850 2150 0    60   ~ 0
-Radio modules
-$Comp
-L CustomLibraries_connectors:Conn_01x03 J?
-U 1 1 5EA332C1
-P 3650 2650
-F 0 "J?" H 3730 2692 50  0000 L CNN
-F 1 "RF_Tx" H 3730 2601 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 3650 2650 50  0001 C CNN
-F 3 "~" H 3650 2650 50  0001 C CNN
-	1    3650 2650
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_connectors:Conn_01x04 J?
-U 1 1 5EA3215E
-P 3650 3000
-F 0 "J?" H 3730 2992 50  0000 L CNN
-F 1 "RF_Rx" H 3730 2901 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 3650 3000 50  0001 C CNN
-F 3 "~" H 3650 3000 50  0001 C CNN
-	1    3650 3000
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3V3 #PWR05
-U 1 1 5ECC7A24
-P 2950 900
-F 0 "#PWR05" H 2950 750 50  0001 C CNN
-F 1 "+3V3" H 2965 1073 50  0000 C CNN
-F 2 "" H 2950 900 50  0001 C CNN
-F 3 "" H 2950 900 50  0001 C CNN
-	1    2950 900 
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3V3 #PWR08
-U 1 1 5ECC88CE
-P 2950 4450
-F 0 "#PWR08" H 2950 4300 50  0001 C CNN
-F 1 "+3V3" H 2965 4623 50  0000 C CNN
-F 2 "" H 2950 4450 50  0001 C CNN
-F 3 "" H 2950 4450 50  0001 C CNN
-	1    2950 4450
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_power:+3V3 #PWR011
-U 1 1 5ECC932A
-P 3550 4950
-F 0 "#PWR011" H 3550 4800 50  0001 C CNN
-F 1 "+3V3" H 3565 5123 50  0000 C CNN
-F 2 "" H 3550 4950 50  0001 C CNN
-F 3 "" H 3550 4950 50  0001 C CNN
-	1    3550 4950
-	1    0    0    -1  
-$EndComp
-Connection ~ 5750 4800
-Connection ~ 5100 5400
-Wire Wire Line
-	5100 5400 5050 5400
-Wire Wire Line
-	5100 5400 6150 5400
-Wire Wire Line
-	5100 4900 5100 5000
-Text Label 5900 5300 0    39   ~ 0
-I2C_SDA
-Text Label 5900 4900 0    39   ~ 0
-I2C_SCL
-Wire Wire Line
-	6150 4900 5900 4900
-Wire Wire Line
-	6150 5300 5900 5300
-Wire Wire Line
-	5750 5450 5750 5200
-Wire Wire Line
-	5750 5200 6150 5200
-Wire Wire Line
-	5750 5750 5750 5800
-Wire Wire Line
-	5750 5800 5900 5800
-Wire Wire Line
-	5900 5900 5900 5800
-Connection ~ 5900 5800
-Wire Wire Line
-	5900 5800 6050 5800
-Text Label 8550 2950 0    39   ~ 0
-I2C_SDA
-Wire Wire Line
-	2650 6600 2650 6700
-Wire Wire Line
-	2750 6600 2750 6800
-Wire Wire Line
-	2200 6700 2650 6700
-Wire Wire Line
-	2200 6800 2750 6800
-Text Label 2250 6700 0    39   ~ 0
-I2C_SCL
-Text Label 2250 6800 0    39   ~ 0
-I2C_SDA
-Text Notes 8350 1100 0    39   ~ 0
-Lamp button
-Wire Wire Line
-	6150 5000 5900 5000
-Wire Wire Line
-	6150 5100 5900 5100
-Wire Wire Line
-	8100 5500 8350 5500
-Wire Wire Line
-	8100 5100 8350 5100
-Text Label 5900 5000 0    39   ~ 0
-U1_GPIO12
-Text Label 5900 5100 0    39   ~ 0
-U1_GPIO13
-Text Label 8100 5500 0    39   ~ 0
-U1_GPIO4
-Text Label 8100 5100 0    39   ~ 0
-U1_GPIO5
-Text Label 5000 2350 2    39   ~ 0
-U1_GPIO4
-Text Label 5850 2350 2    39   ~ 0
-U1_GPIO5
-Text Label 6700 2350 2    39   ~ 0
-U1_GPIO12
-Text Label 7550 2350 2    39   ~ 0
-U1_GPIO13
-$Comp
-L CustomLibraries_power:+3V3 #PWR?
-U 1 1 5F493D6E
-P 10000 2700
-F 0 "#PWR?" H 10000 2550 50  0001 C CNN
-F 1 "+3V3" H 10015 2873 50  0000 C CNN
-F 2 "" H 10000 2700 50  0001 C CNN
-F 3 "" H 10000 2700 50  0001 C CNN
-	1    10000 2700
-	1    0    0    -1  
-$EndComp
-Text Label 10150 3200 0    39   ~ 0
-I2C_SCL
-Text Label 10150 3300 0    39   ~ 0
-I2C_SDA
-Text Notes 9700 2400 0    39   ~ 0
-I2C PULLUP RESISTOR
-$Comp
-L CustomLibraries_Device:R R?
-U 1 1 5F4B85F8
-P 10100 2950
-F 0 "R?" H 10170 2996 50  0000 L CNN
-F 1 "8.2k" H 10170 2905 50  0000 L CNN
-F 2 "" V 10030 2950 50  0001 C CNN
-F 3 "~" H 10100 2950 50  0001 C CNN
-	1    10100 2950
-	1    0    0    -1  
-$EndComp
-$Comp
-L CustomLibraries_Device:R R?
-U 1 1 5F4B940D
-P 9900 2950
-F 0 "R?" H 9700 3000 50  0000 L CNN
-F 1 "8.2k" H 9650 2900 50  0000 L CNN
-F 2 "" V 9830 2950 50  0001 C CNN
-F 3 "~" H 9900 2950 50  0001 C CNN
-	1    9900 2950
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	9600 3450 10450 3450
-Wire Notes Line
-	9600 2300 10450 2300
-Wire Notes Line
-	10450 2300 10450 3450
-Wire Notes Line
-	9600 2300 9600 3450
-Wire Wire Line
-	9900 3100 9900 3200
-Connection ~ 9900 3200
-Wire Wire Line
-	9900 3200 10400 3200
-Wire Wire Line
-	10100 3100 10100 3300
-Connection ~ 10100 3300
-Wire Wire Line
-	10100 3300 10400 3300
-Wire Wire Line
-	9900 2800 9900 2700
-Wire Wire Line
-	9900 2700 10000 2700
-Wire Wire Line
-	10100 2800 10100 2700
-Wire Wire Line
-	10100 2700 10000 2700
-Connection ~ 10000 2700
-Wire Wire Line
-	9700 3200 9900 3200
-Wire Wire Line
-	9700 3300 10100 3300
-$Comp
-L CustomLibraries_Switch:SW_Push SW?
-U 1 1 5F5F7A87
-P 8900 1900
-F 0 "SW?" V 8950 2050 50  0000 L CNN
-F 1 "SW_Push" V 9050 2000 50  0000 L CNN
-F 2 "Custom_libraries:SW_PUSH_6mm" H 8900 2100 50  0001 C CNN
-F 3 "~" H 8900 2100 50  0001 C CNN
-	1    8900 1900
-	0    1    1    0   
-$EndComp
-$Comp
-L CustomLibraries_Device:CP C?
-U 1 1 5F5F7A8D
-P 8600 1900
-F 0 "C?" H 8700 1850 50  0000 L CNN
-F 1 "1uF" H 8700 1750 50  0000 L CNN
-F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 8638 1750 50  0001 C CNN
-F 3 "~" H 8600 1900 50  0001 C CNN
-	1    8600 1900
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8900 1550 8900 1650
-$Comp
-L CustomLibraries_Device:R R?
-U 1 1 5F5F7A95
-P 8900 1400
-F 0 "R?" H 8970 1446 50  0000 L CNN
-F 1 "15k" H 8970 1355 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 8830 1400 50  0001 C CNN
-F 3 "~" H 8900 1400 50  0001 C CNN
-	1    8900 1400
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8600 1650 8900 1650
-Wire Wire Line
-	8600 2150 8750 2150
-Wire Wire Line
-	8600 2050 8600 2150
-Wire Wire Line
-	8900 2100 8900 2150
-$Comp
-L CustomLibraries_power:+3.3V #PWR?
-U 1 1 5F615A0E
-P 8900 1250
-F 0 "#PWR?" H 8900 1100 50  0001 C CNN
-F 1 "+3.3V" H 8915 1423 50  0000 C CNN
-F 2 "" H 8900 1250 50  0001 C CNN
-F 3 "" H 8900 1250 50  0001 C CNN
-	1    8900 1250
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	8300 1000 9500 1000
-Wire Notes Line
-	9500 1000 9500 2400
-Wire Notes Line
-	9500 2400 8300 2400
-Wire Notes Line
-	8300 1000 8300 2400
-$Comp
-L CustomLibraries_power:GND #PWR?
-U 1 1 5F6352A6
-P 8750 2150
-F 0 "#PWR?" H 8750 1900 50  0001 C CNN
-F 1 "GND" H 8755 1977 50  0000 C CNN
-F 2 "" H 8750 2150 50  0001 C CNN
-F 3 "" H 8750 2150 50  0001 C CNN
-	1    8750 2150
-	1    0    0    -1  
-$EndComp
-Connection ~ 8750 2150
-Wire Wire Line
-	8750 2150 8900 2150
-$Comp
-L CustomLibraries_power:GND #PWR?
-U 1 1 5F64D813
-P 3300 3250
-F 0 "#PWR?" H 3300 3000 50  0001 C CNN
-F 1 "GND" H 3300 3100 50  0000 C CNN
-F 2 "" H 3300 3250 50  0001 C CNN
-F 3 "" H 3300 3250 50  0001 C CNN
-	1    3300 3250
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3450 3200 3300 3200
-Wire Wire Line
-	3300 3200 3300 3250
-Wire Wire Line
-	3450 2550 3300 2550
-Wire Wire Line
-	3300 2550 3300 3200
-Connection ~ 3300 3200
-$Comp
-L CustomLibraries_power:+5V #PWR?
-U 1 1 5F674A36
-P 3150 2450
-F 0 "#PWR?" H 3150 2300 50  0001 C CNN
-F 1 "+5V" H 3165 2623 50  0000 C CNN
-F 2 "" H 3150 2450 50  0001 C CNN
-F 3 "" H 3150 2450 50  0001 C CNN
-	1    3150 2450
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3450 2650 3150 2650
-Wire Wire Line
-	3450 2900 3150 2900
-Wire Wire Line
-	3150 2900 3150 2650
-Connection ~ 3150 2650
-Wire Notes Line
-	4100 2000 4100 3450
-Wire Notes Line
-	2800 2000 2800 3450
-Wire Wire Line
-	3150 2650 3150 2450
-Wire Wire Line
-	3450 2750 2850 2750
-Wire Wire Line
-	3450 3000 3400 3000
-Wire Wire Line
-	3450 3100 3400 3100
-Wire Wire Line
-	3400 3100 3400 3000
-Connection ~ 3400 3000
-Wire Wire Line
-	3400 3000 2850 3000
-Text Label 2900 2750 0    39   ~ 0
-DATA_Tx
-Text Label 2900 3000 0    39   ~ 0
-DATA_Rx
-Text Label 2300 5550 2    39   ~ 0
-DATA_Tx
-Text Label 8850 1650 2    39   ~ 0
-U2_GPIO2
-Wire Wire Line
-	8600 1750 8600 1650
-Connection ~ 8900 1650
-Wire Wire Line
-	8900 1650 8900 1700
-Wire Wire Line
-	8100 5000 9300 5000
-Text Label 8100 5000 0    39   ~ 0
-Reset
-Wire Wire Line
-	5050 2300 5050 2350
-Wire Wire Line
-	5900 2000 5900 1950
-Wire Wire Line
-	5900 2300 5900 2350
-Wire Wire Line
-	6750 2300 6750 2350
-Connection ~ 6750 2350
-Wire Wire Line
-	7600 2300 7600 2350
-Connection ~ 7600 2350
-$Comp
-L CustomLibraries_connectors:Arduino_MiniPro U2
-U 1 1 5EA809AC
-P 2900 5550
-F 0 "U2" H 2900 4950 50  0000 C CNN
-F 1 "Arduino_MiniPro" H 2900 4850 50  0000 C CNN
-F 2 "Custom_libraries:Socket_Strip_Arduino_MiniPro" H 2650 5550 50  0001 C CNN
-F 3 "~" H 2650 5550 50  0001 C CNN
-	1    2900 5550
-	1    0    0    -1  
-$EndComp
-Text Label 2300 5750 2    39   ~ 0
-U2_GPIO5
-Text Label 2100 5850 0    60   ~ 0
-6
-Wire Wire Line
-	2450 5650 2100 5650
-Wire Wire Line
-	2100 5750 2450 5750
-Wire Wire Line
-	2350 6250 2350 5350
-Text Label 2100 5650 0    60   ~ 0
-4
-Text Label 8100 5300 0    39   ~ 0
-U1_TXD
-Text Label 8100 5400 0    39   ~ 0
-U1_RXD
-Text Label 2750 4500 1    39   ~ 0
-U2_TXD
-Text Label 2850 4500 1    39   ~ 0
-U2_RXD
-Text Label 2300 5050 2    39   ~ 0
-U2_TXD
-Text Label 2300 5150 2    39   ~ 0
-U2_TXD
-Text Label 2300 5250 2    39   ~ 0
-Reset
-Text Label 3600 5250 0    39   ~ 0
-Reset
-Text Label 2300 5950 2    39   ~ 0
-U2_GPIO7
-Text Label 2650 4500 1    39   ~ 0
+	9450 4850 9850 4850
+Text GLabel 9450 4850 0    39   Input ~ 0
 U2_DTR
+Wire Wire Line
+	9550 3750 9550 5550
 $Comp
-L CustomLibraries_Device:Speaker LS?
-U 1 1 5F4B04D1
-P 10150 1550
-F 0 "LS?" H 10320 1546 50  0000 L CNN
-F 1 "Speaker" H 10320 1455 50  0000 L CNN
-F 2 "" H 10150 1350 50  0001 C CNN
-F 3 "~" H 10140 1500 50  0001 C CNN
-	1    10150 1550
+L Connector:Screw_Terminal_01x03 J?
+U 1 1 5FA43937
+P 3800 6700
+F 0 "J?" H 3750 6500 50  0000 L CNN
+F 1 "Screw_Terminal_01x03" H 3900 6400 50  0001 L CNN
+F 2 "" H 3800 6700 50  0001 C CNN
+F 3 "~" H 3800 6700 50  0001 C CNN
+	1    3800 6700
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9950 1650 9850 1650
+	4550 3900 5200 3900
 Wire Wire Line
-	9850 1650 9850 1800
+	5200 3900 5200 4000
+Connection ~ 5000 4300
 Wire Wire Line
-	9950 1550 9650 1550
-Text Label 9950 1550 2    39   ~ 0
-U2_GPIO5
+	4550 3800 5000 3800
+Wire Wire Line
+	5000 4300 5000 3800
+Wire Wire Line
+	5000 4300 5000 4700
+Wire Wire Line
+	4550 4300 5000 4300
+Wire Wire Line
+	2100 4300 2600 4300
+Connection ~ 1850 3900
+Wire Wire Line
+	1850 3900 2600 3900
+Wire Wire Line
+	1850 3800 1850 3900
+Text GLabel 4550 4600 2    50   Input ~ 0
+U1_GPIO4
+Text GLabel 4550 4500 2    50   Input ~ 0
+U1_RXD
+Text GLabel 4550 4400 2    50   Input ~ 0
+U1_TXD
+Text GLabel 4550 4200 2    50   Input ~ 0
+U1_GPIO5
+Text GLabel 4550 4100 2    50   Input ~ 0
+U1_RST
+Text GLabel 2600 4500 0    50   Input ~ 0
+U1_GPIO0
+Text GLabel 2600 4400 0    50   Input ~ 0
+I2C_SDA
+Text GLabel 2600 4200 0    50   Input ~ 0
+U1_GPIO13
+Text GLabel 2600 4100 0    50   Input ~ 0
+U1_GPIO12
+Text GLabel 2600 4000 0    50   Input ~ 0
+I2C_SCL
+Wire Notes Line
+	6800 6600 6800 5600
 $Comp
 L CustomLibraries_power:GND #PWR?
 U 1 1 5F4C460A
-P 9850 1800
-F 0 "#PWR?" H 9850 1550 50  0001 C CNN
-F 1 "GND" H 9855 1627 50  0000 C CNN
-F 2 "" H 9850 1800 50  0001 C CNN
-F 3 "" H 9850 1800 50  0001 C CNN
-	1    9850 1800
+P 6000 6300
+F 0 "#PWR?" H 6000 6050 50  0001 C CNN
+F 1 "GND" H 6005 6127 50  0000 C CNN
+F 2 "" H 6000 6300 50  0001 C CNN
+F 3 "" H 6000 6300 50  0001 C CNN
+	1    6000 6300
 	1    0    0    -1  
 $EndComp
-Wire Notes Line
-	9600 1100 9600 2100
-Wire Notes Line
-	9600 2100 10650 2100
-Wire Notes Line
-	10650 2100 10650 1100
-Wire Notes Line
-	9600 1100 10650 1100
-Text Notes 9700 1200 0    39   ~ 0
-Buzzer
 Wire Wire Line
-	3600 900  3600 950 
+	6000 6150 6000 6300
+Wire Wire Line
+	6100 6150 6000 6150
 $Comp
-L CustomLibraries_power:GND #PWR?
-U 1 1 5F4B3969
-P 3600 1350
-F 0 "#PWR?" H 3600 1100 50  0001 C CNN
-F 1 "GND" H 3605 1177 50  0000 C CNN
-F 2 "" H 3600 1350 50  0001 C CNN
-F 3 "" H 3600 1350 50  0001 C CNN
-	1    3600 1350
+L CustomLibraries_Device:Speaker LS?
+U 1 1 5F4B04D1
+P 6300 6050
+F 0 "LS?" H 6470 6046 50  0000 L CNN
+F 1 "Speaker" H 6470 5955 50  0000 L CNN
+F 2 "" H 6300 5850 50  0001 C CNN
+F 3 "~" H 6290 6000 50  0001 C CNN
+	1    6300 6050
 	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 6150 4850 6050
+Wire Wire Line
+	5050 6150 5050 6050
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F4B940D
+P 5050 6300
+F 0 "R?" H 4850 6350 50  0000 L CNN
+F 1 "8.2k" H 4800 6250 50  0000 L CNN
+F 2 "" V 4980 6300 50  0001 C CNN
+F 3 "~" H 5050 6300 50  0001 C CNN
+	1    5050 6300
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F4B85F8
+P 4850 6300
+F 0 "R?" H 4920 6346 50  0000 L CNN
+F 1 "8.2k" H 4920 6255 50  0000 L CNN
+F 2 "" V 4780 6300 50  0001 C CNN
+F 3 "~" H 4850 6300 50  0001 C CNN
+	1    4850 6300
+	-1   0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_power:+3V3 #PWR?
-U 1 1 5F4B3972
-P 3600 900
-F 0 "#PWR?" H 3600 750 50  0001 C CNN
-F 1 "+3V3" H 3615 1073 50  0000 C CNN
-F 2 "" H 3600 900 50  0001 C CNN
-F 3 "" H 3600 900 50  0001 C CNN
-	1    3600 900 
+U 1 1 5F493D6E
+P 5050 6050
+F 0 "#PWR?" H 5050 5900 50  0001 C CNN
+F 1 "+3V3" H 5000 6200 50  0000 C CNN
+F 2 "" H 5050 6050 50  0001 C CNN
+F 3 "" H 5050 6050 50  0001 C CNN
+	1    5050 6050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 60086B68
+P 4850 6050
+F 0 "#PWR?" H 4850 5900 50  0001 C CNN
+F 1 "+3V3" H 4850 6200 50  0000 C CNN
+F 2 "" H 4850 6050 50  0001 C CNN
+F 3 "" H 4850 6050 50  0001 C CNN
+	1    4850 6050
+	-1   0    0    -1  
+$EndComp
+Text GLabel 4800 6550 0    39   Input ~ 0
+I2C_SCL
+Text GLabel 4800 6650 0    39   Input ~ 0
+I2C_SDA
+Wire Wire Line
+	4800 6550 4850 6550
+Wire Wire Line
+	4850 6550 4850 6450
+Wire Wire Line
+	5050 6650 4800 6650
+Wire Wire Line
+	5050 6450 5050 6650
+Text Notes 4500 5750 0    79   ~ 0
+I2C RESISTORS
+Wire Notes Line
+	5450 5600 5450 6800
+Wire Notes Line
+	5450 6800 4250 6800
+Wire Notes Line
+	4250 6800 4250 5600
+Wire Notes Line
+	4250 5600 5450 5600
+Wire Notes Line
+	4450 5600 4450 5800
+Wire Notes Line
+	4450 5800 5450 5800
+Text GLabel 6000 6050 0    39   Input ~ 0
+U2_GPIO5
+Text Notes 6350 5750 0    79   ~ 0
+AUDIO
+Wire Notes Line
+	5600 5600 5600 6600
+Wire Notes Line
+	5600 5600 6800 5600
+Wire Notes Line
+	5600 6600 6800 6600
+Wire Notes Line
+	6250 5800 6250 5600
+Wire Notes Line
+	6250 5800 6800 5800
+Text Notes 6850 4100 0    50   ~ 0
+SLAVE
+Text Notes 3450 4150 0    50   ~ 0
+MASTER
+Wire Notes Line
+	650  7500 4050 7500
+Wire Notes Line
+	650  5600 4050 5600
+Wire Notes Line
+	650  5600 650  7500
+Wire Notes Line
+	8400 2550 8400 5400
+Wire Notes Line
+	650  2550 650  5400
+Wire Notes Line
+	8400 5400 650  5400
+Wire Notes Line
+	9200 2750 9200 2550
+Wire Notes Line
+	11000 2750 9200 2750
+Wire Notes Line
+	8850 2550 11000 2550
+Wire Notes Line
+	8850 6350 8850 2550
+Wire Notes Line
+	11000 6350 8850 6350
+Wire Notes Line
+	11000 2550 11000 6350
+Wire Notes Line
+	650  2550 8400 2550
+Wire Wire Line
+	9850 5150 9450 5150
+Wire Wire Line
+	9450 5050 9850 5050
+Text GLabel 9450 5150 0    39   Input ~ 0
+U2_RXD
+Text GLabel 9450 5050 0    39   Input ~ 0
+U2_TXD
+Wire Wire Line
+	9700 4950 9700 5450
+Connection ~ 9700 4950
+Wire Wire Line
+	9850 4950 9700 4950
+Connection ~ 9550 3750
+Connection ~ 9700 4350
+Wire Wire Line
+	9700 4350 9700 4950
+$Comp
+L CustomLibraries_connectors:Conn_01x04 J?
+U 1 1 5F8460D5
+P 10050 4950
+F 0 "J?" H 10130 4942 50  0000 L CNN
+F 1 "SLAVE UART COM" H 10130 4851 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 10050 4950 50  0001 C CNN
+F 3 "~" H 10050 4950 50  0001 C CNN
+	1    10050 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J?
+U 1 1 5EA8DAF9
+P 10050 4450
+F 0 "J?" H 10130 4492 50  0000 L CNN
+F 1 "MASTER UART COM" H 10130 4401 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10050 4450 50  0001 C CNN
+F 3 "~" H 10050 4450 50  0001 C CNN
+	1    10050 4450
+	1    0    0    -1  
+$EndComp
+Text Notes 9350 2700 0    79   ~ 0
+COMMUNICATION HEADERS
+Wire Wire Line
+	9550 3350 9550 3750
+Wire Wire Line
+	9700 4050 9700 4350
+Wire Wire Line
+	9850 3750 9550 3750
+Connection ~ 9700 4050
+Wire Wire Line
+	9850 4050 9700 4050
+Connection ~ 9700 5450
+Wire Wire Line
+	9700 3250 9700 4050
+Wire Wire Line
+	9850 3450 9450 3450
+Connection ~ 9800 3850
+Wire Wire Line
+	9800 3850 9450 3850
+Wire Wire Line
+	9850 4550 9450 4550
+Wire Wire Line
+	9850 4450 9450 4450
+Wire Wire Line
+	9850 5750 9450 5750
+Wire Wire Line
+	9450 5650 9850 5650
+Text GLabel 9450 5750 0    39   Input ~ 0
+I2C_SCL
+Text GLabel 9450 5650 0    39   Input ~ 0
+I2C_SDA
+Text GLabel 9450 4550 0    39   Input ~ 0
+U1_RXD
+Text GLabel 9450 4450 0    39   Input ~ 0
+U1_TXD
+Text GLabel 9450 3850 0    39   Input ~ 0
+DATA_Rx
+Text GLabel 9450 3450 0    39   Input ~ 0
+DATA_Tx
+Wire Wire Line
+	9550 5550 9850 5550
+Wire Wire Line
+	9850 4350 9700 4350
+Wire Wire Line
+	9700 5450 9700 5950
+Wire Wire Line
+	9850 5450 9700 5450
+Connection ~ 9550 3350
+Wire Notes Line
+	3500 5800 3500 5600
+Wire Notes Line
+	4050 5800 3500 5800
+Text Notes 3600 5750 0    79   ~ 0
+RELAY
+Wire Wire Line
+	1300 6750 1500 6750
+Text GLabel 1300 6750 0    39   Input ~ 0
+U2_GPIO7
+Wire Notes Line
+	650  2750 2050 2750
+Wire Notes Line
+	2050 2750 2050 2550
+Text Notes 750  2700 0    79   ~ 0
+MICROCONTROLLERS
+Wire Wire Line
+	7700 3800 7900 3800
+$Comp
+L Project_Library:Arduino_ProMini_3V3 U2
+U 1 1 5EA809AC
+P 6950 4000
+F 0 "U2" H 6550 4900 50  0000 C CNN
+F 1 "Shield Arduino Pro Mini 3v3" H 6050 4800 50  0000 C CNN
+F 2 "Custom_libraries:Socket_Strip_Arduino_MiniPro_3V3" H 6700 4000 50  0001 C CNN
+F 3 "~" H 6700 4000 50  0001 C CNN
+	1    6950 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F5C64A0
+P 3050 900
+F 0 "#PWR?" H 3050 750 50  0001 C CNN
+F 1 "+5V" H 3065 1073 50  0000 C CNN
+F 2 "" H 3050 900 50  0001 C CNN
+F 3 "" H 3050 900 50  0001 C CNN
+	1    3050 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F5BCF17
+P 2800 900
+F 0 "#PWR?" H 2800 750 50  0001 C CNN
+F 1 "+5V" H 2815 1073 50  0000 C CNN
+F 2 "" H 2800 900 50  0001 C CNN
+F 3 "" H 2800 900 50  0001 C CNN
+	1    2800 900 
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:CP C?
+U 1 1 5F5B363D
+P 2800 1050
+F 0 "C?" H 2550 1100 50  0000 L CNN
+F 1 "47uF" H 2500 1000 50  0000 L CNN
+F 2 "" H 2838 900 50  0001 C CNN
+F 3 "~" H 2800 1050 50  0001 C CNN
+	1    2800 1050
 	1    0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_Device:C C?
-U 1 1 5F4D102B
-P 3600 1100
-F 0 "C?" H 3350 1150 50  0000 L CNN
-F 1 "10uF" H 3300 1050 50  0000 L CNN
-F 2 "" H 3638 950 50  0001 C CNN
-F 3 "~" H 3600 1100 50  0001 C CNN
-	1    3600 1100
+U 1 1 5F5B3637
+P 3050 1050
+F 0 "C?" H 3165 1096 50  0000 L CNN
+F 1 "0.1uF" H 3165 1005 50  0000 L CNN
+F 2 "" H 3088 900 50  0001 C CNN
+F 3 "~" H 3050 1050 50  0001 C CNN
+	1    3050 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F5B362B
+P 3050 1200
+F 0 "#PWR?" H 3050 950 50  0001 C CNN
+F 1 "GND" H 3055 1027 50  0000 C CNN
+F 2 "" H 3050 1200 50  0001 C CNN
+F 3 "" H 3050 1200 50  0001 C CNN
+	1    3050 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F5B361F
+P 2800 1200
+F 0 "#PWR?" H 2800 950 50  0001 C CNN
+F 1 "GND" H 2805 1027 50  0000 C CNN
+F 2 "" H 2800 1200 50  0001 C CNN
+F 3 "" H 2800 1200 50  0001 C CNN
+	1    2800 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5EA488A9
+P 3750 2200
+F 0 "#PWR?" H 3750 1950 50  0001 C CNN
+F 1 "GND" H 3755 2027 50  0000 C CNN
+F 2 "" H 3750 2200 50  0001 C CNN
+F 3 "" H 3750 2200 50  0001 C CNN
+	1    3750 2200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3600 1250 3600 1350
-Wire Wire Line
-	3850 900  3850 950 
+	3750 2050 3750 2200
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5ECC7A24
+P 3750 1700
+F 0 "#PWR?" H 3750 1550 50  0001 C CNN
+F 1 "+3V3" H 3765 1873 50  0000 C CNN
+F 2 "" H 3750 1700 50  0001 C CNN
+F 3 "" H 3750 1700 50  0001 C CNN
+	1    3750 1700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Project_Library:3v3_DCDC_Converter_Power_Module U?
+U 1 1 5F5C9188
+P 2900 1950
+F 0 "U?" H 2900 2250 50  0000 C CNN
+F 1 "3v3 DCDC Converter Power Module" H 2900 1650 50  0000 C CNN
+F 2 "" H 2900 1950 39  0001 C CNN
+F 3 "" H 2900 1950 39  0001 C CNN
+	1    2900 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F5CB6F6
+P 2100 1700
+F 0 "#PWR?" H 2100 1550 50  0001 C CNN
+F 1 "+5V" H 2115 1873 50  0000 C CNN
+F 2 "" H 2100 1700 50  0001 C CNN
+F 3 "" H 2100 1700 50  0001 C CNN
+	1    2100 1700
+	1    0    0    -1  
+$EndComp
 $Comp
 L CustomLibraries_power:GND #PWR?
-U 1 1 5F4DD2EB
-P 3850 1350
-F 0 "#PWR?" H 3850 1100 50  0001 C CNN
-F 1 "GND" H 3855 1177 50  0000 C CNN
-F 2 "" H 3850 1350 50  0001 C CNN
-F 3 "" H 3850 1350 50  0001 C CNN
-	1    3850 1350
+U 1 1 5F5D37BB
+P 2100 2200
+F 0 "#PWR?" H 2100 1950 50  0001 C CNN
+F 1 "GND" H 2105 2027 50  0000 C CNN
+F 2 "" H 2100 2200 50  0001 C CNN
+F 3 "" H 2100 2200 50  0001 C CNN
+	1    2100 2200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2100 2050 2100 2200
+Wire Wire Line
+	3400 2050 3750 2050
+Wire Wire Line
+	3400 1850 3750 1850
+Wire Wire Line
+	3750 1850 3750 1700
+Wire Wire Line
+	2100 1700 2100 1850
+Wire Wire Line
+	2100 1850 2400 1850
+Wire Wire Line
+	2100 2050 2400 2050
+Wire Notes Line
+	10350 950  11000 950 
+Wire Notes Line
+	10350 750  10350 950 
+Wire Notes Line
+	3450 800  4000 800 
+Wire Notes Line
+	3450 600  3450 800 
+Text Notes 10400 900  0    79   ~ 0
+BUTTONS
+Wire Notes Line
+	4250 750  4250 2300
+Wire Notes Line
+	11000 750  4250 750 
+Wire Notes Line
+	11000 2300 11000 750 
+Wire Notes Line
+	4250 2300 11000 2300
+$Comp
+L Connector:Screw_Terminal_01x02 J?
+U 1 1 5F6B3CD7
+P 1100 1000
+F 0 "J?" H 1100 1250 50  0000 C CNN
+F 1 "PWR 5V" H 1100 1150 50  0000 C CNN
+F 2 "" H 1100 1000 50  0001 C CNN
+F 3 "~" H 1100 1000 50  0001 C CNN
+	1    1100 1000
+	-1   0    0    -1  
+$EndComp
+Text Notes 3500 750  0    79   ~ 0
+POWER
+Wire Notes Line
+	4000 600  650  600 
+Wire Notes Line
+	4000 2450 4000 600 
+Wire Notes Line
+	650  2450 4000 2450
+Wire Notes Line
+	650  600  650  2450
+Wire Wire Line
+	1450 2150 1450 2200
+Connection ~ 1450 2150
+Wire Wire Line
+	1450 1100 1450 2150
+Wire Wire Line
+	1600 1100 1600 850 
+Wire Wire Line
+	1750 1100 1600 1100
+Wire Wire Line
+	1300 1000 1750 1000
+Wire Wire Line
+	1600 1200 1600 1550
+Wire Wire Line
+	1600 1200 1750 1200
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J?
+U 1 1 5F6118BD
+P 1950 1100
+F 0 "J?" H 2030 1142 50  0000 L CNN
+F 1 "PWR SEL" H 2030 1051 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1950 1100 50  0001 C CNN
+F 3 "~" H 1950 1100 50  0001 C CNN
+	1    1950 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1050 2150 1450 2150
+Wire Wire Line
+	1350 1550 1600 1550
+Wire Wire Line
+	1300 1100 1450 1100
+$Comp
+L Connector:USB_B_Mini J?
+U 1 1 5F5B7CFE
+P 1050 1750
+F 0 "J?" H 1050 2250 50  0000 C CNN
+F 1 "PWR 5V AUX" H 1050 2150 50  0000 C CNN
+F 2 "" H 1200 1700 50  0001 C CNN
+F 3 "~" H 1200 1700 50  0001 C CNN
+	1    1050 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F5F9CFD
+P 1450 2200
+F 0 "#PWR?" H 1450 1950 50  0001 C CNN
+F 1 "GND" H 1450 2050 50  0000 C CNN
+F 2 "" H 1450 2200 50  0001 C CNN
+F 3 "" H 1450 2200 50  0001 C CNN
+	1    1450 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F64D813
+P 9700 5950
+F 0 "#PWR?" H 9700 5700 50  0001 C CNN
+F 1 "GND" H 9700 5800 50  0000 C CNN
+F 2 "" H 9700 5950 50  0001 C CNN
+F 3 "" H 9700 5950 50  0001 C CNN
+	1    9700 5950
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F5E1A98
+P 1600 850
+F 0 "#PWR?" H 1600 700 50  0001 C CNN
+F 1 "+5V" H 1615 1023 50  0000 C CNN
+F 2 "" H 1600 850 50  0001 C CNN
+F 3 "" H 1600 850 50  0001 C CNN
+	1    1600 850 
+	1    0    0    -1  
+$EndComp
+NoConn ~ 950  2150
+NoConn ~ 1350 1950
+NoConn ~ 1350 1850
+NoConn ~ 1350 1750
+Text GLabel 6900 3100 1    39   Input ~ 0
+U2_RXD
+Text GLabel 6800 3100 1    39   Input ~ 0
+U2_TXD
+Text GLabel 6700 3100 1    39   Input ~ 0
+U2_DTR
+Wire Wire Line
+	6800 5150 6650 5150
+Wire Wire Line
+	6650 5050 6700 5050
+Text GLabel 6650 5150 0    39   Input ~ 0
+I2C_SDA
+Text GLabel 6650 5050 0    39   Input ~ 0
+I2C_SCL
+Text GLabel 6050 4000 0    39   Input ~ 0
+DATA_Rx
+Text GLabel 6050 3600 0    39   Input ~ 0
+U2_RXD
+Text GLabel 6050 3500 0    39   Input ~ 0
+U2_TXD
+Text GLabel 6050 4400 0    39   Input ~ 0
+U2_GPIO7
+Text GLabel 6050 4200 0    39   Input ~ 0
+U2_GPIO5
+Text GLabel 6050 3900 0    39   Input ~ 0
+U2_GPIO2
+NoConn ~ 6200 3700
+Wire Wire Line
+	7800 3600 7800 4700
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FFE03E0
+P 1850 4050
+F 0 "C?" H 1965 4096 50  0000 L CNN
+F 1 "0.1uF" H 1965 4005 50  0000 L CNN
+F 2 "" H 1888 3900 50  0001 C CNN
+F 3 "~" H 1850 4050 50  0001 C CNN
+	1    1850 4050
+	-1   0    0    -1  
+$EndComp
+NoConn ~ 7700 4600
+NoConn ~ 7700 4500
+NoConn ~ 7700 4400
+NoConn ~ 7700 4300
+NoConn ~ 7700 4200
+NoConn ~ 7700 4100
+NoConn ~ 7700 4000
+NoConn ~ 7700 3900
+NoConn ~ 7700 3700
+NoConn ~ 7700 3500
+NoConn ~ 6200 4600
+NoConn ~ 6200 4500
+NoConn ~ 6200 4300
+NoConn ~ 6200 4100
+Wire Wire Line
+	6200 3500 6050 3500
+Wire Wire Line
+	6200 3600 6050 3600
+Wire Wire Line
+	6200 3900 6050 3900
+Wire Wire Line
+	6200 4000 6050 4000
+Wire Wire Line
+	6200 4200 6050 4200
+Wire Wire Line
+	2850 5900 2850 6100
+Wire Wire Line
+	2100 6000 2100 5900
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 6006DB14
+P 2100 5900
+F 0 "#PWR?" H 2100 5750 50  0001 C CNN
+F 1 "+5V" H 2115 6073 50  0000 C CNN
+F 2 "" H 2100 5900 50  0001 C CNN
+F 3 "" H 2100 5900 50  0001 C CNN
+	1    2100 5900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1850 4200 1850 4700
+Wire Wire Line
+	2100 4600 2100 4700
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 60044E14
+P 2100 4700
+F 0 "#PWR?" H 2100 4450 50  0001 C CNN
+F 1 "GND" H 2100 4550 50  0000 C CNN
+F 2 "" H 2100 4700 50  0001 C CNN
+F 3 "" H 2100 4700 50  0001 C CNN
+	1    2100 4700
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 6001266C
+P 2100 4450
+F 0 "R?" H 2150 4400 50  0000 L CNN
+F 1 "10k" H 2150 4500 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 2030 4450 50  0001 C CNN
+F 3 "~" H 2100 4450 50  0001 C CNN
+	1    2100 4450
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5200 4700 5200 4600
+Wire Wire Line
+	2550 4600 2600 4600
+Wire Wire Line
+	2550 3800 2550 3500
+Wire Wire Line
+	2600 3800 2550 3800
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FEF532D
+P 2550 3500
+F 0 "#PWR?" H 2550 3350 50  0001 C CNN
+F 1 "+3V3" H 2565 3673 50  0000 C CNN
+F 2 "" H 2550 3500 50  0001 C CNN
+F 3 "" H 2550 3500 50  0001 C CNN
+	1    2550 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FECCDF9
+P 1850 4700
+F 0 "#PWR?" H 1850 4450 50  0001 C CNN
+F 1 "GND" H 1850 4550 50  0000 C CNN
+F 2 "" H 1850 4700 50  0001 C CNN
+F 3 "" H 1850 4700 50  0001 C CNN
+	1    1850 4700
+	1    0    0    -1  
+$EndComp
+Text Label 10600 1500 2    39   ~ 0
+U2_GPIO2
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FE3CC70
+P 10350 1750
+F 0 "C?" H 10600 1700 50  0000 R CNN
+F 1 "1uF" H 10600 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 10388 1600 50  0001 C CNN
+F 3 "~" H 10350 1750 50  0001 C CNN
+	1    10350 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	10650 2000 10650 1950
+Connection ~ 10650 1950
+Wire Wire Line
+	10650 1950 10350 1950
+Wire Wire Line
+	10350 1950 10350 1900
+Wire Wire Line
+	10650 1500 10650 1450
+Connection ~ 10650 1500
+Wire Wire Line
+	10350 1500 10650 1500
+Wire Wire Line
+	10350 1600 10350 1500
+Wire Wire Line
+	10650 1550 10650 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FE3CC61
+P 10650 1300
+F 0 "R?" H 10800 1250 50  0000 C CNN
+F 1 "15k" H 10800 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 10580 1300 50  0001 C CNN
+F 3 "~" H 10650 1300 50  0001 C CNN
+	1    10650 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FE3CC5B
+P 10650 1150
+F 0 "#PWR?" H 10650 1000 50  0001 C CNN
+F 1 "+3V3" H 10650 1300 50  0000 C CNN
+F 2 "" H 10650 1150 50  0001 C CNN
+F 3 "" H 10650 1150 50  0001 C CNN
+	1    10650 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FE3CC55
+P 10650 2000
+F 0 "#PWR?" H 10650 1750 50  0001 C CNN
+F 1 "GND" H 10655 1827 50  0000 C CNN
+F 2 "" H 10650 2000 50  0001 C CNN
+F 3 "" H 10650 2000 50  0001 C CNN
+	1    10650 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FE3CC4F
+P 10650 1750
+F 0 "SW?" V 10700 1500 50  0000 L CNN
+F 1 "LAMP" V 10600 1500 50  0000 L CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 10650 1950 50  0001 C CNN
+F 3 "~" H 10650 1950 50  0001 C CNN
+	1    10650 1750
+	0    -1   -1   0   
+$EndComp
+Text Label 7650 1500 2    39   ~ 0
+U1_GPIO13
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FDA910B
+P 7400 1750
+F 0 "C?" H 7650 1700 50  0000 R CNN
+F 1 "1uF" H 7650 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 7438 1600 50  0001 C CNN
+F 3 "~" H 7400 1750 50  0001 C CNN
+	1    7400 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7700 2000 7700 1950
+Connection ~ 7700 1950
+Wire Wire Line
+	7700 1950 7400 1950
+Wire Wire Line
+	7400 1950 7400 1900
+Wire Wire Line
+	7700 1500 7700 1450
+Connection ~ 7700 1500
+Wire Wire Line
+	7400 1500 7700 1500
+Wire Wire Line
+	7400 1600 7400 1500
+Wire Wire Line
+	7700 1550 7700 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FDA90FC
+P 7700 1300
+F 0 "R?" H 7850 1250 50  0000 C CNN
+F 1 "15k" H 7850 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 7630 1300 50  0001 C CNN
+F 3 "~" H 7700 1300 50  0001 C CNN
+	1    7700 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FDA90F6
+P 7700 1150
+F 0 "#PWR?" H 7700 1000 50  0001 C CNN
+F 1 "+3V3" H 7700 1300 50  0000 C CNN
+F 2 "" H 7700 1150 50  0001 C CNN
+F 3 "" H 7700 1150 50  0001 C CNN
+	1    7700 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FDA90F0
+P 7700 2000
+F 0 "#PWR?" H 7700 1750 50  0001 C CNN
+F 1 "GND" H 7705 1827 50  0000 C CNN
+F 2 "" H 7700 2000 50  0001 C CNN
+F 3 "" H 7700 2000 50  0001 C CNN
+	1    7700 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FDA90EA
+P 7700 1750
+F 0 "SW?" V 7750 1500 50  0000 L CNN
+F 1 "SW_Push" V 7650 1550 50  0000 C CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 7700 1950 50  0001 C CNN
+F 3 "~" H 7700 1950 50  0001 C CNN
+	1    7700 1750
+	0    -1   -1   0   
+$EndComp
+Text Label 6700 1500 2    39   ~ 0
+U1_GPIO12
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FD982C5
+P 6450 1750
+F 0 "C?" H 6700 1700 50  0000 R CNN
+F 1 "1uF" H 6700 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 6488 1600 50  0001 C CNN
+F 3 "~" H 6450 1750 50  0001 C CNN
+	1    6450 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6750 2000 6750 1950
+Connection ~ 6750 1950
+Wire Wire Line
+	6750 1950 6450 1950
+Wire Wire Line
+	6450 1950 6450 1900
+Wire Wire Line
+	6750 1500 6750 1450
+Connection ~ 6750 1500
+Wire Wire Line
+	6450 1500 6750 1500
+Wire Wire Line
+	6450 1600 6450 1500
+Wire Wire Line
+	6750 1550 6750 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FD982B6
+P 6750 1300
+F 0 "R?" H 6900 1250 50  0000 C CNN
+F 1 "15k" H 6900 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 6680 1300 50  0001 C CNN
+F 3 "~" H 6750 1300 50  0001 C CNN
+	1    6750 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FD982B0
+P 6750 1150
+F 0 "#PWR?" H 6750 1000 50  0001 C CNN
+F 1 "+3V3" H 6750 1300 50  0000 C CNN
+F 2 "" H 6750 1150 50  0001 C CNN
+F 3 "" H 6750 1150 50  0001 C CNN
+	1    6750 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FD982AA
+P 6750 2000
+F 0 "#PWR?" H 6750 1750 50  0001 C CNN
+F 1 "GND" H 6755 1827 50  0000 C CNN
+F 2 "" H 6750 2000 50  0001 C CNN
+F 3 "" H 6750 2000 50  0001 C CNN
+	1    6750 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FD982A4
+P 6750 1750
+F 0 "SW?" V 6800 1500 50  0000 L CNN
+F 1 "SW_Push" V 6700 1550 50  0000 C CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 6750 1950 50  0001 C CNN
+F 3 "~" H 6750 1950 50  0001 C CNN
+	1    6750 1750
+	0    -1   -1   0   
+$EndComp
+Text Label 5750 1500 2    39   ~ 0
+U1_GPIO5
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FD88904
+P 5500 1750
+F 0 "C?" H 5750 1700 50  0000 R CNN
+F 1 "1uF" H 5750 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 5538 1600 50  0001 C CNN
+F 3 "~" H 5500 1750 50  0001 C CNN
+	1    5500 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5800 2000 5800 1950
+Connection ~ 5800 1950
+Wire Wire Line
+	5800 1950 5500 1950
+Wire Wire Line
+	5500 1950 5500 1900
+Wire Wire Line
+	5800 1500 5800 1450
+Connection ~ 5800 1500
+Wire Wire Line
+	5500 1500 5800 1500
+Wire Wire Line
+	5500 1600 5500 1500
+Wire Wire Line
+	5800 1550 5800 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FD888F5
+P 5800 1300
+F 0 "R?" H 5950 1250 50  0000 C CNN
+F 1 "15k" H 5950 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 5730 1300 50  0001 C CNN
+F 3 "~" H 5800 1300 50  0001 C CNN
+	1    5800 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FD888EF
+P 5800 1150
+F 0 "#PWR?" H 5800 1000 50  0001 C CNN
+F 1 "+3V3" H 5800 1300 50  0000 C CNN
+F 2 "" H 5800 1150 50  0001 C CNN
+F 3 "" H 5800 1150 50  0001 C CNN
+	1    5800 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FD888E9
+P 5800 2000
+F 0 "#PWR?" H 5800 1750 50  0001 C CNN
+F 1 "GND" H 5805 1827 50  0000 C CNN
+F 2 "" H 5800 2000 50  0001 C CNN
+F 3 "" H 5800 2000 50  0001 C CNN
+	1    5800 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FD888E3
+P 5800 1750
+F 0 "SW?" V 5850 1500 50  0000 L CNN
+F 1 "SW_Push" V 5750 1550 50  0000 C CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 5800 1950 50  0001 C CNN
+F 3 "~" H 5800 1950 50  0001 C CNN
+	1    5800 1750
+	0    -1   -1   0   
+$EndComp
+Text Label 4800 1500 2    39   ~ 0
+U1_GPIO4
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FD77185
+P 4550 1750
+F 0 "C?" H 4800 1700 50  0000 R CNN
+F 1 "1uF" H 4800 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 4588 1600 50  0001 C CNN
+F 3 "~" H 4550 1750 50  0001 C CNN
+	1    4550 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4850 2000 4850 1950
+Connection ~ 4850 1950
+Wire Wire Line
+	4850 1950 4550 1950
+Wire Wire Line
+	4550 1950 4550 1900
+Wire Wire Line
+	4850 1500 4850 1450
+Connection ~ 4850 1500
+Wire Wire Line
+	4550 1500 4850 1500
+Wire Wire Line
+	4550 1600 4550 1500
+Wire Wire Line
+	4850 1550 4850 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FD77176
+P 4850 1300
+F 0 "R?" H 5000 1250 50  0000 C CNN
+F 1 "15k" H 5000 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 4780 1300 50  0001 C CNN
+F 3 "~" H 4850 1300 50  0001 C CNN
+	1    4850 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FD77170
+P 4850 1150
+F 0 "#PWR?" H 4850 1000 50  0001 C CNN
+F 1 "+3V3" H 4850 1300 50  0000 C CNN
+F 2 "" H 4850 1150 50  0001 C CNN
+F 3 "" H 4850 1150 50  0001 C CNN
+	1    4850 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FD7716A
+P 4850 2000
+F 0 "#PWR?" H 4850 1750 50  0001 C CNN
+F 1 "GND" H 4855 1827 50  0000 C CNN
+F 2 "" H 4850 2000 50  0001 C CNN
+F 3 "" H 4850 2000 50  0001 C CNN
+	1    4850 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FD77164
+P 4850 1750
+F 0 "SW?" V 4900 1500 50  0000 L CNN
+F 1 "SW_Push" V 4800 1550 50  0000 C CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 4850 1950 50  0001 C CNN
+F 3 "~" H 4850 1950 50  0001 C CNN
+	1    4850 1750
+	0    -1   -1   0   
+$EndComp
+Text Label 8700 1500 2    39   ~ 0
+U1_GPIO0
+Text Label 9400 1500 0    39   ~ 0
+U1_RST
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5FD62EAE
+P 9400 1750
+F 0 "C?" H 9650 1700 50  0000 R CNN
+F 1 "0.1uF" H 9700 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 9438 1600 50  0001 C CNN
+F 3 "~" H 9400 1750 50  0001 C CNN
+	1    9400 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	9700 2000 9700 1950
+Connection ~ 9700 1950
+Wire Wire Line
+	9700 1950 9400 1950
+Wire Wire Line
+	9400 1950 9400 1900
+Wire Wire Line
+	9700 1500 9700 1450
+Connection ~ 9700 1500
+Wire Wire Line
+	9400 1500 9700 1500
+Wire Wire Line
+	9400 1600 9400 1500
+Wire Wire Line
+	9700 1550 9700 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FD62E9F
+P 9700 1300
+F 0 "R?" H 9850 1250 50  0000 C CNN
+F 1 "10k" H 9850 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 9630 1300 50  0001 C CNN
+F 3 "~" H 9700 1300 50  0001 C CNN
+	1    9700 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5FD62E99
+P 9700 1150
+F 0 "#PWR?" H 9700 1000 50  0001 C CNN
+F 1 "+3V3" H 9700 1300 50  0000 C CNN
+F 2 "" H 9700 1150 50  0001 C CNN
+F 3 "" H 9700 1150 50  0001 C CNN
+	1    9700 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FD62E93
+P 9700 2000
+F 0 "#PWR?" H 9700 1750 50  0001 C CNN
+F 1 "GND" H 9705 1827 50  0000 C CNN
+F 2 "" H 9700 2000 50  0001 C CNN
+F 3 "" H 9700 2000 50  0001 C CNN
+	1    9700 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5FD62E8D
+P 9700 1750
+F 0 "SW?" V 9750 1500 50  0000 L CNN
+F 1 "RESET" V 9650 1450 50  0000 L CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 9700 1950 50  0001 C CNN
+F 3 "~" H 9700 1950 50  0001 C CNN
+	1    9700 1750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CustomLibraries_Device:C C?
+U 1 1 5F64C379
+P 8450 1750
+F 0 "C?" H 8700 1700 50  0000 R CNN
+F 1 "0.1uF" H 8750 1800 50  0000 R CNN
+F 2 "Capacitor_THT:C_Radial_D5.0mm_H5.0mm_P2.00mm" H 8488 1600 50  0001 C CNN
+F 3 "~" H 8450 1750 50  0001 C CNN
+	1    8450 1750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	8750 2000 8750 1950
+Connection ~ 8750 1950
+Wire Wire Line
+	8750 1950 8450 1950
+Wire Wire Line
+	8450 1950 8450 1900
+Wire Wire Line
+	8750 1500 8750 1450
+Connection ~ 8750 1500
+Wire Wire Line
+	8450 1500 8750 1500
+Wire Wire Line
+	8450 1600 8450 1500
+Wire Wire Line
+	8750 1550 8750 1500
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5EB2F921
+P 8750 1300
+F 0 "R?" H 8900 1250 50  0000 C CNN
+F 1 "10k" H 8900 1350 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 8680 1300 50  0001 C CNN
+F 3 "~" H 8750 1300 50  0001 C CNN
+	1    8750 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5EB09053
+P 8750 1150
+F 0 "#PWR?" H 8750 1000 50  0001 C CNN
+F 1 "+3V3" H 8750 1300 50  0000 C CNN
+F 2 "" H 8750 1150 50  0001 C CNN
+F 3 "" H 8750 1150 50  0001 C CNN
+	1    8750 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5EAF6562
+P 8750 2000
+F 0 "#PWR?" H 8750 1750 50  0001 C CNN
+F 1 "GND" H 8755 1827 50  0000 C CNN
+F 2 "" H 8750 2000 50  0001 C CNN
+F 3 "" H 8750 2000 50  0001 C CNN
+	1    8750 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Switch:SW_Push SW?
+U 1 1 5F641C24
+P 8750 1750
+F 0 "SW?" V 8800 1500 50  0000 L CNN
+F 1 "BOOT" V 8700 1600 50  0000 C CNN
+F 2 "Custom_libraries:SW_PUSH_6mm" H 8750 1950 50  0001 C CNN
+F 3 "~" H 8750 1950 50  0001 C CNN
+	1    8750 1750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FC9273E
+P 5200 4700
+F 0 "#PWR?" H 5200 4450 50  0001 C CNN
+F 1 "GND" H 5200 4550 50  0000 C CNN
+F 2 "" H 5200 4700 50  0001 C CNN
+F 3 "" H 5200 4700 50  0001 C CNN
+	1    5200 4700
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:LED D?
+U 1 1 5FC854F4
+P 5200 4450
+F 0 "D?" V 5239 4332 50  0000 R CNN
+F 1 "LED1" V 5148 4332 50  0000 R CNN
+F 2 "" H 5200 4450 50  0001 C CNN
+F 3 "~" H 5200 4450 50  0001 C CNN
+	1    5200 4450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5FC854EE
+P 5200 4150
+F 0 "R?" H 5100 4100 50  0000 R CNN
+F 1 "15k" H 5100 4200 50  0000 R CNN
+F 2 "" V 5130 4150 50  0001 C CNN
+F 3 "~" H 5200 4150 50  0001 C CNN
+	1    5200 4150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2850 6500 2850 6600
+Wire Wire Line
+	3600 6800 3600 6900
+Wire Wire Line
+	2350 7200 2350 7250
+Wire Wire Line
+	2850 6900 2850 7250
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5FC08FEE
+P 2350 7250
+F 0 "#PWR?" H 2350 7000 50  0001 C CNN
+F 1 "GND" H 2355 7077 50  0000 C CNN
+F 2 "" H 2350 7250 50  0001 C CNN
+F 3 "" H 2350 7250 50  0001 C CNN
+	1    2350 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F9A3748
+P 1450 6250
+F 0 "R?" H 1520 6296 50  0000 L CNN
+F 1 "2.2k" H 1520 6205 50  0000 L CNN
+F 2 "" V 1380 6250 50  0001 C CNN
+F 3 "~" H 1450 6250 50  0001 C CNN
+	1    1450 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J?
+U 1 1 5F8BD6F8
+P 1050 6100
+F 0 "J?" H 1000 5750 50  0000 L CNN
+F 1 "TRIGGER SEL" H 800 5850 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1050 6100 50  0001 C CNN
+F 3 "~" H 1050 6100 50  0001 C CNN
+	1    1050 6100
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1450 6000 1450 5900
+Wire Wire Line
+	1250 6000 1450 6000
+Wire Notes Line
+	4050 5600 4050 7500
+Wire Wire Line
+	2100 6750 2100 7250
+Wire Wire Line
+	1350 6200 1350 7250
+Wire Wire Line
+	1250 6200 1350 6200
+$Comp
+L CustomLibraries_Device:CP C?
+U 1 1 5FA7B209
+P 1150 3650
+F 0 "C?" H 900 3700 50  0000 L CNN
+F 1 "10uF" H 850 3600 50  0000 L CNN
+F 2 "" H 1188 3500 50  0001 C CNN
+F 3 "~" H 1150 3650 50  0001 C CNN
+	1    1150 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2350 6600 2850 6600
+$Comp
+L CustomLibraries_Device:PS2705-1 U?
+U 1 1 5F76A03A
+P 1800 6650
+F 0 "U?" H 1800 6450 50  0000 C CNN
+F 1 "PS2705-1" H 1800 6350 50  0000 C CNN
+F 2 "" H 950 6450 50  0001 L CIN
+F 3 "https://www.renesas.com/us/en/doc/products/opt/r08ds0093ej0301-ps2705-1.pdf" H 1825 6650 50  0001 L CNN
+	1    1800 6650
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:S8550 Q?
+U 1 1 5F7780B7
+P 2750 6300
+F 0 "Q?" H 2940 6254 50  0000 L CNN
+F 1 "S8550" H 2940 6345 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 2950 6225 50  0001 L CIN
+F 3 "https://www.rcscomponents.kiev.ua/datasheets/s8550-2ty-datasheet.pdf" H 2750 6300 50  0001 L CNN
+	1    2750 6300
+	1    0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F7ACA38
+P 2400 6300
+F 0 "R?" V 2300 6300 50  0000 C CNN
+F 1 "1k" V 2500 6300 50  0000 C CNN
+F 2 "" V 2330 6300 50  0001 C CNN
+F 3 "~" H 2400 6300 50  0001 C CNN
+	1    2400 6300
+	0    1    1    0   
+$EndComp
+$Comp
+L CustomLibraries_Device:D D?
+U 1 1 5F7B032D
+P 2850 6750
+F 0 "D?" V 2800 6500 50  0000 L CNN
+F 1 "1N4007" V 2900 6400 50  0000 L CNN
+F 2 "" H 2850 6750 50  0001 C CNN
+F 3 "~" H 2850 6750 50  0001 C CNN
+	1    2850 6750
+	0    1    1    0   
+$EndComp
+$Comp
+L CustomLibraries_SRD-05VDC-SL-C:SRD-05VDC-SL-C K?
+U 1 1 5F7C94E0
+P 3300 6700
+F 0 "K?" H 3300 6350 50  0000 C CNN
+F 1 "SRD-05VDC-SL-C" H 3300 6250 50  0000 C CNN
+F 2 "RELAY_SRD-05VDC-SL-C" H 3300 6700 50  0001 L BNN
+F 3 "" H 3300 6700 50  0001 L BNN
+F 4 "IPC-7251" H 3300 6700 50  0001 L BNN "Campo4"
+	1    3300 6700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2250 6300 2100 6300
+Wire Wire Line
+	2100 6300 2100 6550
+Connection ~ 2850 6600
+Wire Wire Line
+	3000 6600 2850 6600
+Wire Wire Line
+	3000 6900 2850 6900
+Connection ~ 2850 6900
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F88D5C3
+P 2850 7250
+F 0 "#PWR?" H 2850 7000 50  0001 C CNN
+F 1 "GND" H 2855 7077 50  0000 C CNN
+F 2 "" H 2850 7250 50  0001 C CNN
+F 3 "" H 2850 7250 50  0001 C CNN
+	1    2850 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F898749
+P 2100 7250
+F 0 "#PWR?" H 2100 7000 50  0001 C CNN
+F 1 "GND" H 2105 7077 50  0000 C CNN
+F 2 "" H 2100 7250 50  0001 C CNN
+F 3 "" H 2100 7250 50  0001 C CNN
+	1    2100 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:LED D?
+U 1 1 5F7B13C6
+P 2350 7050
+F 0 "D?" V 2389 6933 50  0000 R CNN
+F 1 "LED" V 2298 6933 50  0000 R CNN
+F 2 "" H 2350 7050 50  0001 C CNN
+F 3 "~" H 2350 7050 50  0001 C CNN
+	1    2350 7050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F7B29FD
+P 2350 6750
+F 0 "R?" H 2500 6700 50  0000 R CNN
+F 1 "1k" H 2500 6800 50  0000 R CNN
+F 2 "" V 2280 6750 50  0001 C CNN
+F 3 "~" H 2350 6750 50  0001 C CNN
+	1    2350 6750
+	-1   0    0    1   
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F8D4AC7
+P 1350 7250
+F 0 "#PWR?" H 1350 7000 50  0001 C CNN
+F 1 "GND" H 1355 7077 50  0000 C CNN
+F 2 "" H 1350 7250 50  0001 C CNN
+F 3 "" H 1350 7250 50  0001 C CNN
+	1    1350 7250
 	1    0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_power:+3V3 #PWR?
-U 1 1 5F4DD2F1
-P 3850 900
-F 0 "#PWR?" H 3850 750 50  0001 C CNN
-F 1 "+3V3" H 3865 1073 50  0000 C CNN
-F 2 "" H 3850 900 50  0001 C CNN
-F 3 "" H 3850 900 50  0001 C CNN
-	1    3850 900 
+U 1 1 5F8C936A
+P 1450 5900
+F 0 "#PWR?" H 1450 5750 50  0001 C CNN
+F 1 "+3V3" H 1465 6073 50  0000 C CNN
+F 2 "" H 1450 5900 50  0001 C CNN
+F 3 "" H 1450 5900 50  0001 C CNN
+	1    1450 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+5V #PWR?
+U 1 1 5F7F04B4
+P 2850 5900
+F 0 "#PWR?" H 2850 5750 50  0001 C CNN
+F 1 "+5V" H 2865 6073 50  0000 C CNN
+F 2 "" H 2850 5900 50  0001 C CNN
+F 3 "" H 2850 5900 50  0001 C CNN
+	1    2850 5900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 6100 1450 6100
+Wire Wire Line
+	1450 6400 1450 6550
+Wire Wire Line
+	1450 6550 1500 6550
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5F9DCB44
+P 2100 6150
+F 0 "R?" H 2030 6104 50  0000 R CNN
+F 1 "10k" H 2030 6195 50  0000 R CNN
+F 2 "" V 2030 6150 50  0001 C CNN
+F 3 "~" H 2100 6150 50  0001 C CNN
+	1    2100 6150
+	1    0    0    1   
+$EndComp
+Connection ~ 2100 6300
+$Comp
+L CustomLibraries_connectors:Conn_01x04 J?
+U 1 1 5EA32128
+P 10050 5550
+F 0 "J?" H 10130 5542 50  0000 L CNN
+F 1 "LCD COM" H 10130 5451 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 10050 5550 50  0001 C CNN
+F 3 "~" H 10050 5550 50  0001 C CNN
+	1    10050 5550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2550 4700 2550 4600
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F6FE92B
+P 2550 4700
+F 0 "#PWR?" H 2550 4450 50  0001 C CNN
+F 1 "GND" H 2550 4550 50  0000 C CNN
+F 2 "" H 2550 4700 50  0001 C CNN
+F 3 "" H 2550 4700 50  0001 C CNN
+	1    2550 4700
 	1    0    0    -1  
 $EndComp
 $Comp
 L CustomLibraries_Device:C C?
 U 1 1 5F4DD2F7
-P 3850 1100
-F 0 "C?" H 3965 1146 50  0000 L CNN
-F 1 "0.1uF" H 3965 1055 50  0000 L CNN
-F 2 "" H 3888 950 50  0001 C CNN
-F 3 "~" H 3850 1100 50  0001 C CNN
-	1    3850 1100
+P 1400 3650
+F 0 "C?" H 1515 3696 50  0000 L CNN
+F 1 "0.1uF" H 1515 3605 50  0000 L CNN
+F 2 "" H 1438 3500 50  0001 C CNN
+F 3 "~" H 1400 3650 50  0001 C CNN
+	1    1400 3650
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3850 1250 3850 1350
-Wire Notes Line
-	2550 2050 2550 3500
-Wire Notes Line
-	1000 2050 1000 3500
-Text Notes 1050 2200 0    60   ~ 0
-Lamp Relay
-Wire Notes Line
-	2550 2050 1000 2050
 $Comp
-L CustomLibraries_connectors:Conn_01x03 J9
-U 1 1 5EACF56F
-P 2100 2850
-F 0 "J9" H 2050 2650 50  0000 L CNN
-F 1 "Conn_01x03" H 1850 2550 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2100 2850 50  0001 C CNN
-F 3 "~" H 2100 2850 50  0001 C CNN
-	1    2100 2850
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5F4DD2F1
+P 1400 3500
+F 0 "#PWR?" H 1400 3350 50  0001 C CNN
+F 1 "+3V3" H 1415 3673 50  0000 C CNN
+F 2 "" H 1400 3500 50  0001 C CNN
+F 3 "" H 1400 3500 50  0001 C CNN
+	1    1400 3500
 	1    0    0    -1  
 $EndComp
-Wire Notes Line
-	1000 3500 2550 3500
 $Comp
 L CustomLibraries_power:GND #PWR?
-U 1 1 5F4E22CF
-P 1700 3200
-F 0 "#PWR?" H 1700 2950 50  0001 C CNN
-F 1 "GND" H 1705 3027 50  0000 C CNN
-F 2 "" H 1700 3200 50  0001 C CNN
-F 3 "" H 1700 3200 50  0001 C CNN
-	1    1700 3200
+U 1 1 5F4DD2EB
+P 1400 3800
+F 0 "#PWR?" H 1400 3550 50  0001 C CNN
+F 1 "GND" H 1405 3627 50  0000 C CNN
+F 2 "" H 1400 3800 50  0001 C CNN
+F 3 "" H 1400 3800 50  0001 C CNN
+	1    1400 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5F4B3972
+P 1150 3500
+F 0 "#PWR?" H 1150 3350 50  0001 C CNN
+F 1 "+3V3" H 1165 3673 50  0000 C CNN
+F 2 "" H 1150 3500 50  0001 C CNN
+F 3 "" H 1150 3500 50  0001 C CNN
+	1    1150 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5F4B3969
+P 1150 3800
+F 0 "#PWR?" H 1150 3550 50  0001 C CNN
+F 1 "GND" H 1155 3627 50  0000 C CNN
+F 2 "" H 1150 3800 50  0001 C CNN
+F 3 "" H 1150 3800 50  0001 C CNN
+	1    1150 3800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1700 2950 1700 3200
+	6100 4700 6100 3800
 Wire Wire Line
-	1700 2950 1900 2950
+	9800 3950 9800 3850
 Wire Wire Line
-	1900 2750 1700 2750
+	9850 3950 9800 3950
 Wire Wire Line
-	1700 2750 1700 2500
+	9850 3850 9800 3850
+Wire Wire Line
+	9550 3350 9550 3150
+Wire Wire Line
+	9850 3350 9550 3350
 $Comp
 L CustomLibraries_power:+5V #PWR?
-U 1 1 5F50527A
-P 1700 2500
-F 0 "#PWR?" H 1700 2350 50  0001 C CNN
-F 1 "+5V" H 1715 2673 50  0000 C CNN
-F 2 "" H 1700 2500 50  0001 C CNN
-F 3 "" H 1700 2500 50  0001 C CNN
-	1    1700 2500
+U 1 1 5F674A36
+P 9550 3150
+F 0 "#PWR?" H 9550 3000 50  0001 C CNN
+F 1 "+5V" H 9565 3323 50  0000 C CNN
+F 2 "" H 9550 3150 50  0001 C CNN
+F 3 "" H 9550 3150 50  0001 C CNN
+	1    9550 3150
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1900 2850 1350 2850
-Text Label 1350 2850 0    39   ~ 0
-U2_GPIO7
+	9850 3250 9700 3250
+Wire Wire Line
+	6800 4950 6800 5150
+Wire Wire Line
+	6700 4950 6700 5050
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5ECC932A
+P 7900 3400
+F 0 "#PWR?" H 7900 3250 50  0001 C CNN
+F 1 "+3V3" H 7915 3573 50  0000 C CNN
+F 2 "" H 7900 3400 50  0001 C CNN
+F 3 "" H 7900 3400 50  0001 C CNN
+	1    7900 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5ECC88CE
+P 7000 2950
+F 0 "#PWR?" H 7000 2800 50  0001 C CNN
+F 1 "+3V3" H 7015 3123 50  0000 C CNN
+F 2 "" H 7000 2950 50  0001 C CNN
+F 3 "" H 7000 2950 50  0001 C CNN
+	1    7000 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x04 J?
+U 1 1 5EA3215E
+P 10050 3850
+F 0 "J?" H 10130 3842 50  0000 L CNN
+F 1 "RF RX" H 10130 3751 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 10050 3850 50  0001 C CNN
+F 3 "~" H 10050 3850 50  0001 C CNN
+	1    10050 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_connectors:Conn_01x03 J?
+U 1 1 5EA332C1
+P 10050 3350
+F 0 "J?" H 10130 3392 50  0000 L CNN
+F 1 "RF TX" H 10130 3301 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10050 3350 50  0001 C CNN
+F 3 "~" H 10050 3350 50  0001 C CNN
+	1    10050 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 56D7539A
+P 7350 2950
+F 0 "#PWR?" H 7350 2700 50  0001 C CNN
+F 1 "GND" H 7500 2900 50  0000 C CNN
+F 2 "" H 7350 2950 50  0000 C CNN
+F 3 "" H 7350 2950 50  0000 C CNN
+	1    7350 2950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6200 3800 6100 3800
+Wire Wire Line
+	7700 3600 7800 3600
+Wire Wire Line
+	7100 2900 7200 2900
+Wire Wire Line
+	7200 2900 7350 2900
+Wire Wire Line
+	7350 2900 7350 2950
+Connection ~ 7200 2900
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5EBF56D4
+P 7800 4700
+F 0 "#PWR?" H 7800 4450 50  0001 C CNN
+F 1 "GND" H 7805 4527 50  0000 C CNN
+F 2 "" H 7800 4700 50  0001 C CNN
+F 3 "" H 7800 4700 50  0001 C CNN
+	1    7800 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7900 3400 7900 3800
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5E9BAC72
+P 6100 4700
+F 0 "#PWR?" H 6100 4450 50  0001 C CNN
+F 1 "GND" H 6105 4527 50  0000 C CNN
+F 2 "" H 6100 4700 50  0001 C CNN
+F 3 "" H 6100 4700 50  0001 C CNN
+	1    6100 4700
+	1    0    0    -1  
+$EndComp
+NoConn ~ 7100 4950
+NoConn ~ 7200 4950
+Wire Wire Line
+	7000 2950 7000 3100
+Wire Wire Line
+	7100 2900 7100 3100
+Wire Wire Line
+	7200 2900 7200 3100
+$Comp
+L ESP8266:ESP-13-WROOM-02 U1
+U 1 1 5EA1DF21
+P 3600 4100
+F 0 "U1" H 3575 4865 50  0000 C CNN
+F 1 "ESP-13-WROOM-02" H 3575 4774 50  0000 C CNN
+F 2 "Custom_libraries:ESP-13-WROOM-02" H 3500 4100 50  0001 C CNN
+F 3 "http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/" H 3500 4100 50  0001 C CNN
+	1    3600 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_power:+3V3 #PWR?
+U 1 1 5EA3091F
+P 1850 3500
+F 0 "#PWR?" H 1850 3350 50  0001 C CNN
+F 1 "+3V3" H 1865 3673 50  0000 C CNN
+F 2 "" H 1850 3500 50  0001 C CNN
+F 3 "" H 1850 3500 50  0001 C CNN
+	1    1850 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L CustomLibraries_Device:R R?
+U 1 1 5EA34E10
+P 1850 3650
+F 0 "R?" H 1920 3696 50  0000 L CNN
+F 1 "10k" H 1920 3605 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P1.90mm_Vertical" V 1780 3650 50  0001 C CNN
+F 3 "~" H 1850 3650 50  0001 C CNN
+	1    1850 3650
+	1    0    0    -1  
+$EndComp
+NoConn ~ 4550 4000
+NoConn ~ 3600 5000
+$Comp
+L CustomLibraries_power:GND #PWR?
+U 1 1 5EAAC6E5
+P 5000 4700
+F 0 "#PWR?" H 5000 4450 50  0001 C CNN
+F 1 "GND" H 5000 4550 50  0000 C CNN
+F 2 "" H 5000 4700 50  0001 C CNN
+F 3 "" H 5000 4700 50  0001 C CNN
+	1    5000 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6200 4400 6050 4400
 $EndSCHEMATC

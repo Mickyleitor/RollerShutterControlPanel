@@ -7,4 +7,5 @@
   (lib (name CustomLibraries_ULN2803A)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_ULN2803A.lib)(options "")(descr ""))
   (lib (name CustomLibraries_Switch)(type Legacy)(uri ${KIPRJMOD}/Libraries/CustomLibraries_Switch.lib)(options "")(descr ""))
   (lib (name ESP8266)(type Legacy)(uri ${KIPRJMOD}/Libraries/ESP8266.lib)(options "")(descr ""))
+  (lib (name Project_Library)(type Legacy)(uri ${KIPRJMOD}/Libraries/Project_Library.lib)(options "")(descr ""))
 )

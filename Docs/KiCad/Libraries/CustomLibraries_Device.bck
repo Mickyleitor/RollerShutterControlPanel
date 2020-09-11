@@ -2233,9 +2233,9 @@ F ~
 $ENDCMP
 #
 $CMP S8550
-D 0.5A Ic, 40V Vce, PNP Transistor, SOT-23
+D 1.5A Ic, 40V Vce, PNP Transistor, SOT-23
 K PNP Transistor
-F https://www.rcscomponents.kiev.ua/datasheets/s8550-2ty-datasheet.pdf
+F https://www.mouser.es/datasheet/2/258/MMSS8550(SOT-23)-1626473.pdf
 $ENDCMP
 #
 $CMP SPARK_GAP

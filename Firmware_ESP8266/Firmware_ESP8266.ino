@@ -76,6 +76,8 @@ void setup() {
   seleccionMenu = PERSIANA_CENTRAL;
   currentButton = NONE;
   Serial.begin(115200);
+  Serial.println();
+  Serial.println("Master inicializado");
   EEPROM_Read(); 
   // Put this in case it's the first time we power up the ESP
   // EEPROM_Write(); 

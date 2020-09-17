@@ -4,7 +4,7 @@
 The Domotic Shutter is an “open hardware” project involving 3d printed parts, electronic devices and a PCB board with an 8-bit microcontroller (ATMega328P).
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/3Dmodel/DomoticShutterPanel.jpg" width=360/>
+  <img src="https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/Images/DomoticShutterPanel.jpg" width=360/>
 </p>
 
 All information is available in the [wiki section](https://github.com/Mickyleitor/DomoticShutter/wiki)

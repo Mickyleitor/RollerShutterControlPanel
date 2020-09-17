@@ -1,430 +1,184 @@
-// Domotic Shutter sketch
-// This sketch is in development and uses MEGA 2560.
-// In the future it should be adapted to ATmega368P
+// Domotic Shutter sketch by Mickyleitor
+// This sketch is in development and uses ATmega368P.
+// 
+// Libraries used and need to be installed from Arduino IDE
+// - Low-Power by rocketscream/ version 1.6.0 : https://github.com/rocketscream/Low-Power
+// 
+// Current protocol for I2C messages with master is as follows:
+// - Two first LSB bits indicates roller action.
+// 0x0 : Stop movement
+// 0x1 : Up movement
+// 0x2 : Down movement
+// - 3,4,5 LSB bits indicates the roller shutter which will do the action.
+// 0x1 : Left roller shutter
+// 0x2 : Center roller shutter
+// 0x4 : Right roller shutter
+// - First three MSB bits indicates a buzzer or switch change command.
+// The folling fields are only valid if the first bit is high.
+// 0x0 : Low volume
+// 0x1 : Medium volume
+// 0x2 : Maximum volume
+// 0x3 : Switch on/off volume
+// 0x4 : Indicates a buzzer command is issued.
+// The folling fields are only valid if the first bit is low
+// 0x0 : Intentionally unused
+// 0x1 : Switch ON relay
+// 0x2 : Switch OFF relay
+// 0x3 : Change the state of the switch relay
 
 #include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>
-#include "WiFiEsp.h"
-#include "WiFiEspUdp.h"
-#include <TimeLib.h>
-// #include <TimeAlarms.h>
-#include <NTPClient.h> // From https://github.com/MHotchin/NTPClient
 #include "basic_defines.h"
-#include "wifidata.h" // No incluir en proyecto final
+#include "LowPower.h"
+#include "remote.h"
 
-#ifndef HAVE_HWSERIAL1
-#include "SoftwareSerial.h"
-SoftwareSerial Serial1(2, 3); // RX, TX
-#endif
+int buzzer_running = 1;
 
-#define NTP_REFRESH_RATE 600
-#define SUNRISE_REFRESH_RATE 30 // 43200
-
-time_t initTime,sunriseTime;
-// AlarmId sunriseTaskID;
-
-int status = -1;
-int failed = 0;
-int cloudiness = -1;
-int temperature = -1;
-
-LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
+enum States {
+  IDLING,
+  SWITCH_RELAY,
+  PROCCESS_I2C
+} SystemState;
 
 void setup(){
-  Serial.begin(9600);
-  initLCDFunction();
-  initWifiFunction();
-  initTime = getTimeFunction();
-  getWeatherFunction();
-  // getSunriseTimeFunction();
-  // getCloudsFunction();
-  // Every 10 min get a the time from NTP server
-  // Alarm.timerRepeat(NTP_REFRESH_RATE, getTimeFunction);
-  // Get sunrise time every 12 hours (this should be changed to everyday at midnight)
-  // Alarm.timerRepeat(SUNRISE_REFRESH_RATE, getSunriseTimeFunction);
+  pinMode(PIN_BUZZER,OUTPUT);
+  pinMode(PIN_RF_TX,INPUT); // Free 433 Mhz channel now.
+  pinMode(PIN_RF_RX,INPUT);
+  pinMode(PIN_RELAY,OUTPUT);
+  initButtonsFunction();
+  
+  Serial.begin(115200);
+  Serial.println("Esclavo iniciado");
+  Wire.begin(I2C_SLAVE_ADDRESS);                // join i2c bus with address #8
+  Wire.onReceive(receiveEvent); // register event
+  Wire.onRequest(requestEvent);
+  tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
+  delay(200);
+  tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
+  delay(200);
+  tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
+  SystemState = IDLING;
 }
 
 void loop(){
-  /*
-  Serial.println("-START TIME-");
-  updateSerialScreen(initTime);
-  Serial.println("------------");
-  Serial.println("--INTERNAL--");
-  updateSerialScreen(now());
-  Serial.println("------------");
-  Serial.println("---SUNRISE--");
-  updateSerialScreen(sunriseTime);
-  Serial.println("------------");
-  
-  // tone(PIN_BUZZER,25000,25);
-
-  */
-  updateMainScreen();
-  // Alarm.delay(1000);
-  delay(1000);
-}
-void initLCDFunction(){
-  status = -1;
-  failed = 0;
-  // Search LCD into I2C line:
-  while ( status != 0 ) {
-    Wire.begin();
-    Wire.beginTransmission(ADDRESS_I2C_LCD);
-    status = Wire.endTransmission();
-
-    if(failed > 5){
-      while(true){
-        tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,500);
-        delay(1000);
+  switch( SystemState ) {
+    case IDLING : {
+      // Pendiente hacer modo bajo consumo
+      LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
+      delay(10);
+      break;
+    }
+    case SWITCH_RELAY : {
+      digitalWrite(PIN_RELAY,digitalRead(PIN_BUTTON_USER));
+      Serial.println("Boton pulsado");
+      Serial.flush();
+      SystemState = IDLING;
+      break;
+    }
+    case PROCCESS_I2C : {
+      unsigned long LastTimeSounded = 0;
+      while (Wire.available()) {
+        char cmd = Wire.read();         // receive byte as a character
+        Serial.print("Received :");
+        Serial.println(cmd,BIN);
+        // Process buzzer commands
+        if((cmd & FLAG_BIT_BUZZER) == FLAG_BIT_BUZZER){
+          Serial.println("Buzzer command");
+          // Switch on/off volume
+          if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_CHANGE ){
+            Serial.println("Buzzer switch on/off");
+            buzzer_running = 1 ^ buzzer_running;
+          }else{
+            // If the buzzer is not silenced..
+            // Sound the buzzer at low,medium,high volume.
+            if(buzzer_running){
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_LOW_VOLUME ){
+                Serial.println("Buzzer low volume");
+                tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
+              }
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_MEDIUM_VOLUME ){
+                Serial.println("Buzzer medium volume");
+                tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
+              }
+              if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_HIGH_VOLUME ){
+                Serial.println("Buzzer high volume");
+                tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
+              }
+              LastTimeSounded = millis();
+            }
+          }
+        }
+        // Check the flag mask regarding roller shutter according to protocol
+        if( (cmd & 0x1C) >= 0x4){
+          Serial.println("Roller shutter command");
+          for( int roller = 0 ; roller < 3 ; roller ++){
+            // If the flag mask is activated
+            if( ((cmd >> (2+roller)) & 1) == 1){
+              sendCommand(roller,(cmd & 0x3),2);
+            }
+          }
+        }
+        // Process Switch relay commands
+        if(((cmd & FLAG_BIT_BUZZER) == 0) && ((cmd & FLAG_MASK_LIGHT) >= 1)){
+          Serial.println("Switch relay command");
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_ON ){
+            Serial.println("Switch ON relay");
+            digitalWrite(PIN_RELAY,HIGH);
+          }
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_OFF ){
+            Serial.println("Switch OFF relay");
+            digitalWrite(PIN_RELAY,LOW);
+          }
+          if( (cmd & FLAG_MASK_LIGHT) == COMMAND_LIGHT_CHANGE ){
+            Serial.println("Change the state of the switch relay");
+            digitalWrite(PIN_RELAY,!digitalRead(PIN_RELAY));
+          }
+        }
       }
-    }else if(status != 0){
-      // wait 1 seconds for reconnection:
-      delay(5000);
-    }
-    failed++;
-  }
-  
-  lcd.begin(16,2);
-  lcd.setBacklight(255);
-  int customArrayChar[6][8] = {{0x00,0x00,0x1F,0x1F,0x0E,0x04,0x00,0x00},{0x00,0x00,0x04,0x0E,0x1F,0x1F,0x00,0x00},{0x00,0x00,0x06,0x0E,0x1E,0x0E,0x06,0x00},{0x00,0x00,0x0C,0x0E,0x0F,0x0E,0x0C,0x00},{0x00,0x0E,0x1F,0x11,0x11,0x1F,0x0E,0x00},{0x06,0x09,0x09,0x06,0x00,0x00,0x00,0x00}};
-  for ( int i = 0 ; i < 6 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
-  lcd.home(); lcd.clear();
-  lcd.print("...INICIANDO...");
-}
-
-void initWifiFunction(){
-  status = WL_IDLE_STATUS;
-  failed = 0;
-  
-  Serial1.begin(2400);
-  WiFi.init(&Serial1);
-  
-  // check for the presence of the shield:
-  if (WiFi.status() == WL_NO_SHIELD) {
-    lcd.home(); lcd.clear();
-    lcd.print("  Tarjeta WIFI  ");
-    lcd.setCursor(0,1);
-    lcd.println(" NO  ENCONTRADA ");
-    // don't continue:
-    while (true);
-  }
-  // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED ) {
-    status = WiFi.begin(ssid,password);
-
-    if(failed > 5 ){
-      lcd.home(); lcd.clear();
-      lcd.print("Red no conectada");
-      lcd.setCursor(0,1);
-      lcd.print(ssid);
-      while(true){
-        tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,1000);
-        delay(1500);
-      }
-    }else if(status != WL_CONNECTED){
-      // wait 10 seconds for reconnection:
-      lcd.home(); lcd.clear();
-      lcd.print("Reconectando a:");
-      lcd.setCursor(0,1);
-      lcd.print(ssid);
-      delay(10000);
-    }
-    failed++;
-  }
-}
-
-time_t getTimeFunction(){
-  WiFiEspUDP ntpUDP;
-  NTPClient timeClient(ntpUDP);
-  timeClient.setUpdateInterval(1);
-  while(!timeClient.update()){
-    delay(1000);
-  } 
-  setTime(timeClient.getEpochTime());
-  timeClient.end();
-  return now();
-}
-
-void updateMainScreen(){
-  time_t T  = now();
-  if(isCESTtimezone()){
-    T += 7200;
-  }else{
-    T += 3600;
-  }
-  lcd.clear();
-  lcd.setCursor(1, 0);
-  if (hour(T)<10) lcd.print('0');
-  lcd.print(hour(T), DEC);
-  
-  lcd.print(':');
-  if (minute(T)<10) lcd.print('0');
-  lcd.print(minute(T), DEC);
-  
-  lcd.print(':');
-  if (second(T)<10) lcd.print('0');
-  lcd.print(second(T), DEC);
-  
-  lcd.setCursor(12, 0);
-  lcd.print(temperature-273);
-  lcd.write(LCD_CHAR_DEGREE);
-  lcd.print('C');
-  
-  lcd.setCursor(0, 1);
-  if (day(T)<10) lcd.print('0');
-  lcd.print(day(T), DEC);
-  
-  lcd.print('/');
-  if (month(T)<10) lcd.print('0');
-  lcd.print(month(T), DEC);
-  
-  lcd.print('/');
-  lcd.print(year(T), DEC);
-  lcd.print(' ');
-  
-  lcd.setCursor(12, 1);
-  int dayofweek = weekday(T);
-  switch(dayofweek){
-    case 1:
-      lcd.print("Dom.");
+      // Necesitamos esperar, al menos, un tiempo minimo de BUZZER_TIME_MILLIS
+      // Para que al volver a IDLING no se duerma mientras siguen saltando
+      // las interrupciones del Timer2 usado por tone()
+      while( abs(millis() - LastTimeSounded) <= BUZZER_TIME_MILLIS );
+      // Volvemos a IDLING pues ya hemos procesado todas las tareas
+      SystemState = IDLING;
       break;
-    case 2:
-      lcd.print("Lun.");
-      break;
-    case 3:
-      lcd.print("Mar.");
-    break;
-    case 4:
-      lcd.print("Mie.");
-      break;
-    case 5:
-      lcd.print("Jue.");
-      break;
-    case 6:
-      lcd.print("Vie.");
-      break;
-    case 0:
-      lcd.print("Sab.");
-      break;
-  }
-}
-
-void getWeatherFunction(){
-  WiFiEspClient client;
-  // Connect to HTTP server
-  client.setTimeout(10000);
-  if (!client.connect("api.openweathermap.org", 80)) {
-    Serial.println("Connection failed");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-
-  // Send HTTP request
-  String HTTPrequest = "GET /data/2.5/weather?lat=36.7167615&lon=-4.4115726&appid=";
-  HTTPrequest += appid;
-  HTTPrequest += " HTTP/1.0";
-  client.println(HTTPrequest);
-  client.println("Host: api.openweathermap.org");
-  client.println("Connection: close");
-  if (client.println() == 0) {
-    Serial.println("Failed to send request");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  // Skip HTTP headers
-  if (!client.find("\r\n\r\n")) {
-    Serial.println("Invalid response");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  if(client.find("\"temp\":")){
-    temperature = client.readStringUntil(',').toInt();
-  }else{
-    Serial.println("No Temperature JSON object found");
-  }
-  if(client.find("\"clouds\":{\"all\":")){
-    cloudiness = client.readStringUntil('}').toInt();
-  }else{
-    Serial.println("No Cloudiness JSON object found");
-  }
-  if(client.find("\"sunrise\":")){
-    sunriseTime = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
-    // Update the time of the Sunrise Task
-    // Alarm.free(sunriseTaskID);
-    // A delay is needed to let the object proccess the free function
-    // Alarm.delay(1);
-    // create a new alarm with the new time
-    // sunriseTaskID = Alarm.alarmRepeat(hour(sunriseTime),minute(sunriseTime),second(sunriseTime), sunriseTaskFunction);
-  }else{
-    Serial.println("No sunrise JSON object found");
-  }
-  // Disconnect
-  client.stop();
-}
-/*
-
-time_t getSunriseTimeFunction(){
-  // Connect to HTTP server
-  client.setTimeout(10000);
-  if (!client.connect("api.sunrise-sunset.org", 80)) {
-    Serial.println("Connection failed");
-    return -1;
-  }
-
-  // Send HTTP request
-  client.println("GET /json?lat=36.7167615&lng=-4.4115726 HTTP/1.0");
-  client.println("Host: api.sunrise-sunset.org");
-  client.println("Connection: close");
-  if (client.println() == 0) {
-    Serial.println("Failed to send request");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  // Skip HTTP headers
-  char endOfHeaders[] = "\r\n\r\n";
-  if (!client.find(endOfHeaders)) {
-    Serial.println("Invalid response");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  mensaje = "";
-  while(mensaje != "sunrise" && client.available()){
-    mensaje = client.readStringUntil('"');
-  }
-  
-  if(!client.available()){
-    Serial.println("No sunrise JSON object");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  
-  client.readStringUntil('"');
-  int hora = client.readStringUntil(':').toInt();
-  int minuto = client.readStringUntil(':').toInt();
-  int segundo = client.readStringUntil(' ').toInt();
-
-  // Calculate the seconds passed since the 1 Jan.
-  sunriseTime = hora * 3600 + minuto * 60 + segundo; 
-
-  while(client.available()){
-    client.read();
-  }
-  
-  // Disconnect
-  client.stop();
-
-  // Only for test purposes
-  sunriseTime = now() + 8;
-
-  // Update the time of the Sunrise Task
-  Alarm.free(sunriseTaskID);
-  // A delay is needed to let the object proccess the free function
-  Alarm.delay(1);
-  // create a new alarm with the new time
-  // sunriseTaskID = Alarm.alarmRepeat(hour(sunriseTime),minute(sunriseTime),second(sunriseTime), sunriseTaskFunction);
-
-  tone(PIN_BUZZER,BUZZER_LOW_VOLUME-10000,1000);
-
-  return sunriseTime;
-}
-
-void getCloudsFunction(){
-  // Connect to HTTP server
-  client.setTimeout(10000);
-  if (!client.connect("api.openweathermap.org", 80)) {
-    Serial.println("Connection failed");
-    return -1;
-  }
-
-  // Send HTTP request
-  String HTTPrequest = "GET /data/2.5/weather?lat=36.7167615&lon=-4.4115726&appid=";
-  HTTPrequest += appid;
-  HTTPrequest += " HTTP/1.0";
-  client.println("Host: api.openweathermap.org");
-  client.println("Connection: close");
-  if (client.println() == 0) {
-    Serial.println("Failed to send request");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  // Skip HTTP headers
-  char endOfHeaders[] = "\r\n\r\n";
-  if (!client.find(endOfHeaders)) {
-    Serial.println("Invalid response");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  mensaje = "";
-  while(mensaje != "sunrise" && client.available()){
-    mensaje = client.readStringUntil('"');
-  }
-  
-  if(!client.available()){
-    Serial.println("No sunrise JSON object");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  
-  client.readStringUntil('"');
-  int hora = client.readStringUntil(':').toInt();
-  int minuto = client.readStringUntil(':').toInt();
-  int segundo = client.readStringUntil(' ').toInt();
-
-  while(client.available()){
-    client.read();
-  }
-  
-  // Disconnect
-  client.stop();
-
-  tone(PIN_BUZZER,BUZZER_LOW_VOLUME-10000,1000);
-
-  return -1;
-}
-*/
-bool isCESTtimezone(){
-  if(month() >= 3 && month() <= 10){
-    if(month() == 3){
-      if(day() >= 29)
-        return true;
-      else
-        return false;
-    }else if(month() == 10){
-      if(day() < 25)
-        return true;
-      else
-        return false;
-    }else{
-      return true;
     }
   }
-  return false;
 }
-/*
-void sunriseTaskFunction(){
-  bool thisDayIsDeactivated = false;
-  for(int i = 0 ; i < sunriseTasks ; i++){
-    if(month(sunriseTasksArray[i]) == month()){
-      if(day(sunriseTasksArray[i]) == day()){
-        thisDayIsDeactivated = true;
-        Serial.println("This day there is no Sunrise Function");
-        break;
-      }
-    }
-  }
-  if(!thisDayIsDeactivated){
-    Serial.println("This day there is Sunrise Function\nWake up!");
-    tone(PIN_BUZZER,BUZZER_LOW_VOLUME,1000);
-    delay(1000);
-  }
+
+// function that executes whenever data is received from master
+// this function is registered as an event, see setup()
+void receiveEvent(int howMany) {
+  SystemState = PROCCESS_I2C;
 }
-*/
+
+// function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent() {
+  Wire.write(0x3); // respond with message of 1 byte
+  // as expected by master
+}
+
+void isrButton(){
+  detachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER));
+  TCNT1 = 0;   // Reset counter to 0
+  TCCR1B = bit(WGM12) | bit (CS12);   // CTC, scale to clock / 256  
+}
+
+ISR(TIMER1_COMPA_vect)
+{
+  SystemState = SWITCH_RELAY;
+  TCCR1B = 0;
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER),isrButton,FALLING);
+}
+
+void initButtonsFunction(){
+  pinMode(PIN_BUTTON_USER,INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER),isrButton,FALLING);
+
+  // set up Timer 1
+  TCCR1A = 0;          // normal operation
+  TCCR1B = 0;
+  // TCCR1B = bit(WGM12) | bit (CS12);   // CTC, scale to clock / 1024
+  OCR1A =  ( ( F_CPU * DEBOUNCE_TIME_MILLIS ) / (256 * 2 * 1000)) - 1;       // compare A register value 
+  TIMSK1 = bit (OCIE1A);             // interrupt on Compare A Match
+}

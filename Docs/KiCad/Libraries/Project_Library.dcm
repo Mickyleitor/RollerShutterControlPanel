@@ -6,4 +6,22 @@ K connector
 F ~
 $ENDCMP
 #
+$CMP ESP-13-WROOM-02
+D ESP8266 ESP-13-WROOM-02 module, 18 pins, 2mm, PCB antenna
+K MODULE ESP8266 ESP-8266
+F http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/
+$ENDCMP
+#
+$CMP PS2705-1
+D AC/DC Phototransistor Optocoupler, Vce 40V, CTR 50-300%, SOP4
+K NPN AC DC Phototransistor Optocoupler
+F https://www.renesas.com/us/en/doc/products/opt/r08ds0093ej0301-ps2705-1.pdf
+$ENDCMP
+#
+$CMP S8550
+D 0.5A Ic, 40V Vce, PNP Transistor, SOT-23
+K PNP Transistor
+F https://www.rcscomponents.kiev.ua/datasheets/s8550-2ty-datasheet.pdf
+$ENDCMP
+#
 #End Doc Library

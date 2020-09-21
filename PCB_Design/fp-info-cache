@@ -1,4 +1,4 @@
-15989559997256528
+15992779334930389
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -42244,69 +42244,6 @@ SMD SMT ceramic resonator filter filter hand-soldering
 0
 3
 3
-Custom_libraries
-Carcasa
-
-
-0
-0
-0
-Custom_libraries
-DCDC_3v3_PowerModule
-
-
-0
-8
-4
-Custom_libraries
-ESP-13-WROOM-02
-Module, ESP-8266, ESP-13-WROOM-02, 18 pad, SMD
-Module ESP-8266 ESP8266
-0
-19
-19
-Custom_libraries
-PS2705-1-F3
-
-
-0
-4
-4
-Custom_libraries
-RELAY_SRD-05VDC-SL-C
-
-
-0
-5
-5
-Custom_libraries
-ScrewTerminal_01X03_5mm
-
-
-0
-3
-3
-Custom_libraries
-Socket_Strip_Arduino_MiniPro
-Through hole socket strip
-socket strip
-0
-34
-34
-Custom_libraries
-SOT-23_S8550
-
-
-0
-3
-3
-Custom_libraries
-SW_PUSH_6mm
-https://www.omron.com/ecb/products/pdf/en-b3f.pdf
-tact sw push 6mm
-0
-4
-2
 Diode_SMD
 Diode_Bridge_Diotec_ABS
 SMD diode bridge ABS (Diotec), see https://diotec.com/tl_files/diotec/files/pdf/datasheets/abs2.pdf
@@ -62691,6 +62628,83 @@ Potentiometer vertical Vishay T73YP
 0
 3
 3
+Project_libraries
+Buzzer_KSS-1201-16
+Generic Buzzer, D12mm height 9.5mm with RM7.6mm
+buzzer
+0
+2
+2
+Project_libraries
+Carcasa
+
+
+0
+0
+0
+Project_libraries
+DCDC_3v3_PowerModule
+
+
+0
+8
+4
+Project_libraries
+ESP-13-WROOM-02
+Module, ESP-8266, ESP-13-WROOM-02, 18 pad, SMD
+Module ESP-8266 ESP8266
+0
+19
+19
+Project_libraries
+PHOENIX_1935161
+
+
+0
+2
+2
+Project_libraries
+PS2705-1-F3
+
+
+0
+4
+4
+Project_libraries
+RELAY_SRD-05VDC-SL-C
+
+
+0
+5
+5
+Project_libraries
+ScrewTerminal_01X03_5mm
+
+
+0
+3
+3
+Project_libraries
+Socket_Strip_Arduino_MiniPro
+Through hole socket strip
+socket strip
+0
+28
+28
+Project_libraries
+SOT-23_S8550
+
+
+0
+3
+3
+Project_libraries
+SW_PUSH_6mm
+https://www.omron.com/ecb/products/pdf/en-b3f.pdf
+tact sw push 6mm
+0
+4
+2
 Relay_SMD
 Relay_DPDT_AXICOM_IMSeries_JLeg
 http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Specification+Or+Standard%7F108-98001%7FW5%7Fpdf%7FEnglish%7FENG_SS_108-98001_W5.pdf

@@ -1,4 +1,4 @@
-15992779334930389
+15992780018415022
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -62699,9 +62699,9 @@ SOT-23_S8550
 3
 3
 Project_libraries
-SW_PUSH_6mm
-https://www.omron.com/ecb/products/pdf/en-b3f.pdf
-tact sw push 6mm
+SW_Push_1P1T_NO_6x6mm_H5mm
+tactile push button, 6x6mm e.g. PTS645xx series, height=9.5mm
+tact sw push 6mm smd
 0
 4
 2

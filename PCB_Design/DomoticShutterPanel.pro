@@ -1,4 +1,4 @@
-update=20/09/2020 1:25:51
+update=27/09/2020 20:14:01
 version=1
 last_client=kicad
 [cvpcb]
@@ -15,7 +15,7 @@ PageLayoutDescrFile=empty.kicad_wks
 PlotDirectoryName=
 SubpartIdSeparator=0
 SubpartFirstId=65
-NetFmtName=
+NetFmtName=Pcbnew
 SpiceAjustPassiveValues=0
 LabSize=39
 ERC_TestSimilarLabels=1
@@ -37,8 +37,9 @@ MinMicroViaDrill=0.09999999999999999
 MinHoleToHole=0.25
 TrackWidth1=0.25
 TrackWidth2=0.2
-TrackWidth3=1
-TrackWidth4=3
+TrackWidth3=0.5
+TrackWidth4=1
+TrackWidth5=3
 ViaDiameter1=0.6
 ViaDrill1=0.4
 dPairWidth1=0.2

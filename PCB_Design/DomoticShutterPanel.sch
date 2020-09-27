@@ -1,6 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:DomoticShutterPanel-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -207,12 +206,12 @@ Wire Notes Line
 Wire Notes Line
 	650  2550 8400 2550
 $Comp
-L Connector_Generic:Conn_01x03 J8
+L Connector_Generic:Conn_01x04 J8
 U 1 1 5EA8DAF9
 P 10050 4450
 F 0 "J8" H 10130 4492 50  0000 L CNN
 F 1 "MASTER UART COM" H 10130 4401 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10050 4450 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 10050 4450 50  0001 C CNN
 F 3 "~" H 10050 4450 50  0001 C CNN
 	1    10050 4450
 	1    0    0    -1  
@@ -223,12 +222,10 @@ Connection ~ 9800 3850
 Wire Wire Line
 	9800 3850 9450 3850
 Wire Wire Line
-	9850 4550 9450 4550
-Wire Wire Line
-	9850 4450 9450 4450
-Text GLabel 9450 4550 0    39   Input ~ 0
+	9850 4650 9450 4650
+Text GLabel 9450 4650 0    39   Input ~ 0
 U1_RXD
-Text GLabel 9450 4450 0    39   Input ~ 0
+Text GLabel 9450 4550 0    39   Input ~ 0
 U1_TXD
 Text GLabel 9450 3850 0    39   Input ~ 0
 DATA_Rx
@@ -1629,45 +1626,41 @@ $EndComp
 Wire Wire Line
 	9550 3350 9550 3150
 Wire Wire Line
-	9850 5150 9450 5150
+	9850 5250 9450 5250
 Wire Wire Line
-	9450 5050 9850 5050
-Text GLabel 9450 5150 0    39   Input ~ 0
+	9450 5150 9850 5150
+Text GLabel 9450 5250 0    39   Input ~ 0
 I2C_SCL
-Text GLabel 9450 5050 0    39   Input ~ 0
+Text GLabel 9450 5150 0    39   Input ~ 0
 I2C_SDA
 Wire Wire Line
-	9550 4950 9850 4950
+	9550 5050 9850 5050
 Wire Wire Line
-	9700 4850 9700 5350
+	9700 4950 9700 5450
 Wire Wire Line
-	9850 4850 9700 4850
+	9850 4950 9700 4950
 $Comp
 L power:GND #PWR050
 U 1 1 5F64D813
-P 9700 5350
-F 0 "#PWR050" H 9700 5100 50  0001 C CNN
-F 1 "GND" H 9700 5200 50  0000 C CNN
-F 2 "" H 9700 5350 50  0001 C CNN
-F 3 "" H 9700 5350 50  0001 C CNN
-	1    9700 5350
+P 9700 5450
+F 0 "#PWR050" H 9700 5200 50  0001 C CNN
+F 1 "GND" H 9700 5300 50  0000 C CNN
+F 2 "" H 9700 5450 50  0001 C CNN
+F 3 "" H 9700 5450 50  0001 C CNN
+	1    9700 5450
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x04 J10
 U 1 1 5EA32128
-P 10050 4950
-F 0 "J10" H 10130 4942 50  0000 L CNN
-F 1 "LCD COM" H 10130 4851 50  0000 L CNN
-F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 10050 4950 50  0001 C CNN
-F 3 "~" H 10050 4950 50  0001 C CNN
-	1    10050 4950
+P 10050 5050
+F 0 "J10" H 10130 5042 50  0000 L CNN
+F 1 "LCD COM" H 10130 4951 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 10050 5050 50  0001 C CNN
+F 3 "~" H 10050 5050 50  0001 C CNN
+	1    10050 5050
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	9700 4850 9700 4350
-Connection ~ 9700 4850
-Connection ~ 9700 4350
 Wire Notes Line
 	8850 2550 8850 5700
 Wire Notes Line
@@ -1687,7 +1680,28 @@ Wire Wire Line
 	9700 3750 9700 4350
 Wire Wire Line
 	9850 4050 9550 4050
+Wire Wire Line
+	9450 4550 9850 4550
+Wire Wire Line
+	9550 4050 9550 5050
 Connection ~ 9550 4050
 Wire Wire Line
-	9550 4050 9550 4950
+	9850 4450 9400 4450
+Wire Wire Line
+	9400 4450 9400 4350
+$Comp
+L power:+3V3 #PWR?
+U 1 1 5F7382DD
+P 9400 4350
+F 0 "#PWR?" H 9400 4200 50  0001 C CNN
+F 1 "+3V3" H 9415 4523 50  0000 C CNN
+F 2 "" H 9400 4350 50  0001 C CNN
+F 3 "" H 9400 4350 50  0001 C CNN
+	1    9400 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9700 4350 9700 4950
+Connection ~ 9700 4350
+Connection ~ 9700 4950
 $EndSCHEMATC

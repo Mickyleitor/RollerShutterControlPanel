@@ -1,12 +1,33 @@
-*.skb
+# For PCBs designed using KiCad: http://www.kicad-pcb.org/
+# Format documentation: http://kicad-pcb.org/help/file-formats/
+
+# Temporary files
+*.000
 *.bak
+*.bck
+*.skb
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_prl
+*.sch-bak
+*~
+_autosave-*
+*.tmp
+*-save.pro
+*-save.kicad_pcb
+fp-info-cache
 
-Firmware_Arduino/wifidata.h
+# Netlist files (exported from Eeschema)
+*.net
 
-Firmware_ESP8266/wifidata.h
+# Autorouter files (exported from Pcbnew)
+*.dsn
+*.ses
 
-Firmware_Arduino/keydata.h
+# Exported BOM files
+*.xml
+*.csv
 
-Firmware_ESP8266/CriticalData.h
+# Critical files
 
-Firmware_Arduino/CriticalData.h
+CriticalData.h

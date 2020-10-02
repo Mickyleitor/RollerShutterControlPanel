@@ -671,17 +671,6 @@ F 3 "" H 10650 2000 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector:Screw_Terminal_01x02 J9
-U 1 1 5FE3CC4F
-P 10850 1800
-F 0 "J9" H 10800 1500 50  0000 L CNN
-F 1 "LAMP" H 10750 1600 50  0000 L CNN
-F 2 "Project_libraries:PHOENIX_1935161" H 10850 2000 50  0001 C CNN
-F 3 "~" H 10850 2000 50  0001 C CNN
-	1    10850 1800
-	1    0    0    1   
-$EndComp
-$Comp
 L Device:C C9
 U 1 1 5FDA910B
 P 7400 1750
@@ -1707,4 +1696,15 @@ Wire Wire Line
 Connection ~ 10650 1950
 Wire Wire Line
 	10650 1500 10650 1700
+$Comp
+L Connector:Screw_Terminal_01x02 J9
+U 1 1 5FE3CC4F
+P 10850 1700
+F 0 "J9" H 10800 1900 50  0000 L CNN
+F 1 "LAMP" H 10750 1800 50  0000 L CNN
+F 2 "Project_libraries:PHOENIX_1935161" H 10850 1900 50  0001 C CNN
+F 3 "~" H 10850 1900 50  0001 C CNN
+	1    10850 1700
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

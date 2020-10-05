@@ -4,13 +4,13 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "Roller Shutter Controller Panel"
-Date "2020-09-19"
+Title "Roller Shutter Control Panel Schematic"
+Date "2020-10-05"
 Rev "1.1"
 Comp "Michele La Malva Moreno"
-Comment1 "Universidad de Málaga - Curso 19 / 20"
-Comment2 "https://github.com/Mickyleitor/DomoticShutter"
-Comment3 "Trabajo de Fin de Grado"
+Comment1 "https://github.com/Mickyleitor/DomoticShutter"
+Comment2 "Released under CERN Open Hardware Licence v2"
+Comment3 ""
 Comment4 ""
 $EndDescr
 Wire Wire Line

@@ -580,15 +580,15 @@ int procesoConfirmarFecha(int & sday, int & smonth){
   bool ConfirmationState = false;
   lcd.clear(); lcd.home();
   if(sday == -1){
-    lcd.print("ATTIVA  SIEMPRE?");
+    lcd.print("ACTIVAR SIEMPRE?");
     lcd.setCursor(0, 1);
     lcd.print("<             OK");
   }else if(sday == -2){
-    lcd.print("CANCELLA  TUTTO?");
+    lcd.print(" CANCELAR TODO? ");
     lcd.setCursor(0, 1);
     lcd.print("<             OK");
   }else{
-    lcd.print("CONFIRMARE  DATA");
+    lcd.print("CONFIRMAR  FECHA");
     lcd.setCursor(0, 1);
     lcd.print("<    ");
     lcd.print(makeLcdStringDate(sday, smonth));
@@ -621,7 +621,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
     switch (SleepTaskState) {
       case 0 : {
           lcd.clear(); lcd.home();
-          lcd.print("SEL. DATA  ");
+          lcd.print("SEL. FECHA ");
           lcd.setCursor(11, 0);
           lcd.print(makeLcdStringDate(sday, smonth));
           lcd.setCursor(0, 1);

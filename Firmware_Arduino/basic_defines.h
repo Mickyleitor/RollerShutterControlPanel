@@ -2,16 +2,19 @@
 #define PIN_BUTTON_USER 2
 #define DEBOUNCE_TIME_MILLIS 100
 // Radio
-#define PUERTO_RX PIND
-#define PIN_RF_RX 2
-#define PUERTO_TX PORTD
-#define PIN_RF_TX 3
+#define PIN_RF_RX 3
+#define PIN_RF_TX 9
+
+#define PORT_PORT_RF_RX PIND
+#define PORT_PIN_RF_RX 3
+#define PORT_PORT_RF_TX PORTB
+#define PORT_PIN_RF_TX 1
 
 // Buzzer
 #define PIN_BUZZER 5
 
 // Relay
-#define PIN_RELAY 13 // 7
+#define PIN_RELAY 7
 
 #define PIN_I2C_SCL A5
 #define PIN_I2C_SDA A4
@@ -23,7 +26,7 @@
 #define BUZZER_TIME_MILLIS 100
 
 // Macros for LCD handing
-#define I2C_SLAVE 8
+#define I2C_SLAVE_ADDRESS 8
 
 // Flag mask macro for I2C message
 #define FLAG_BIT_BUZZER 0x80

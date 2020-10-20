@@ -38,6 +38,7 @@ bool sendCommand(int persiana,int comando){
     return false;
   #endif
   if(persiana > 2 || comando > 2 ) return false;
+  pinMode(PIN_RF_TX,OUTPUT);
   byte KeyPacket [REMOTE_PACKET_LENGTH];
   // First we need gather the data from the PROGMEM.
   for(int index = 0 ; index < REMOTE_PACKET_LENGTH ; index ++)
@@ -48,7 +49,7 @@ bool sendCommand(int persiana,int comando){
   int bits = 0;
   for(int index = 0; index < REMOTE_PACKET_LENGTH ; index++){
     for(bits = 7; bits >= 0; bits--){
-      bitWrite(PUERTO_TX,PIN_RF_TX,(KeyPacket[index] >> bits) & 1);
+      bitWrite(PORT_PORT_RF_TX,PORT_PIN_RF_TX,(KeyPacket[index] >> bits) & 1);
       delayMicroseconds(REMOTE_SYMBOL);
     }
   }

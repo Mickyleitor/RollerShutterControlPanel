@@ -45,13 +45,10 @@ void setup(){
   pinMode(PIN_RF_RX,INPUT);
   pinMode(PIN_RELAY,OUTPUT);
   initButtonsFunction();
-  pinMode(8,INPUT);
-  pinMode(9,INPUT);
-  pinMode(10,INPUT);
-  pinMode(11,INPUT);
   
   Serial.begin(115200);
-  Wire.begin(I2C_SLAVE);                // join i2c bus with address #8
+  Serial.println("Esclavo iniciado");
+  Wire.begin(I2C_SLAVE_ADDRESS);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent);
   tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
@@ -66,7 +63,7 @@ void loop(){
   switch( SystemState ) {
     case IDLING : {
       // Pendiente hacer modo bajo consumo
-      // LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
+      LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
       delay(10);
       break;
     }

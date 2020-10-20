@@ -240,6 +240,7 @@ void loop() {
                   }
                 }
                 EEPROM_Write();
+                Serial.println("+");
               }
               actualizarMenuPantalla();
               break;
@@ -268,6 +269,7 @@ void loop() {
                   }
                 }
                 EEPROM_Write();
+                Serial.println("+");
               }
               actualizarMenuPantalla();
               break;
@@ -945,6 +947,7 @@ void sendCommandToSlave(char type) {
 void sendRollerCommand(int persiana, int comando) {
   char type = 1 << (persiana + 2) | (0x3  & comando);
   sendCommandToSlave(type);
+  Serial.println("+");
 }
 
 void checkSlaveConnection() {

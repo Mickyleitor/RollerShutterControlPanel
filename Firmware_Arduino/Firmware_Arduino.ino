@@ -51,11 +51,13 @@ void setup(){
   Wire.begin(I2C_SLAVE_ADDRESS);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent);
+  /*
   tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
   delay(200);
   tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
   delay(200);
   tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
+  */
   SystemState = IDLING;
 }
 
@@ -90,6 +92,7 @@ void loop(){
           }else{
             // If the buzzer is not silenced..
             // Sound the buzzer at low,medium,high volume.
+            /*
             if(buzzer_running){
               if( (cmd & FLAG_MASK_BUZZER) == COMMAND_BUZZER_LOW_VOLUME ){
                 Serial.println("Buzzer low volume");
@@ -105,6 +108,7 @@ void loop(){
               }
               LastTimeSounded = millis();
             }
+            */
           }
         }
         // Check the flag mask regarding roller shutter according to protocol

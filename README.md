@@ -41,7 +41,6 @@ The tools and software used in this project are completely free (or trial period
 * KiCAD
 * Arduino IDE
 * Google Sketchup (free version)
-* draw.io
 * GIMP
 * Cameo Systems Modeler (Evaluation version)
 

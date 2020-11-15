@@ -1,12 +1,13 @@
 EESchema Schematic File Version 4
-EELAYER 30 0
+LIBS:RollerShutterControlPanel-cache
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Roller Shutter Control Panel Schematic"
-Date "2020-10-09"
-Rev "1.1"
+Date "2020-11-07"
+Rev "1.2"
 Comp "Michele La Malva Moreno"
 Comment1 "https://github.com/Mickyleitor/DomoticShutter"
 Comment2 "Released under CERN Open Hardware Licence v2"

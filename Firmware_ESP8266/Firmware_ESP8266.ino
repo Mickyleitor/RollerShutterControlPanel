@@ -15,6 +15,7 @@
 #include "basic_defines.h"
 #include "CriticalData.h" // No incluir en proyecto final
 #include "SolarAzEl.h"
+#include "spanish.h"
 
 
 enum State {
@@ -577,17 +578,17 @@ int procesoConfirmarFecha(int & sday, int & smonth){
   bool ConfirmationState = false;
   lcd.clear(); lcd.home();
   if(sday == -1){
-    lcd.print("ACTIVAR SIEMPRE?");
+    lcd.print(STR_ID_ALWAYS_ACTIVE_ASK);
     lcd.setCursor(0, 1);
-    lcd.print("<             OK");
+    lcd.print(STR_ID_LEFT_SPACE_SPACE_OK);
   }else if(sday == -2){
-    lcd.print(" CANCELAR TODO? ");
+    lcd.print(STR_ID_CANCEL_ALL_ASK);
     lcd.setCursor(0, 1);
-    lcd.print("<             OK");
+    lcd.print(STR_ID_LEFT_SPACE_SPACE_OK);
   }else{
-    lcd.print("CONFIRMAR  FECHA");
+    lcd.print(STR_ID_CONFIRM_DATE);
     lcd.setCursor(0, 1);
-    lcd.print("<             OK");
+    lcd.print(STR_ID_LEFT_SPACE_SPACE_OK);
     lcd.setCursor(5, 1);
     lcd.print(makeLcdStringDate(sday, smonth));
   }
@@ -618,12 +619,12 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
     switch (SleepTaskState) {
       case 0 : {
           lcd.clear(); lcd.home();
-          lcd.print("SEL. FECHA ");
+          lcd.print(STR_ID_SEL_DATE);
           lcd.setCursor(11, 0);
           lcd.print(makeLcdStringDate(sday, smonth));
           lcd.setCursor(0, 1);
           lcd.write(5);
-          lcd.print("    +    -    >");
+          lcd.print(STR_ID_SPACE_PLUS_MINUS_RIGHT);
           SleepTaskState = 1;
           break;
         }
@@ -656,7 +657,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
             case RIGHT : {
                 SleepTaskState = 2;
                 lcd.setCursor(0, 1);
-                lcd.print("<    +    -   OK");
+                lcd.print(STR_ID_LEFT_PLUS_MINUS_OK);
                 break;
               }
           }
@@ -780,25 +781,25 @@ void mostrarHoraPantalla() {
   int dayofweek = (timeinfo->tm_wday);
   switch (dayofweek) {
     case 0:
-      lcd.print("Dom.");
+      lcd.print(STR_ID_SUNDAY);
       break;
     case 1:
-      lcd.print("Lun.");
+      lcd.print(STR_ID_MONDAY);
       break;
     case 2:
-      lcd.print("Mar.");
+      lcd.print(STR_ID_TUESDAY);
       break;
     case 3:
-      lcd.print("Mie.");
+      lcd.print(STR_ID_WENESDAY);
       break;
     case 4:
-      lcd.print("Jue.");
+      lcd.print(STR_ID_THURSDAY);
       break;
     case 5:
-      lcd.print("Vie.");
+      lcd.print(STR_ID_FRIDAY);
       break;
     case 6:
-      lcd.print("Sab.");
+      lcd.print(STR_ID_SATURDAY);
       break;
     default:
       lcd.print("Err.");
@@ -812,7 +813,7 @@ void actualizarMenuPantalla() {
   switch (SystemState) {
     case SHUTTER_MANAGER : {
         if (seleccionMenu < 3) {
-          String namePersiana [] = {" PERSIANA IZQDA ", "PERSIANA CENTRAL", "PERSIANA DERECHA", "  ERROR MENU  "};
+          String namePersiana [] = {STR_ID_SHUTTER_LEFT, STR_ID_SHUTTER_CENTER, STR_ID_SHUTTER_RIGHT, STR_ID_DIAG_ERROR_MENU};
           lcd.print(namePersiana[seleccionMenu]);
           lcd.setCursor(0, 1);
           lcd.print("<");
@@ -832,40 +833,40 @@ void actualizarMenuPantalla() {
         break;
       }
     case MENU_JOB_MODE : {
-        lcd.print("  MODO TRABAJO  ");
+        lcd.print(STR_ID_JOB_MODE);
         lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        lcd.print(STR_ID_LEFT_SPACE_OK_RIGHT);
         break;
       }
     case MENU_SLEEP_MODE : {
-        lcd.print("  MODO DORMIR   ");
+        lcd.print(STR_ID_SLEEP_MODE);
         lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        lcd.print(STR_ID_LEFT_SPACE_OK_RIGHT);
         break;
       }
     case MENU_ACTIVATE_SLEEP_MODE : {   
-        lcd.print(" ACTIVAR UN DIA ");
+        lcd.print(STR_ID_ACTIVATE_ONE_DAY);
         lcd.setCursor(0, 1);
         lcd.write(5);
-        lcd.print("        OK    >");
+        lcd.print(STR_ID_SPACE_SPACE_OK_RIGHT);
         break;
       }
     case MENU_DEACTIVATE_SLEEP_MODE : {
-        lcd.print("CANCELAR UN DIA ");
+        lcd.print(STR_ID_CANCEL_ONE_DAY);
         lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        lcd.print(STR_ID_LEFT_SPACE_OK_RIGHT);
         break;
       }
     case MENU_ACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print("ACTIVAR  SIEMPRE");
+        lcd.print(STR_ID_ALWAYS_ACTIVE);
         lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        lcd.print(STR_ID_LEFT_SPACE_OK_RIGHT);
         break;
       }
     case MENU_DEACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print(" CANCELAR TODO  ");
+        lcd.print(STR_ID_CANCEL_ALL);
         lcd.setCursor(0, 1);
-        lcd.print("<        OK     ");
+        lcd.print(STR_ID_LEFT_SPACE_OK_RIGHT);
         break;
       }
   }
@@ -902,7 +903,7 @@ int initLCDFunction() {
   };
   for ( byte i = 0 ; i < 6 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
   lcd.home(); lcd.clear();
-  lcd.print("...INICIANDO...");
+  lcd.print(STR_ID_INITIALIZING);
   return 0;
 }
 
@@ -921,7 +922,7 @@ void initWifiFunction() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(MySSID, MyPassword);
   lcd.setCursor(0, 1);
-  lcd.print("Conectando Wifi");
+  lcd.print(STR_ID_WIFI_CONNECTING);
   while (WiFi.status() != WL_CONNECTED) delay(1000);    
 }
 
@@ -959,9 +960,9 @@ void checkSlaveConnection() {
     }
     if ( (millis() - timeOut) > 5000) {
       lcd.home(); lcd.clear();
-      lcd.print(" ERROR CONEXION ");
+      lcd.print(STR_ID_CONNECTION_ERROR);
       lcd.setCursor(0, 1);
-      lcd.print(" DISP. HARDWARE ");
+      lcd.print(STR_ID_HARDWARE_DEVICE);
       Wire.requestFrom(ADDRESS_I2C_SLAVE, 1);
       timeOut = millis();
     }

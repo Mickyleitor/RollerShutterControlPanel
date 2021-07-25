@@ -1,0 +1,36 @@
+#define STR_ID_ALWAYS_ACTIVE_ASK        "ACTIVAR SIEMPRE?"
+#define STR_ID_ALWAYS_ACTIVE            "ACTIVAR  SIEMPRE"
+#define STR_ID_CANCEL_ALL_ASK           " CANCELAR TODO? "
+#define STR_ID_CANCEL_ALL               " CANCELAR TODO  "
+#define STR_ID_ACTIVATE_ONE_DAY         " ACTIVAR UN DIA "
+#define STR_ID_CANCEL_ONE_DAY           "CANCELAR UN DIA "
+#define STR_ID_CONFIRM_DATE             "CONFIRMAR  FECHA"
+#define STR_ID_SEL_DATE                 "SEL. FECHA "
+
+#define STR_ID_JOB_MODE                 "  MODO TRABAJO  "
+#define STR_ID_SLEEP_MODE               "  MODO DORMIR   "
+
+#define STR_ID_LEFT_SPACE_SPACE_OK      "<             OK"
+#define STR_ID_SPACE_SPACE_OK_RIGHT      "        OK    >"
+#define STR_ID_LEFT_SPACE_OK_RIGHT      "<        OK    >"
+#define STR_ID_SPACE_PLUS_MINUS_RIGHT    "    +    -    >"
+#define STR_ID_LEFT_PLUS_MINUS_OK       "<    +    -   OK"
+
+#define STR_ID_INITIALIZING             "...INICIANDO..."
+#define STR_ID_WIFI_CONNECTING          "Conectando Wifi"
+#define STR_ID_CONNECTION_ERROR         " ERROR CONEXION "
+#define STR_ID_HARDWARE_DEVICE          " DISP. HARDWARE "
+
+#define STR_ID_SUNDAY                   "Dom."
+#define STR_ID_MONDAY                   "Lun."
+#define STR_ID_TUESDAY                  "Mar."
+#define STR_ID_WENESDAY                 "Mie."
+#define STR_ID_THURSDAY                 "Jue."
+#define STR_ID_FRIDAY                   "Vie."
+#define STR_ID_SATURDAY                 "Sab."
+
+#define STR_ID_SHUTTER_LEFT             " PERSIANA IZQDA "
+#define STR_ID_SHUTTER_CENTER           "PERSIANA CENTRAL"
+#define STR_ID_SHUTTER_RIGHT            "PERSIANA DERECHA"
+
+#define STR_ID_DIAG_ERROR_MENU          "   ERROR MENU   "

@@ -31,6 +31,8 @@
 #include "LowPower.h"
 #include "remote.h"
 
+#include "radioProtocolConfig.h"
+
 int buzzer_running = 1;
 
 enum States {
@@ -41,8 +43,8 @@ enum States {
 
 void setup(){
   pinMode(PIN_BUZZER,OUTPUT);
-  pinMode(PIN_RF_TX,INPUT); // Free 433 Mhz channel now.
-  pinMode(PIN_RF_RX,INPUT);
+  pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX,INPUT); // Free 433 Mhz channel now.
+  // pinMode(PIN_RF_RX,INPUT);
   pinMode(PIN_RELAY,OUTPUT);
   initButtonsFunction();
   
@@ -148,6 +150,7 @@ void loop(){
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany) {
+  (void)howMany;
   SystemState = PROCCESS_I2C;
 }
 
@@ -158,27 +161,39 @@ void requestEvent() {
   // as expected by master
 }
 
-void isrButton(){
+void isrButton() {
+  // Detach the interrupt to avoid retriggering during debounce
   detachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER));
-  TCNT1 = 0;   // Reset counter to 0
-  TCCR1B = bit(WGM12) | bit (CS12);   // CTC, scale to clock / 256  
+
+  // Reset Timer 1 counter to 0 and start counting (CTC mode, scale to clock / 256)
+  TCNT1 = 0;
+  TCCR1B = bit(WGM12) | bit(CS12);
 }
 
-ISR(TIMER1_COMPA_vect)
-{
+ISR(TIMER1_COMPA_vect) {
   SystemState = SWITCH_RELAY;
+
+  // Stop Timer 1 (clear prescaler) and reattach the button interrupt on falling edge
   TCCR1B = 0;
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER),isrButton,FALLING);
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, FALLING);
 }
 
-void initButtonsFunction(){
-  pinMode(PIN_BUTTON_USER,INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER),isrButton,FALLING);
+void initButtonsFunction() {
+  // Initialize button pin as INPUT_PULLUP
+  pinMode(PIN_BUTTON_USER, INPUT_PULLUP);
 
-  // set up Timer 1
-  TCCR1A = 0;          // normal operation
-  TCCR1B = 0;
-  // TCCR1B = bit(WGM12) | bit (CS12);   // CTC, scale to clock / 1024
-  OCR1A =  ( ( F_CPU * DEBOUNCE_TIME_MILLIS ) / (256 * 2 * 1000)) - 1;       // compare A register value 
-  TIMSK1 = bit (OCIE1A);             // interrupt on Compare A Match
+  // Attach the falling-edge interrupt for the button
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, FALLING);
+
+  // Set up Timer 1 for debounce
+  TCCR1A = 0;  // normal operation
+  TCCR1B = 0;  // stop the timer initially
+
+  // Calculate the compare A register value for debounce time
+  // Using F_CPU / (256 * 2 * 1000) to avoid integer overflow
+  uint32_t debounce_cycles = (F_CPU / (256UL * 2 * 1000));  // Ensure F_CPU is treated as 32-bit
+  OCR1A = (debounce_cycles * DEBOUNCE_TIME_MILLIS) - 1;
+
+  // Enable the interrupt on Compare A Match (Timer 1)
+  TIMSK1 = bit(OCIE1A);
 }

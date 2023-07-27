@@ -31,30 +31,25 @@
 // 
 // ***************************************************************************
 
-#include "CriticalData.h"
+#include "radioProtocol.h"
+
+#include "radioProtocolConfig.h"
 
 bool sendCommand(int persiana,int comando){
-  #ifndef REMOTE_KEYDATA_PRESENT
+  if(persiana > 2 || comando > 2 )
+  {
     return false;
-  #endif
-  if(persiana > 2 || comando > 2 ) return false;
-  pinMode(PIN_RF_TX,OUTPUT);
-  byte KeyPacket [REMOTE_PACKET_LENGTH];
+  }
+  pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX,OUTPUT);
+  uint8_t KeyPacket [RADIOPROTOCOL_REMOTE_PACKET_LENGTH];
   // First we need gather the data from the PROGMEM.
-  for(int index = 0 ; index < REMOTE_PACKET_LENGTH ; index ++)
+  for(int index = 0 ; index < RADIOPROTOCOL_REMOTE_PACKET_LENGTH ; index ++)
   {
     KeyPacket[index] = pgm_read_byte(&(KeyCommands[persiana][comando][index]));
   }
-  // Iterate the array and bits using double loop.
-  int bits = 0;
-  for(int index = 0; index < REMOTE_PACKET_LENGTH ; index++){
-    for(bits = 7; bits >= 0; bits--){
-      bitWrite(PORT_PORT_RF_TX,PORT_PIN_RF_TX,(KeyPacket[index] >> bits) & 1);
-      delayMicroseconds(REMOTE_SYMBOL);
-    }
-  }
+  radioProtocol_send_frame(KeyPacket,RADIOPROTOCOL_REMOTE_PACKET_LENGTH*8);
   // Free the 433 Mhz channel making it a floating port
-  pinMode(PIN_RF_TX,INPUT);
+  pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX,INPUT);
   // This delay shouldn't be removed to allow inter-frame separation.
   delay(10);
   return true;

@@ -3,12 +3,9 @@
 #define DEBOUNCE_TIME_MILLIS 100
 // Radio
 #define PIN_RF_RX 3
-#define PIN_RF_TX 9
 
 #define PORT_PORT_RF_RX PIND
 #define PORT_PIN_RF_RX 3
-#define PORT_PORT_RF_TX PORTB
-#define PORT_PIN_RF_TX 1
 
 // Buzzer
 #define PIN_BUZZER 5

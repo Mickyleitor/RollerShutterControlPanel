@@ -31,3 +31,4 @@ fp-info-cache
 # Critical files
 
 CriticalData.h
+.vscode

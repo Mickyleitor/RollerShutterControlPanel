@@ -31,7 +31,7 @@
 #include "LowPower.h"
 #include "remote.h"
 
-#include "radioProtocolConfig.h"
+#include "moduleConfigs/radioProtocolConfig.h"
 
 int buzzer_running = 1;
 
@@ -44,7 +44,7 @@ enum States {
 void setup(){
   pinMode(PIN_BUZZER,OUTPUT);
   pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX,INPUT); // Free 433 Mhz channel now.
-  // pinMode(PIN_RF_RX,INPUT);
+  pinMode(RADIOPROTOCOL_PINNUMBER_RF_RX,INPUT);
   pinMode(PIN_RELAY,OUTPUT);
   initButtonsFunction();
   

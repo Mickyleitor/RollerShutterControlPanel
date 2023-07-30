@@ -31,9 +31,9 @@
 // 
 // ***************************************************************************
 
-#include "radioProtocol.h"
+#include "radioProtocol/radioProtocol.h"
 
-#include "radioProtocolConfig.h"
+#include "moduleConfigs/radioProtocolConfig.h"
 
 bool sendCommand(int persiana,int comando){
   if(persiana > 2 || comando > 2 )

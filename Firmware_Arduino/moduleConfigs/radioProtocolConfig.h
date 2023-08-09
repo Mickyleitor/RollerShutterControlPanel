@@ -7,6 +7,7 @@
 #define RADIOPROTOCOL_PREAMBLE_LENGTH                   (REMOTE_PREAMBLE_LENGTH)
 #define RADIOPROTOCOL_REMOTE_PACKET_LENGTH                (REMOTE_PACKET_LENGTH)
 #define RADIOPROTOCOL_SYMBOL_US                               (REMOTE_SYMBOL_US)
+#define RADIOPROTOCOL_INTERFRAME_PATTERN             (REMOTE_INTERFRAME_PATTERN)
 
 #define RADIOPROTOCOL_PORT_RF_TX                                         (PORTB)
 #define RADIOPROTOCOL_PIN_RF_TX                                              (1)

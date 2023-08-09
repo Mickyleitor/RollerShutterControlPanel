@@ -50,6 +50,10 @@
 #error RADIOPROTOCOL_PREAMBLE_PATTERN must be set in radioProtocolConfig.h
 #endif
 
+#if !defined(RADIOPROTOCOL_INTERFRAME_PATTERN)
+#error RADIOPROTOCOL_INTERFRAME_PATTERN must be set in radioProtocolConfig.h
+#endif
+
 //---[ Function Prototypes ]--------------------------------------------------
 
 /**
@@ -59,23 +63,34 @@
  * The frame is transmitted bit by bit, with the specified inter-bit delay.
  *
  * \param frame Pointer to the data frame to be transmitted.
- * \param length_bits Length of the data frame in bits.
+ * \param length_bytes Length of the data frame in bytes.
  */
-static inline void radioProtocol_send_frame(uint8_t *frame, uint32_t length_bits) {
+static inline void radioProtocol_send_frame(uint8_t *frame, uint32_t length_bytes) {
 
-  uint32_t num_bytes = (length_bits + 7) / 8;
   uint8_t *ptr = frame;
   uint8_t data_bit = 0;
+  uint32_t preamble_length_bits = RADIOPROTOCOL_PREAMBLE_LENGTH;
+  uint64_t preamble_pattern = RADIOPROTOCOL_PREAMBLE_PATTERN & ((1 << preamble_length_bits) - 1);
 
-  while (ptr < frame + num_bytes) {
-    for (int8_t index_bit = 7; index_bit >= 0; index_bit--) {
-      if ((ptr - frame) * 8 + index_bit < (int32_t)length_bits) {
-        data_bit = (*ptr >> index_bit) & 1;
-        RADIOPROTOCOL_BITWRITE(RADIOPROTOCOL_PORT_RF_TX, RADIOPROTOCOL_PIN_RF_TX, data_bit);
-        RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
-      }
+  if(length_bytes > 0) {
+    // Send preamble pattern in big endian order
+    while(preamble_length_bits > 0) {
+      data_bit = (preamble_pattern >> (preamble_length_bits - 1)) & 1;
+      RADIOPROTOCOL_BITWRITE(RADIOPROTOCOL_PORT_RF_TX, RADIOPROTOCOL_PIN_RF_TX, data_bit);
+      RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
+      preamble_length_bits--;
     }
-    ptr++;
+    // Send frame in little endian order
+    do {
+      for (int8_t index_bit = 7; index_bit >= 0; index_bit--) {
+        if ((ptr - frame) * 8 + index_bit < ((int32_t)length_bytes * 8)) {
+          data_bit = (*ptr >> index_bit) & 1;
+          RADIOPROTOCOL_BITWRITE(RADIOPROTOCOL_PORT_RF_TX, RADIOPROTOCOL_PIN_RF_TX, data_bit);
+          RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
+        }
+      }
+      ptr++;
+    } while (ptr < frame + length_bytes);
   }
 }
 
@@ -85,17 +100,22 @@ static inline void radioProtocol_send_frame(uint8_t *frame, uint32_t length_bits
  * This function receives a frame using the radio protocol.
  * The frame is received bit by bit, with the specified inter-bit delay.
  * 
+ * If the preamble is not found within the specified timeout, the function returns 0.
+ * If the interframe pattern is found, the function returns the number of bits received.
+ * Otherwise, the function returns the number of bits received before the timeout.
+ * 
  * @param frame Pointer to the data frame to be received.
- * @param length_bits Length of the data frame in bits.
+ * @param max_length_bytes Length of the data frame in bytes.
  * @param timeout_us Timeout in microseconds.
  * @return uint32_t Number of bits received.
  */
-static inline uint32_t radioProtocol_receive_frame(uint8_t *frame, uint32_t length_bits, uint32_t timeout_us) {
+static inline uint32_t radioProtocol_receive_frame(uint8_t *frame, uint32_t max_length_bytes, uint32_t timeout_us) {
 
     uint64_t data = 0;
     uint64_t data_mask = (1ULL << RADIOPROTOCOL_PREAMBLE_LENGTH) - 1; // Use bit-shift to calculate the data_mask
     uint8_t *ptr = frame;
-    uint32_t received_bits = 0;
+    uint32_t received_bytes = 0;
+    uint32_t interframe = 0xFFFFFFFF;
 
     // Search for preamble pattern with a timeout
     while (timeout_us > 0 && ((data & data_mask) != (RADIOPROTOCOL_PREAMBLE_PATTERN & data_mask))) {
@@ -105,20 +125,22 @@ static inline uint32_t radioProtocol_receive_frame(uint8_t *frame, uint32_t leng
     }
 
     if (timeout_us > 0) {
-        // Preamble found, receive the data
+        // Preamble found, receive the data frame
         do {
             uint8_t data_byte = 0;
             for (int8_t index_bit = 7; index_bit >= 0; index_bit--) {
-                data_byte |= (RADIOPROTOCOL_BITREAD(RADIOPROTOCOL_PORT_RF_RX, RADIOPROTOCOL_PIN_RF_RX) & 1) << index_bit;
+                uint8_t bitRx = (RADIOPROTOCOL_BITREAD(RADIOPROTOCOL_PORT_RF_RX, RADIOPROTOCOL_PIN_RF_RX) & 1);
+                interframe = (interframe << 1) | bitRx;
+                data_byte |= bitRx << index_bit;
                 RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
             }
-            received_bits += 8;
+            received_bytes++;
             *ptr = data_byte;
             ptr++;
-        } while (received_bits < length_bits);
+        } while ((received_bytes < max_length_bytes) && (interframe != RADIOPROTOCOL_INTERFRAME_PATTERN));
     }
 
-    return received_bits;
+    return received_bytes;
 }
 
 #endif // _RADIO_PROTOCOL_H_

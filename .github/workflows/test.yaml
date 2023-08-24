@@ -11,7 +11,7 @@ on: [push, pull_request]
 # will produce.
 jobs:
   # This is the name of the job - can be whatever.
-  test-matrix:
+  build:
 
     # Here we tell GitHub that the jobs must be determined
     # dynamically depending on a matrix configuration.
@@ -53,6 +53,13 @@ jobs:
         run: |
           arduino-cli core update-index
           arduino-cli core install ${{ matrix.arduino-platform }}
+
+      # We then install the platform, which one will be determined
+      # dynamically by the build matrix.
+      - name: Install libraries
+        run: |
+          arduino-cli lib install LowPower_LowPowerLab
+          arduino-cli lib list
 
       # Finally, we compile the sketch, using the FQBN that was set
       # in the build matrix.

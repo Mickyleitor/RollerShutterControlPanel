@@ -15,7 +15,10 @@
 #include "basic_defines.h"
 #include "CriticalData.h" // No incluir en proyecto final
 #include "SolarAzEl.h"
+#include "error.h"
 
+int initLCDFunction(int32_t timeout_ms);
+int initWifiFunction(int32_t timeout_ms);
 
 enum State {
   IDLE,
@@ -81,8 +84,12 @@ void setup() {
   EEPROM_Read(); 
   // Put this in case it's the first time we power up the ESP
   // EEPROM_Write(); 
-  initLCDFunction();
-  initWifiFunction();
+  if( initLCDFunction(10000) < 0){
+    errorHandler(&lcd, FATAL_ERROR_CODE_LCD_INIT_FAILED);
+  }
+  if( initWifiFunction(10000) < 0){
+    errorHandler(&lcd, FATAL_ERROR_CODE_WIFI_STA_FAILED);
+  }
   initTimeFunction();
   initButtonsFunction();
   checkSlaveConnection();
@@ -871,27 +878,27 @@ void actualizarMenuPantalla() {
   }
 }
 
-int initLCDFunction() {
+int initLCDFunction(int32_t timeout_ms) {
   int status = -1;
-  int failed = 0;
   // Search LCD into I2C line:
-  while ( status != 0 ) {
+  while( status != 0 && timeout_ms > 0) {
     Wire.begin(2, 14);
     Wire.beginTransmission(ADDRESS_I2C_LCD);
     status = Wire.endTransmission();
-
-    if (failed > 5) {
-      return -1;
-    } else if (status != 0) {
-      // wait 5 seconds for reconnection:
-      delay(5000);
+    if (status != 0) {
+      // wait 2 seconds for reconnection:
+      delay(2000);
+      timeout_ms -= 2000;
     }
-    failed++;
+  }
+
+  if(timeout_ms <= 0) {
+    return -1;
   }
 
   lcd.begin(16, 2);
   lcd.setBacklight(255);
-  int customArrayChar[6][8] =
+  uint8_t customArrayChar[6][8] =
   {
     /* Flecha izquierda */  {0x00, 0x07, 0x0E, 0x1C, 0x1C, 0x0E, 0x07, 0x00},
     /* Flecha arriba    */  {0x00, 0x04, 0x0E, 0x1F, 0x1B, 0x11, 0x00, 0x00},
@@ -900,7 +907,9 @@ int initLCDFunction() {
     /* Flecha STOP      */  {0x00, 0x0E, 0x1B, 0x11, 0x11, 0x1B, 0x0E, 0x00},
     /* Flecha arribacan */  {0x04, 0x0E, 0x1F, 0x15, 0x04, 0x04, 0x07, 0x00}
   };
-  for ( byte i = 0 ; i < 6 ; i ++ ) lcd.createChar(i, customArrayChar[i]);
+  for( int i = 0 ; i < 6 ; i ++ ){
+    lcd.createChar(i, customArrayChar[i]);
+  }
   lcd.home(); lcd.clear();
   lcd.print("...INICIANDO...");
   return 0;
@@ -917,12 +926,22 @@ void initButtonsFunction() {
   attachInterrupt(13, isrButtons, FALLING);
 }
 
-void initWifiFunction() {
+int initWifiFunction(int32_t timeout_ms) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(MySSID, MyPassword);
   lcd.setCursor(0, 1);
   lcd.print("Conectando Wifi");
-  while (WiFi.status() != WL_CONNECTED) delay(1000);    
+
+  while(WiFi.status() != WL_CONNECTED && timeout_ms > 0) {
+    delay(1000);
+    timeout_ms -= 1000;
+  }
+
+  if(timeout_ms <= 0) {
+    return -1;
+  }
+
+  return 0;
 }
 
 void initTimeFunction() {

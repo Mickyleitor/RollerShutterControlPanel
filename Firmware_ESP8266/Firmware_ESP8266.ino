@@ -427,7 +427,8 @@ void SystemFunctionManager(){
     // Is this roller(supposedly) not stopped?
     if(ShutterData[index].status != 0){
       // Is the total duration of the movement time out for this roller?
-      if( abs(millis() - ShutterData[index].LastMoved) > SHUTTER_DURATION_SECONDS){
+      int ShutterDuration = millis() - ShutterData[index].LastMoved;
+      if( abs(ShutterDuration) > SHUTTER_DURATION_SECONDS){
         // This roller is for sure reached the limit.
         ShutterData[index].status = 0;
         if(SystemState == SHUTTER_MANAGER) actualizarMenuPantalla();

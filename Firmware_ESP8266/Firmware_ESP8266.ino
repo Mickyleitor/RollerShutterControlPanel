@@ -13,9 +13,10 @@
 #include <LiquidCrystal_PCF8574.h>
 #include <ESP8266WiFi.h>
 #include "basic_defines.h"
-#include "CriticalData.h" // No incluir en proyecto final
 #include "SolarAzEl.h"
 #include "error.h"
+
+#include "ESP8266_utils.h"
 
 int initLCDFunction(int32_t timeout_ms);
 int initWifiFunction(int32_t timeout_ms);
@@ -497,7 +498,7 @@ int getWeatherDataFunction(){
 
   double NewAzimuth = -9999;
   double NewElevation = -9999;
-  SolarAzEl(time(NULL), MY_LAT, MY_LON, 1, &NewAzimuth, &NewElevation);
+  SolarAzEl(time(NULL), DEFAULT_OPENWEATHERMAP_LOCATION_LAT, DEFAULT_OPENWEATHERMAP_LOCATION_LON, 1, &NewAzimuth, &NewElevation);
   if(NewAzimuth > -9999 && NewElevation > -9999){
     MyWeather.SunAzimuth = NewAzimuth;
     MyWeather.SunElevation = NewElevation;
@@ -518,7 +519,7 @@ int getWeatherDataFunction(){
   }
 
   // Send HTTP request
-  String HTTPrequest = MyHTTPrequest;
+  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST;
   client.println(HTTPrequest);
   client.println("Host: api.openweathermap.org");
   client.println("Connection: close");
@@ -928,7 +929,7 @@ void initButtonsFunction() {
 
 int initWifiFunction(int32_t timeout_ms) {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(MySSID, MyPassword);
+  WiFi.begin(DEFAULT_STA_SSID, DEFAULT_STA_PASSWORD);
   lcd.setCursor(0, 1);
   lcd.print("Conectando Wifi");
 

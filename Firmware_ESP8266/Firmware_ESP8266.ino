@@ -8,7 +8,6 @@
 
 
 #include <Ticker.h>
-#include <EEPROM.h>
 #include <Wire.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <ESP8266WiFi.h>
@@ -17,9 +16,9 @@
 #include "error.h"
 
 #include "ESP8266_utils.h"
+#include "EEPROM_Utils.h"
 
 int initLCDFunction(int32_t timeout_ms);
-int initWifiFunction(int32_t timeout_ms);
 
 enum State {
   IDLE,
@@ -64,7 +63,7 @@ struct ShutterParameters {
   int LastMoved = 0;
 } ShutterData [3];
 
-char ScheduledData[12][31] ;
+struct EEPROM_Data _storedData = {0xFF};
 int ScheduledDataResetValue = 0;
 
 Ticker TimeOutTask, ButtonsISRTask,SystemFunctionTask;
@@ -82,13 +81,18 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
-  EEPROM_Read(); 
-  // Put this in case it's the first time we power up the ESP
-  // EEPROM_Write(); 
+  EEPROM_Read(&_storedData); // Uncomment this line to reset the EEPROM
+  EEPROM_Check(&_storedData);
+
   if( initLCDFunction(10000) < 0){
     errorHandler(&lcd, FATAL_ERROR_CODE_LCD_INIT_FAILED);
   }
-  if( initWifiFunction(10000) < 0){
+
+  lcd.setCursor(0, 1);
+  lcd.print("Conectando Wifi");
+  if( !ConnectWiFi_STA(_storedData._ssid, _storedData._password, 10000) ){
+    Serial.print("Error connecting to SSID: ");
+    Serial.println(_storedData._ssid);
     errorHandler(&lcd, FATAL_ERROR_CODE_WIFI_STA_FAILED);
   }
   initTimeFunction();
@@ -244,10 +248,10 @@ void loop() {
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
                   for(int dia = 0; dia < 31 ; dia ++ ){
-                    ScheduledData[mes][dia] |= 0x1;
+                    _storedData.ScheduledData[mes][dia] |= 0x1;
                   }
                 }
-                EEPROM_Write();
+                EEPROM_Write(&_storedData);
               }
               actualizarMenuPantalla();
               break;
@@ -272,10 +276,10 @@ void loop() {
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
                   for(int dia = 0; dia < 31 ; dia ++ ){
-                    ScheduledData[mes][dia] &= 0x2;
+                    _storedData.ScheduledData[mes][dia] &= 0x2;
                   }
                 }
-                EEPROM_Write();
+                EEPROM_Write(&_storedData);
               }
               actualizarMenuPantalla();
               break;
@@ -290,14 +294,14 @@ void loop() {
       }
     case SLEEP_MANAGER : {
         Serial.println("Modo dormir activado");
-        EEPROM_Write();
+        EEPROM_Write(&_storedData);
         sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
         delay(200);
         bajarPersiana(PERSIANA_DERECHA);
         delay(200);
         bajarPersiana(PERSIANA_CENTRAL);
         SystemState = IDLE;
-		    EEPROM_Read();
+		    EEPROM_Read(&_storedData);
         break;
       }
   }
@@ -447,9 +451,9 @@ void SystemFunctionManager(){
     // Check if a reset of the data is needed
     resetScheduledData(timenow);
     // Check if today there is a scheduled task and isn't done yet.
-    if(ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
+    if(_storedData.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
       // Switch to true the notification flag
-      ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
+      _storedData.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
       SystemState = SLEEP_MANAGER;
     }
     
@@ -461,10 +465,10 @@ void resetScheduledData(struct tm * timenow){
   if(timenow->tm_yday == 0 && ScheduledDataResetValue == 0){
     for(int mes = 0; mes < 12 ; mes++){
       for(int dia = 0; dia < 31 ; dia ++ ){
-        ScheduledData[mes][dia] &= 0x1;
+        _storedData.ScheduledData[mes][dia] &= 0x1;
       }
     }
-    EEPROM_Write();
+    EEPROM_Write(&_storedData);
     ScheduledDataResetValue = 1;
   }else if(timenow->tm_yday != 0 && ScheduledDataResetValue != 0){
     ScheduledDataResetValue = 0;
@@ -729,11 +733,11 @@ void procesoDesactivarTarea() {
   int sday = 1, smonth = 1;
   if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Desactivar tarea en fecha seleccionada");
-    ScheduledData[smonth-1][sday-1] &= 0x2;
+    _storedData.ScheduledData[smonth-1][sday-1] &= 0x2;
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
-    EEPROM_Write();
+    EEPROM_Write(&_storedData);
   }
 }
 
@@ -741,11 +745,11 @@ void procesoActivarTarea() {
   int sday = 1, smonth = 1;
   if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Activar tarea en fecha seleccionada");
-    ScheduledData[smonth-1][sday-1] = 0x1;
+    _storedData.ScheduledData[smonth-1][sday-1] = 0x1;
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
-    EEPROM_Write();
+    EEPROM_Write(&_storedData);
   }
 }
 
@@ -928,24 +932,6 @@ void initButtonsFunction() {
   attachInterrupt(13, isrButtons, FALLING);
 }
 
-int initWifiFunction(int32_t timeout_ms) {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(DEFAULT_STA_SSID, DEFAULT_STA_PASSWORD);
-  lcd.setCursor(0, 1);
-  lcd.print("Conectando Wifi");
-
-  while(WiFi.status() != WL_CONNECTED && timeout_ms > 0) {
-    delay(1000);
-    timeout_ms -= 1000;
-  }
-
-  if(timeout_ms <= 0) {
-    return -1;
-  }
-
-  return 0;
-}
-
 void initTimeFunction() {
   // We want UTC time.
   int dst = 0;
@@ -993,32 +979,4 @@ void checkSlaveConnection() {
     delay(200);
     yield();
   };
-}
-
-void EEPROM_Write(){
-  EEPROM.begin(EEPROM_SIZE);
-  // store values in EEPROM
-  for (int mes = 0; mes < 12; mes++){
-    for(int dia = 0 ; dia < 31 ; dia ++)
-  		if(ScheduledData[mes][dia] != EEPROM.read( EEPROMStartAdress + ((mes*31)+dia)))
-  			EEPROM.write( EEPROMStartAdress + ((mes*31)+dia), ScheduledData[mes][dia]);
-  }
-  EEPROM.commit();
-  EEPROM.end();
-}
-
-void EEPROM_Read(){
-  EEPROM.begin(EEPROM_SIZE);
-  for (int mes = 0; mes < 12; mes++){
-    for(int dia = 0 ; dia < 31 ; dia ++){
-      ScheduledData[mes][dia] = EEPROM.read( EEPROMStartAdress + ((mes*31)+dia));
-      Serial.print("Mes: ");
-      Serial.print(mes);
-      Serial.print(" Dia: ");
-      Serial.print(dia);
-      Serial.print(" Valor: ");
-      Serial.println(ScheduledData[mes][dia],HEX);
-    }
-  }
-  EEPROM.end();
 }

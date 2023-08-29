@@ -1,0 +1,61 @@
+#pragma once
+
+#include <EEPROM.h>
+
+#define EEPROM_SIZE                                 (sizeof(struct EEPROM_Data))
+
+struct __attribute__ ((__packed__)) EEPROM_Data {
+    char ScheduledData[12][31];
+    char _ssid[32];
+    char _password[32];
+    uint16_t crc16;
+};
+
+uint16_t CRC16(const uint8_t * data, uint16_t size){
+    uint16_t crc = 0xFFFF;
+    for (uint16_t i = 0; i < size; i++){
+        crc ^= (uint16_t)data[i];
+        for (uint16_t j = 0; j < 8; j++){
+            if (crc & 0x0001){
+                crc >>= 1;
+                crc ^= 0xA001;
+            }else{
+                crc >>= 1;
+            }
+        }
+    }
+    return crc;
+}
+
+void EEPROM_Write(struct EEPROM_Data * data){
+    EEPROM.begin(EEPROM_SIZE);
+    data->crc16 = CRC16((uint8_t *)data, EEPROM_SIZE - 2);
+    // store values in EEPROM
+    for (int index = 0; index < EEPROM_SIZE; index++) {
+        if( ((char *)data)[index] != EEPROM.read(index) ){
+            EEPROM.write(index, ((char *)data)[index]);
+        }
+    }
+    EEPROM.commit();
+    EEPROM.end();
+}
+
+void EEPROM_Read(struct EEPROM_Data * data){
+    EEPROM.begin(EEPROM_SIZE);
+    for (int index = 0; index < EEPROM_SIZE; index++){
+        ((char *)data)[index] = EEPROM.read(index);
+    }
+    EEPROM.end();
+}
+
+void EEPROM_Check(struct EEPROM_Data * data){
+    // This is the very first time the device is powered on
+    uint16_t crc16 = CRC16((uint8_t *)data, EEPROM_SIZE - 2);
+    if( crc16 != data->crc16 ){
+        Serial.println("Corrupted data in EEPROM, writing default values");
+        memset(data->ScheduledData, 0x03, sizeof(data->ScheduledData));
+        strcpy(data->_ssid, DEFAULT_STA_SSID);
+        strcpy(data->_password, DEFAULT_STA_PASSWORD);
+        EEPROM_Write(data);
+    }
+}

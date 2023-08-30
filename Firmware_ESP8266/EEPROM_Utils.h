@@ -8,6 +8,9 @@ struct __attribute__ ((__packed__)) EEPROM_Data {
     char ScheduledData[12][31];
     char _ssid[32];
     char _password[32];
+    char _openweathermap_appid[64];
+    double _openweathermap_lat;
+    double _openweathermap_lon;
     uint16_t crc16;
 };
 
@@ -56,6 +59,9 @@ void EEPROM_Check(struct EEPROM_Data * data){
         memset(data->ScheduledData, 0x03, sizeof(data->ScheduledData));
         strcpy(data->_ssid, DEFAULT_STA_SSID);
         strcpy(data->_password, DEFAULT_STA_PASSWORD);
+        strcpy(data->_openweathermap_appid, DEFAULT_OPENWEATHERMAP_APPID);
+        data->_openweathermap_lat = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
+        data->_openweathermap_lon = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
         EEPROM_Write(data);
     }
 }

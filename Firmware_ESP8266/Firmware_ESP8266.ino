@@ -15,7 +15,7 @@
 #include "SolarAzEl.h"
 #include "error.h"
 
-#include "ESP8266_utils.h"
+#include "ESP8266_Utils.h"
 #include "EEPROM_Utils.h"
 
 int initLCDFunction(int32_t timeout_ms);
@@ -81,7 +81,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
-  EEPROM_Read(&_storedData); // Uncomment this line to reset the EEPROM
+  EEPROM_Read(&_storedData); // Comment this line to reset the EEPROM
   EEPROM_Check(&_storedData);
 
   if( initLCDFunction(10000) < 0){
@@ -111,9 +111,11 @@ void loop() {
         mostrarHoraPantalla();
         TimeOutTask.detach();
         TimeOutTask.attach(UPDATE_SCREEN_SECONDS, mostrarHoraPantalla);
-        while (SystemState == IDLE) {
-          if (buttonPressed() != NONE) 
-              SystemState = SHUTTER_MANAGER;
+        while(1) {
+          if (buttonPressed() != NONE) {
+            SystemState = SHUTTER_MANAGER;
+            break;
+          }
           yield();
         }
         // Update Weather condition every wake up?
@@ -503,7 +505,7 @@ int getWeatherDataFunction(){
 
   double NewAzimuth = -9999;
   double NewElevation = -9999;
-  SolarAzEl(time(NULL), DEFAULT_OPENWEATHERMAP_LOCATION_LAT, DEFAULT_OPENWEATHERMAP_LOCATION_LON, 1, &NewAzimuth, &NewElevation);
+  SolarAzEl(time(NULL), _storedData._openweathermap_lat, _storedData._openweathermap_lon, 1, &NewAzimuth, &NewElevation);
   if(NewAzimuth > -9999 && NewElevation > -9999){
     MyWeather.SunAzimuth = NewAzimuth;
     MyWeather.SunElevation = NewElevation;
@@ -524,7 +526,7 @@ int getWeatherDataFunction(){
   }
 
   // Send HTTP request
-  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST;
+  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(_storedData._openweathermap_appid, _storedData._openweathermap_lat, _storedData._openweathermap_lon);
   client.println(HTTPrequest);
   client.println("Host: api.openweathermap.org");
   client.println("Connection: close");

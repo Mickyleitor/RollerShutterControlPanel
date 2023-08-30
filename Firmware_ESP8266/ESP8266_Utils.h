@@ -10,13 +10,13 @@
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LAT                                  (0)
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LON                                  (0)
 
-#define DEFAULT_OPENWEATHERMAP_HTTP_REQUEST \
+#define DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(appid, lat, long) \
     "GET /data/2.5/weather?lat=" + \
-    String(DEFAULT_OPENWEATHERMAP_LOCATION_LAT) + \
+    String(lat) + \
     "&lon=" + \
-    String(DEFAULT_OPENWEATHERMAP_LOCATION_LON) + \
+    String(long) + \
     "&appid=" + \
-    String(DEFAULT_OPENWEATHERMAP_APPID) + \
+    String(appid) + \
     "&units=metric&lang=es HTTP/1.0"
 
 bool ConnectWiFi_STA(char * ssid, char * password, uint32_t timeout = 10000)

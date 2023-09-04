@@ -21,6 +21,8 @@
 int initLCDFunction(int32_t timeout_ms);
 
 enum State {
+  ACCESS_POINT_OPENED,
+  CONFIGURATION,
   IDLE,
   SHUTTER_MANAGER,
   SLEEP_MANAGER,
@@ -75,7 +77,7 @@ void goIdleState() {
 };
 
 void setup() {
-  SystemState = IDLE;
+  SystemState = CONFIGURATION;
   seleccionMenu = PERSIANA_CENTRAL;
   currentButton = NONE;
   Serial.begin(115200);
@@ -90,22 +92,55 @@ void setup() {
 
   lcd.setCursor(0, 1);
   lcd.print("Conectando Wifi");
-  if( !ConnectWiFi_STA(_storedData._ssid, _storedData._password, 10000) ){
+  if( !ConnectWiFi_STA(_storedData._ssid_sta, _storedData._password_sta, 10000) ){
     Serial.print("Error connecting to SSID: ");
-    Serial.println(_storedData._ssid);
-    errorHandler(&lcd, FATAL_ERROR_CODE_WIFI_STA_FAILED);
+    Serial.println(_storedData._ssid_sta);
+    if( !ConnectWiFi_AP(_storedData._ssid_ap, _storedData._password_ap, 10000) ){
+      Serial.print("Error creating AP with SSID: ");
+      Serial.println(_storedData._ssid_ap);
+      errorHandler(&lcd, FATAL_ERROR_CODE_WIFI_AP_FAILED);
+    }else{
+      Serial.print("AP created with SSID: ");
+      Serial.println(_storedData._ssid_ap);
+      SystemState = ACCESS_POINT_OPENED;
+    }
   }
-  initTimeFunction();
-  initButtonsFunction();
-  checkSlaveConnection();
-  getWeatherDataFunction();
-  SystemFunctionTask.detach();
-  SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
 }
 
 void loop() {
   // Serial.println(digitalRead(2));
   switch (SystemState) {
+    case ACCESS_POINT_OPENED : {
+      static int indexDisplay1;
+      static int indexDisplay2;
+      static uint32_t timerMs;
+      String displayString1 = "           " + String(_storedData._ssid_ap) + "          ";
+      String displayString2 = "                Password: " + String(_storedData._password_ap) + " IP: " + String(WiFi.softAPIP().toString()) + "               "; 
+
+      if ( (millis() - timerMs) > 250 ) {
+        timerMs = millis();
+        lcd.home(); lcd.clear();
+        lcd.print("SSID:" + displayString1.substring(indexDisplay1, indexDisplay1 + 11));
+        lcd.setCursor(0, 1);
+        lcd.print(displayString2.substring(indexDisplay2, indexDisplay2 + 16));
+        indexDisplay1++;
+        indexDisplay2++;
+        if (indexDisplay1 > displayString1.length() - 10) indexDisplay1 = 0;
+        if (indexDisplay2 > displayString2.length() - 16) indexDisplay2 = 0;
+      }
+      break;
+    }
+    case CONFIGURATION : {
+      // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
+      initTimeFunction();
+      initButtonsFunction();
+      checkSlaveConnection();
+      getWeatherDataFunction();
+      SystemFunctionTask.detach();
+      SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
+      SystemState = IDLE;
+      break;
+    }
     case IDLE : {
         apagarBrilloPantalla();
         mostrarHoraPantalla();

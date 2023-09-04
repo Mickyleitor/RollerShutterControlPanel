@@ -19,7 +19,7 @@
     String(appid) + \
     "&units=metric&lang=es HTTP/1.0"
 
-bool ConnectWiFi_STA(char * ssid, char * password, uint32_t timeout = 10000)
+bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
 {
     Serial.println("");
     WiFi.mode(WIFI_STA);
@@ -41,6 +41,30 @@ bool ConnectWiFi_STA(char * ssid, char * password, uint32_t timeout = 10000)
     Serial.println(ssid);
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());
+
+    return true;
+}
+
+bool ConnectWiFi_AP(char * ssid, char * password, int32_t timeout = 10000)
+{ 
+   Serial.println("");
+   WiFi.mode(WIFI_AP);
+    while(!WiFi.softAP(ssid, password) && timeout > 0) 
+    {
+        delay(100);
+        timeout -= 100;
+    }
+
+    if(timeout <= 0){
+        Serial.println("AP Failed");
+        return false;
+    }
+
+    Serial.println("");
+    Serial.print("Iniciado AP:\t");
+    Serial.println(ssid);
+    Serial.print("IP address:\t");
+    Serial.println(WiFi.softAPIP());
 
     return true;
 }

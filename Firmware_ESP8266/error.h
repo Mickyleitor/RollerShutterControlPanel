@@ -21,6 +21,8 @@ static inline void errorHandler(LiquidCrystal_PCF8574 * screen, uint8_t fatalErr
         screen->print(fatalErrorCode);
         screen->setCursor(0, 1);
         screen->print(fatalErrorListStr[fatalErrorCode - 1]);
+        WiFi.mode(WIFI_OFF);
+        WiFi.forceSleepBegin();
         while (true){
             yield();
         }

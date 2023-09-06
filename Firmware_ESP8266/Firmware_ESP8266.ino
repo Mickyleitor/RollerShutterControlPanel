@@ -14,6 +14,7 @@
 #include "basic_defines.h"
 #include "SolarAzEl.h"
 #include "error.h"
+#include "buttons.h"
 
 #include "ESP8266_Utils.h"
 #include "EEPROM_Utils.h"
@@ -21,9 +22,11 @@
 int initLCDFunction(int32_t timeout_ms);
 
 enum State {
-  ACCESS_POINT_OPENED,
-  CONFIGURATION,
-  IDLE,
+  WIFI_ACCESS_POINT_OPENED,
+  WIFI_STATION_CONNECTED,
+  ENTERING_IDLE,
+  IDLING,
+  WAKEUP,
   SHUTTER_MANAGER,
   SLEEP_MANAGER,
   MENU_JOB_MODE,
@@ -32,15 +35,7 @@ enum State {
   MENU_DEACTIVATE_SLEEP_MODE,
   MENU_ACTIVATE_ALL_SLEEP_MODE,
   MENU_DEACTIVATE_ALL_SLEEP_MODE
-} SystemState ;
-
-enum ButtonInput {
-  NONE,
-  LEFT,
-  UP,
-  DOWN,
-  RIGHT
-} currentButton;
+} SystemState = WIFI_STATION_CONNECTED;
 
 enum MenuSeleccion {
   PERSIANA_IZQUIERDA = 0,
@@ -48,7 +43,7 @@ enum MenuSeleccion {
   PERSIANA_DERECHA = 2,
   OPTION_JOB_MODE = 3,
   OPTION_SLEEP_MODE = 4
-} seleccionMenu ;
+} seleccionMenu  = PERSIANA_CENTRAL;
 
 struct WeatherData {
   double SunAzimuth = 0;
@@ -68,18 +63,15 @@ struct ShutterParameters {
 struct EEPROM_Data _storedData = {0xFF};
 int ScheduledDataResetValue = 0;
 
-Ticker TimeOutTask, ButtonsISRTask,SystemFunctionTask;
+Ticker TimeOutTask, SystemFunctionTask;
 LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
 
-void goIdleState() {
+void goIdleState(void) {
   Serial.println("Buttons Time Out");
-  SystemState = IDLE;
+  SystemState = ENTERING_IDLE;
 };
 
 void setup() {
-  SystemState = CONFIGURATION;
-  seleccionMenu = PERSIANA_CENTRAL;
-  currentButton = NONE;
   Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
@@ -102,7 +94,7 @@ void setup() {
     }else{
       Serial.print("AP created with SSID: ");
       Serial.println(_storedData._ssid_ap);
-      SystemState = ACCESS_POINT_OPENED;
+      SystemState = WIFI_ACCESS_POINT_OPENED;
     }
   }
 }
@@ -110,7 +102,7 @@ void setup() {
 void loop() {
   // Serial.println(digitalRead(2));
   switch (SystemState) {
-    case ACCESS_POINT_OPENED : {
+    case WIFI_ACCESS_POINT_OPENED : {
       static int indexDisplay1;
       static int indexDisplay2;
       static uint32_t timerMs;
@@ -130,7 +122,7 @@ void loop() {
       }
       break;
     }
-    case CONFIGURATION : {
+    case WIFI_STATION_CONNECTED : {
       // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
       initTimeFunction();
       initButtonsFunction();
@@ -138,29 +130,35 @@ void loop() {
       getWeatherDataFunction();
       SystemFunctionTask.detach();
       SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
-      SystemState = IDLE;
+      SystemState = ENTERING_IDLE;
       break;
     }
-    case IDLE : {
+    case ENTERING_IDLE : {
         apagarBrilloPantalla();
         mostrarHoraPantalla();
         TimeOutTask.detach();
         TimeOutTask.attach(UPDATE_SCREEN_SECONDS, mostrarHoraPantalla);
-        while(1) {
-          if (buttonPressed() != NONE) {
-            SystemState = SHUTTER_MANAGER;
-            break;
-          }
-          yield();
+        SystemState = IDLING;
+        break;
+      }
+    case IDLING : {
+        if(buttonPressed() != NONE){
+          SystemState = WAKEUP;
         }
+        break;
+      }
+    case WAKEUP : {
         // Update Weather condition every wake up?
         // getWeatherDataFunction();
-        if(SystemState == SHUTTER_MANAGER){
-          encenderBrilloPantalla();
-          if (seleccionMenu == OPTION_JOB_MODE) SystemState = MENU_JOB_MODE;
-          if (seleccionMenu == OPTION_SLEEP_MODE) SystemState = MENU_SLEEP_MODE;
-          actualizarMenuPantalla();
+        encenderBrilloPantalla();
+        if (seleccionMenu == OPTION_JOB_MODE){
+          SystemState = MENU_JOB_MODE;
         }
+        if (seleccionMenu == OPTION_SLEEP_MODE){
+          SystemState = MENU_SLEEP_MODE;
+        }
+        actualizarMenuPantalla();
+        SystemState = SHUTTER_MANAGER;
         break;
       }
     case SHUTTER_MANAGER : {
@@ -337,49 +335,13 @@ void loop() {
         bajarPersiana(PERSIANA_DERECHA);
         delay(200);
         bajarPersiana(PERSIANA_CENTRAL);
-        SystemState = IDLE;
+        SystemState = ENTERING_IDLE;
 		    EEPROM_Read(&_storedData);
         break;
       }
   }
-  yield();
 }
 
-void deBounceFunction() {
-  currentButton = NONE;
-  if (digitalRead(4) == LOW) {
-    currentButton = LEFT;
-  } else if (digitalRead(5) == LOW) {
-    currentButton = DOWN;
-  } else if (digitalRead(12) == LOW) {
-    currentButton = UP;
-  } else if (digitalRead(13) == LOW) {
-    currentButton = RIGHT;
-  }
-  ButtonsISRTask.detach();
-}
-void IRAM_ATTR isrButtons() {
-  ButtonsISRTask.detach();
-  ButtonsISRTask.attach_ms(DEBOUNCE_TIME_MILLIS, deBounceFunction);
-}
-int buttonPressed() {
-  while ( Serial.available() ) {
-    char c = (char)Serial.read();
-    if ( c == '4' or c == 'g') currentButton = LEFT;
-    if ( c == '2' or c == 'h') currentButton = DOWN;
-    if ( c == '8' or c == 'j') currentButton = UP;
-    if ( c == '6' or c == 'k') currentButton = RIGHT;
-  }
-  if (currentButton != NONE) {
-    Serial.print("------- [DEBUG] PULSADO : ");
-    Serial.println(currentButton);
-    TimeOutTask.detach();
-    TimeOutTask.attach(TO_IDLE_SECONDS, goIdleState);
-  }
-  int buttonPress = currentButton;
-  currentButton = NONE;
-  return buttonPress;
-}
 void seleccionarAnterior() {
   switch (seleccionMenu) {
     case PERSIANA_IZQUIERDA : {
@@ -472,7 +434,9 @@ void SystemFunctionManager(){
       if( abs(ShutterDuration) > SHUTTER_DURATION_SECONDS){
         // This roller is for sure reached the limit.
         ShutterData[index].status = 0;
-        if(SystemState == SHUTTER_MANAGER) actualizarMenuPantalla();
+        if(SystemState == SHUTTER_MANAGER){
+          actualizarMenuPantalla();
+        } 
       }else{
         // Check again next time
         SystemFunctionTask.detach();
@@ -641,7 +605,7 @@ int procesoConfirmarFecha(int & sday, int & smonth){
     lcd.setCursor(5, 1);
     lcd.print(makeLcdStringDate(sday, smonth));
   }
-  while (SystemState != IDLE && SystemState != MENU_SLEEP_MODE)
+  while ((SystemState != ENTERING_IDLE || SystemState != IDLING) && SystemState != MENU_SLEEP_MODE)
   {
     switch (buttonPressed()) {
       case LEFT : {
@@ -663,7 +627,7 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
   int SleepTaskState = 0;
   bool FechaConfirmada = false;
   int daysOfMonths [] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  while (SystemState != IDLE && SystemState != MENU_SLEEP_MODE)
+  while ((SystemState != ENTERING_IDLE || SystemState != IDLING) && SystemState != MENU_SLEEP_MODE)
   {
     switch (SleepTaskState) {
       case 0 : {
@@ -860,6 +824,8 @@ void mostrarHoraPantalla() {
 void actualizarMenuPantalla() {
   lcd.clear(); lcd.home();
   switch (SystemState) {
+    case WAKEUP :
+      // fall through
     case SHUTTER_MANAGER : {
         if (seleccionMenu < 3) {
           String namePersiana [] = {" PERSIANA IZQDA ", "PERSIANA CENTRAL", "PERSIANA DERECHA", "  ERROR MENU  "};
@@ -956,17 +922,6 @@ int initLCDFunction(int32_t timeout_ms) {
   lcd.home(); lcd.clear();
   lcd.print("...INICIANDO...");
   return 0;
-}
-
-void initButtonsFunction() {
-  pinMode(4, INPUT);
-  pinMode(5, INPUT);
-  pinMode(12, INPUT);
-  pinMode(13, INPUT);
-  attachInterrupt(4, isrButtons, FALLING);
-  attachInterrupt(5, isrButtons, FALLING);
-  attachInterrupt(12, isrButtons, FALLING);
-  attachInterrupt(13, isrButtons, FALLING);
 }
 
 void initTimeFunction() {

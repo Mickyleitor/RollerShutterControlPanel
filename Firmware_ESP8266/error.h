@@ -2,13 +2,13 @@
 
 #include <LiquidCrystal_PCF8574.h>
 
-#define FATAL_ERROR_CODE_LCD_INIT_FAILED                                     (1)
-#define FATAL_ERROR_CODE_WIFI_STA_FAILED                                     (2)
-#define FATAL_ERROR_CODE_WIFI_AP_FAILED                                      (3)
+#define LED_GREEN_PIN_NR                                                    (16)
 
-static char * fatalErrorListStr [] = {
+#define FATAL_ERROR_CODE_LCD_INIT_FAILED                                     (1)
+#define FATAL_ERROR_CODE_WIFI_AP_FAILED                                      (2)
+
+static String fatalErrorListStr [] = {
     "   LCD FAILED   ",
-    " WIFI NOT FOUND ",
     " WIFI AP FAILED "
 };
 
@@ -28,11 +28,11 @@ static inline void errorHandler(LiquidCrystal_PCF8574 * screen, uint8_t fatalErr
         }
     }else{
         uint32_t timerMs = millis();
-        pinMode(16, OUTPUT);
+        pinMode(LED_GREEN_PIN_NR, OUTPUT);
         while (true){
             if( millis() - timerMs > 250 ){
                 timerMs = millis();
-                digitalWrite(16, !digitalRead(16));
+                digitalWrite(LED_GREEN_PIN_NR, !digitalRead(LED_GREEN_PIN_NR));
             }
             yield();
         }

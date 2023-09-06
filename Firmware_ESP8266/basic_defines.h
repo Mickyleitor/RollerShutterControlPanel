@@ -1,4 +1,3 @@
-#define TO_IDLE_SECONDS 10
 #define ADDRESS_I2C_LCD 0x3F
 #define ADDRESS_I2C_SLAVE 0x8
 
@@ -9,7 +8,6 @@
 #define UPDATE_SCREEN_SECONDS 60
 #define SHUTTER_DURATION_SECONDS 27
 #define SYSTEM_MANAGER_SECONDS 60
-#define DEBOUNCE_TIME_MILLIS 100
 
 // Flag mask macro for I2C message
 #define FLAG_BIT_BUZZER 0x80

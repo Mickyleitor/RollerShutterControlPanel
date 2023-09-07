@@ -18,6 +18,7 @@
 
 #include "ESP8266_Utils.h"
 #include "EEPROM_Utils.h"
+#include "Slave_Utils.h"
 
 int initLCDFunction(int32_t timeout_ms);
 
@@ -125,7 +126,7 @@ void loop() {
     case WIFI_STATION_CONNECTED : {
       // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
       initButtonsFunction();
-      checkSlaveConnection();
+      checkSlaveConnection(&lcd);
       getWeatherDataFunction();
       SystemFunctionTask.detach();
       SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
@@ -921,43 +922,4 @@ int initLCDFunction(int32_t timeout_ms) {
   lcd.home(); lcd.clear();
   lcd.print("...INICIANDO...");
   return 0;
-}
-
-void sendCommandToSlave(char type) {
-  Wire.beginTransmission(ADDRESS_I2C_SLAVE); // transmit to device #8
-  Wire.write(1);        // This should wake up the device
-  Wire.write(type);        // sends five bytes
-  Wire.endTransmission();    // stop transmitting
-}
-
-void sendRollerCommand(int persiana, int comando) {
-  char type = 1 << (persiana + 2) | (0x3  & comando);
-  sendCommandToSlave(type);
-}
-
-void checkSlaveConnection() {
-  bool slaveStatusRunning = false;
-  Wire.requestFrom(ADDRESS_I2C_SLAVE, 1);
-  unsigned long timeOut = millis();
-  while (!slaveStatusRunning) {
-    if (Wire.available() > 0) {
-      char c = Wire.read();
-      if (c != 0x3) Wire.requestFrom(ADDRESS_I2C_SLAVE, 1);
-      else slaveStatusRunning = true;
-    }
-    if ( (millis() - timeOut) > 5000) {
-      lcd.home(); lcd.clear();
-      lcd.print(" ERROR CONEXION ");
-      lcd.setCursor(0, 1);
-      lcd.print(" DISP. HARDWARE ");
-      Wire.requestFrom(ADDRESS_I2C_SLAVE, 1);
-      timeOut = millis();
-    }
-    yield();
-  }
-  for (int i = 0; i < 3; i++) {
-    sendCommandToSlave(COMMAND_BUZZER_HIGH_VOLUME);
-    delay(200);
-    yield();
-  };
 }

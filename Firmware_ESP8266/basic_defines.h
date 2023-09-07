@@ -1,5 +1,4 @@
 #define ADDRESS_I2C_LCD 0x3F
-#define ADDRESS_I2C_SLAVE 0x8
 
 #ifndef TZ_Europe_Madrid
 #define TZ_Europe_Madrid 2 * 3600

@@ -19,6 +19,16 @@
     String(appid) + \
     "&units=metric&lang=es HTTP/1.0"
 
+void initTimeFunction() {
+  // We want UTC time.
+  int dst = 0;
+  configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
+  while (!time(nullptr)){
+    yield();
+    delay(1000);
+  }
+}
+
 bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
 {
     Serial.println("");
@@ -29,6 +39,7 @@ bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
     {
         delay(100);
         timeout -= 100;
+        yield();
     }
 
     if(timeout <= 0){
@@ -42,6 +53,8 @@ bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());
 
+    initTimeFunction();
+
     return true;
 }
 
@@ -53,6 +66,7 @@ bool ConnectWiFi_AP(char * ssid, char * password, int32_t timeout = 10000)
     {
         delay(100);
         timeout -= 100;
+        yield();
     }
 
     if(timeout <= 0){

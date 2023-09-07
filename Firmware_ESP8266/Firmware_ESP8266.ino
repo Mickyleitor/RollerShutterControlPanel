@@ -2,9 +2,9 @@
 // This sketch is in development and uses ESP13-WROOM-02.
 //
 // Libraries used and need to be installed from Arduino IDE
-// - Shield manager ESP8266 by ESP8266 Community version 2.6.3 : http://arduino.esp8266.com/stable/package_esp8266com_index.json
+// - Shield manager ESP8266 by ESP8266 Community version 3.1.2 : http://arduino.esp8266.com/stable/package_esp8266com_index.json
 // - NTPClient by Fabrice Weinberg 3.2.0 : https://github.com/arduino-libraries/NTPClient
-// - LiquidCrystal_PCF8574 by mathertel 1.2.0  : https://github.com/mathertel/LiquidCrystal_PCF8574
+// - LiquidCrystal_PCF8574 by mathertel 2.2.0  : https://github.com/mathertel/LiquidCrystal_PCF8574
 
 
 #include <Ticker.h>
@@ -124,7 +124,6 @@ void loop() {
     }
     case WIFI_STATION_CONNECTED : {
       // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
-      initTimeFunction();
       initButtonsFunction();
       checkSlaveConnection();
       getWeatherDataFunction();
@@ -151,6 +150,7 @@ void loop() {
         // Update Weather condition every wake up?
         // getWeatherDataFunction();
         encenderBrilloPantalla();
+        SystemState = SHUTTER_MANAGER;
         if (seleccionMenu == OPTION_JOB_MODE){
           SystemState = MENU_JOB_MODE;
         }
@@ -158,7 +158,6 @@ void loop() {
           SystemState = MENU_SLEEP_MODE;
         }
         actualizarMenuPantalla();
-        SystemState = SHUTTER_MANAGER;
         break;
       }
     case SHUTTER_MANAGER : {
@@ -922,16 +921,6 @@ int initLCDFunction(int32_t timeout_ms) {
   lcd.home(); lcd.clear();
   lcd.print("...INICIANDO...");
   return 0;
-}
-
-void initTimeFunction() {
-  // We want UTC time.
-  int dst = 0;
-  configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
-  while (!time(nullptr)){
-    yield();
-    delay(1000);
-  }
 }
 
 void sendCommandToSlave(char type) {

@@ -33,12 +33,16 @@
 
 #include "moduleConfigs/radioProtocolConfig.h"
 
+#include "rscpProtocol/rscpProtocol.h"
+
 int buzzer_running = 1;
 
 enum States {
   IDLING,
   SWITCH_RELAY,
-  PROCCESS_I2C
+  PROCCESS_I2C,
+  RECEIVE_EVENT,
+  REQUEST_EVENT,
 } SystemState;
 
 void setup(){
@@ -53,12 +57,13 @@ void setup(){
   Wire.begin(I2C_SLAVE_ADDRESS);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent);
-  tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
-  delay(200);
-  tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
-  delay(200);
-  tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
+  // tone(PIN_BUZZER,BUZZER_HIGH_VOLUME,BUZZER_TIME_MILLIS);
+  // delay(200);
+  // tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
+  // delay(200);
+  // tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
   SystemState = IDLING;
+  Serial.flush();
 }
 
 void loop(){
@@ -144,6 +149,18 @@ void loop(){
       SystemState = IDLING;
       break;
     }
+    case RECEIVE_EVENT : {
+      Serial.println("RECEIVE_EVENT");
+      Serial.flush();
+      SystemState = IDLING;
+      break;
+    }
+    case REQUEST_EVENT : {
+      Serial.println("REQUEST_EVENT");
+      Serial.flush();
+      SystemState = IDLING;
+      break;
+    }
   }
 }
 
@@ -151,14 +168,19 @@ void loop(){
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany) {
   (void)howMany;
-  SystemState = PROCCESS_I2C;
+  Serial.print("howMany :");
+  Serial.println(howMany);
+  SystemState = RECEIVE_EVENT;
 }
 
 // function that executes whenever data is requested by master
 // this function is registered as an event, see setup()
 void requestEvent() {
-  Wire.write(0x3); // respond with message of 1 byte
-  // as expected by master
+  // TODO : Move to state machine
+  int8_t ret = rscpHandle(1000);
+  Serial.print("ret = ");
+  Serial.println(ret);
+  SystemState = REQUEST_EVENT;
 }
 
 void isrButton() {

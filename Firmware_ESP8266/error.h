@@ -15,6 +15,7 @@ static String fatalErrorListStr [] = {
 };
 
 static inline void errorHandler(LiquidCrystal_PCF8574 * screen, uint8_t fatalErrorCode) {
+    Serial.println("FATAL ERROR. code : " + String(fatalErrorCode));
     // When no lcd is connected, blink the led on pin 16
     if( fatalErrorCode > FATAL_ERROR_CODE_LCD_INIT_FAILED ){
         screen->clear();

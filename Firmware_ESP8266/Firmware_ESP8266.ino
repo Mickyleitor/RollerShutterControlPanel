@@ -73,7 +73,7 @@ void goIdleState(void) {
 };
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(74880);
   Serial.println();
   Serial.println("Master inicializado");
   EEPROM_Read(&_storedData); // Comment this line to reset the EEPROM

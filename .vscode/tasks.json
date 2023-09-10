@@ -6,7 +6,7 @@
         {
             "label": "Compile arduino sketch",
             "type": "shell",
-            "command": "arduino-cli compile --log -b arduino:avr:pro:cpu=8MHzatmega328 --clean --build-path 'Firmware_Arduino/build' Firmware_Arduino",
+            "command": "arduino-cli compile --log -b arduino:avr:pro:cpu=8MHzatmega328 --clean Firmware_Arduino",
             "problemMatcher": [
                 "$gcc"
             ]
@@ -14,13 +14,21 @@
         {
             "label": "Upload arduino sketch",
             "type": "shell",
-            "command": "arduino-cli upload --log -b arduino:avr:pro:cpu=8MHzatmega328 -p COM4 --input-dir 'Firmware_Arduino/build' -t Firmware_Arduino",
+            "command": "arduino-cli upload --log -b arduino:avr:pro:cpu=8MHzatmega328 -p COM5 -t Firmware_Arduino",
             "problemMatcher": [
                 "$gcc"
             ]
         },
         {
             "label": "Compile esp8266 sketch",
+            "type": "shell",
+            "command": "arduino-cli compile --log -b esp8266:esp8266:generic --board-options 'eesz=4M1M' Firmware_ESP8266",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Clean and compile esp8266 sketch",
             "type": "shell",
             "command": "arduino-cli compile --log -b esp8266:esp8266:generic --clean --board-options 'eesz=4M1M' --build-path 'Firmware_ESP8266/build' Firmware_ESP8266",
             "problemMatcher": [
@@ -30,10 +38,21 @@
         {
             "label": "Upload esp8266 sketch",
             "type": "shell",
-            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck -p COM4 --input-dir 'Firmware_ESP8266/build' -t Firmware_ESP8266",
+            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM4 -t Firmware_ESP8266",
             "problemMatcher": [
                 "$gcc"
             ]
-        }
+        },
+        {
+            "label": "Compile and upload esp8266 sketch",
+            "type": "shell",
+            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM4 -t Firmware_ESP8266",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Compile esp8266 sketch"
+            ]
+        },
     ]
 }

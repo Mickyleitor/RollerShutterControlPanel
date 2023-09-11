@@ -6,12 +6,14 @@
 
 #define FATAL_ERROR_CODE_LCD_INIT_FAILED                                     (1)
 #define FATAL_ERROR_CODE_WIFI_AP_FAILED                                      (2)
-#define FATAL_ERROR_CODE_SLAVE_HARDWARE                                      (3)
+#define FATAL_ERROR_CODE_NO_SLAVE_HARDWARE                                   (3)
+#define FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE                              (4)
 
 static String fatalErrorListStr [] = {
     "   LCD FAILED   ",
     " WIFI AP FAILED ",
-    " NO SLAVE HARDW "
+    " NO SLAVE HARDW ",
+    "INVALID SLAVE HW"
 };
 
 static inline void errorHandler(LiquidCrystal_PCF8574 * screen, uint8_t fatalErrorCode) {

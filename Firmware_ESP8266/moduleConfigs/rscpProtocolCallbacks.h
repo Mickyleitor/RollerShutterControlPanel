@@ -6,6 +6,8 @@
 
 #include "../rscpProtocol/rscpProtocol.h"
 
+#define SLAVE_I2C_ADDRESS                                                   (0x08)
+
 static inline int8_t rscpGetRxByteCallback(uint8_t * data)
 {
     if( Wire.available() > 0){
@@ -17,7 +19,14 @@ static inline int8_t rscpGetRxByteCallback(uint8_t * data)
 
 static inline int8_t rscpSendSlotCallback(uint8_t * data, uint8_t length)
 {
-    return (Wire.write(data, length) == length) ? 0 : -1;
+    Wire.beginTransmission(SLAVE_I2C_ADDRESS); // transmit to device #8
+    Wire.write(data, length);
+    return (Wire.endTransmission() == 0) ? 0 : -1;
+}
+
+static inline int8_t rscpRequestSlotCallback(uint8_t length)
+{
+    return (Wire.requestFrom(SLAVE_I2C_ADDRESS, (int)length) == length) ? 0 : -1;
 }
 
 // Modbus-16 CRC calculation
@@ -40,46 +49,37 @@ static inline uint16_t rscpGetCrcCallback(uint8_t *data, uint8_t length)
 
 static inline void rscpSetShutterActionCallback(RSCP_Arg_rollershutter * arg)
 {
-    sendCommand(arg->shutter, arg->action, arg->retries);
+    (void)arg;
 }
 
 static inline void rscpSetShutterPositionCallback(RSCP_Arg_rollershutterposition * arg)
 {
     (void)arg;
-    // TODO: Implement
 }
 
 static inline void rscpGetShutterPositionCallback(RSCP_Reply_rollershutterposition * reply)
 {
     (void)reply;
-    // TODO: Implement
 }
 
 static inline void rscpSetSwitchRelayCallback(RSCP_Arg_switchrelay * arg)
 {
-    digitalWrite(PIN_RELAY, (arg->status == RSCP_DEF_SWITCH_RELAY_ON) ? HIGH : LOW);
+    (void)arg;
 }
 
 static inline void rscpGetSwitchRelayCallback(RSCP_Reply_switchrelay * reply)
 {
-    reply->status = (digitalRead(PIN_RELAY) == HIGH) ? RSCP_DEF_SWITCH_RELAY_ON : RSCP_DEF_SWITCH_RELAY_OFF;
+    (void)reply;
 }
 
 static inline void rscpSetBuzzerVolumeCallback(RSCP_Arg_buzzer_volume * arg)
 {
     (void)arg;
-    // TODO: Implement
 }
 
 static inline void rscpSetBuzzerActionCallback(RSCP_Arg_buzzer_action * arg)
 {
-    switch (arg->action){
-        case RSCP_DEF_BUZZER_ACTION_BUTTON_BEEP: {
-            // TODO: Implement
-            break;
-        }
-
-    }
+    (void)arg;
 }
 
 #endif // __RSCP_PROTOCOL_CALLBACKS_H_INCLUDED__

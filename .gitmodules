@@ -1,0 +1,6 @@
+[submodule "Firmware_ESP8266/rscpProtocol"]
+	path = Firmware_ESP8266/rscpProtocol
+	url = https://github.com/Mickyleitor/RollerShutterControlProtocol_I2C.git
+[submodule "Firmware_Arduino/rscpProtocol"]
+	path = Firmware_Arduino/rscpProtocol
+	url = https://github.com/Mickyleitor/RollerShutterControlProtocol_I2C.git

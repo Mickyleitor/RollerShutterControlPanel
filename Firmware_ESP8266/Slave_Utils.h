@@ -5,24 +5,9 @@
 #include "error.h"
 #include "basic_defines.h"
 
-#define SLAVE_I2C_ADDRESS                                                   (0x08)
+#include "rscpProtocol/rscpProtocol.h"
 
-static inline uint16_t rscpGetCrcCallback(uint8_t *data, uint8_t length)
-{
-    uint16_t crc = 0xFFFF;
-    for (uint16_t i = 0; i < length; i++){
-        crc ^= (uint16_t)data[i];
-        for (uint16_t j = 0; j < 8; j++){
-            if (crc & 0x0001){
-                crc >>= 1;
-                crc ^= 0xA001;
-            }else{
-                crc >>= 1;
-            }
-        }
-    }
-    return crc;
-}
+#define SLAVE_I2C_ADDRESS                                                   (0x08)
 
 void sendCommandToSlave(char type) {
   // Wire.beginTransmission(SLAVE_I2C_ADDRESS); // transmit to device #8
@@ -37,73 +22,27 @@ void sendRollerCommand(int persiana, int comando) {
 }
 
 void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
-  uint32_t txBufferIndex = 0;
-  uint8_t txBuffer[64];
-  
-  // Fill txBuffer
-  txBuffer[txBufferIndex++] = 0xAA;
-  txBuffer[txBufferIndex++] = 0x03;
-  txBuffer[txBufferIndex++] = 0x0A;
-  txBuffer[txBufferIndex++] = 0x01; // No data
+    struct RSCP_Reply_cpuquery reply;
 
-  uint16_t crc = rscpGetCrcCallback(&txBuffer[1], txBufferIndex - 1);
-  txBuffer[txBufferIndex++] = (crc >> 8) & 0xFF;
-  txBuffer[txBufferIndex++] = (crc & 0xFF);
+    if ( rscpRequestCPUQuery(&reply, 1000) != RSCP_ERR_OK) {
+        errorHandler(mylcd, FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
+    }
 
-  Serial.println("Sending...");
-  Serial.print("txBuffer : ");
-  for (int i = 0; i < txBufferIndex; i++) {
-      Serial.print(txBuffer[i], HEX);
-      Serial.print(" ");
-  }
-  Serial.println();
+    Serial.println("reply.flags: " + String(reply.flags));
+    Serial.println("reply.crcType: " + String(reply.crcType));
+    Serial.println("reply.protocolversion: " + String(reply.protocolversion));
+    Serial.println("reply.cpuType: " + String(reply.cpuType));
+    Serial.println("reply.swversion: " + String(reply.swversion));
+    Serial.println("reply.packetMaxLen: " + String(reply.packetMaxLen));
 
-  Wire.beginTransmission(SLAVE_I2C_ADDRESS); // transmit to device #8
-  Wire.write(txBuffer, txBufferIndex);
-  Wire.endTransmission();    // stop transmitting
+    // Just check crcType and protocolversion
+    if ((reply.crcType != RSCP_DEF_CRC_TYPE_MODBUS16) || 
+        (reply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
+        errorHandler(mylcd, FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
+    }
 
-  uint8_t rxBuffer[64];
-  uint32_t rxBufferIndex = 0;
-  uint8_t rxExpectedLength = 13;
-
-  Wire.requestFrom(SLAVE_I2C_ADDRESS, (int)rxExpectedLength);
-
-  unsigned long timeOut = millis();
-  while (Wire.available() > 0) {
-      rxBuffer[rxBufferIndex++] = Wire.read();
-      yield();
-  }
-  Serial.println("rxBufferIndex: " + String(rxBufferIndex));
-  Serial.println("rxExpectedLength: " + String(rxExpectedLength));
-  Serial.print("rxBuffer : ");
-  for (int i = 0; i < rxBufferIndex; i++) {
-      Serial.print(rxBuffer[i], HEX);
-      Serial.print(" ");
-  }
-  Serial.println();
-  errorHandler(mylcd, FATAL_ERROR_CODE_SLAVE_HARDWARE);
-  return ;
+    return;
 /*
-  // Wire.requestFrom(SLAVE_I2C_ADDRESS, (int)rxExpectedLength);
-  unsigned long timeOut = millis();
-  while (rxBufferIndex < rxExpectedLength) {
-      if (Wire.available() > 0) {
-          rxBuffer[rxBufferIndex++] = Wire.read();
-      }
-      if ( (millis() - timeOut) > 5000) {
-          errorHandler(mylcd, FATAL_ERROR_CODE_SLAVE_HARDWARE);
-      }
-      yield();
-  }
-  Serial.println("rxBufferIndex: " + String(rxBufferIndex));
-  Serial.println("rxExpectedLength: " + String(rxExpectedLength));
-  Serial.print("rxBuffer : ");
-  for (int i = 0; i < rxBufferIndex; i++) {
-      Serial.print(rxBuffer[i], HEX);
-      Serial.print(" ");
-  }
-  Serial.println();
-
   for (int i = 0; i < 3; i++) {
     sendCommandToSlave(COMMAND_BUZZER_HIGH_VOLUME);
     delay(200);

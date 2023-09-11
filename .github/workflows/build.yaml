@@ -72,6 +72,11 @@ jobs:
           arduino-cli lib install ${{ matrix.libraries }}
           arduino-cli lib list
 
+      # Update submodules
+      - name: Update submodules
+        run: |
+          git submodule update --init --recursive
+
       # Finally, we compile the sketch, using the FQBN that was set
       # in the build matrix.
       - name: Compile Sketches

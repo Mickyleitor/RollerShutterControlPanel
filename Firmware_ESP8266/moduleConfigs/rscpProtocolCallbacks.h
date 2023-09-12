@@ -29,6 +29,11 @@ static inline int8_t rscpRequestSlotCallback(uint8_t length)
     return (Wire.requestFrom(SLAVE_I2C_ADDRESS, (int)length) == length) ? 0 : -1;
 }
 
+static inline void rscpRxWaitingCallback(void)
+{
+    yield();    // This also kicks the watchdog
+}
+
 // Modbus-16 CRC calculation
 static inline uint16_t rscpGetCrcCallback(uint8_t *data, uint8_t length)
 {

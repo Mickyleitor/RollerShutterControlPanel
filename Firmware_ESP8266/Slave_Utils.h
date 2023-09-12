@@ -23,8 +23,9 @@ void sendRollerCommand(int persiana, int comando) {
 
 void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     struct RSCP_Reply_cpuquery reply;
-
-    if ( rscpRequestCPUQuery(&reply, 1000) != RSCP_ERR_OK) {
+    int8_t err = rscpRequestCPUQuery(&reply, 1000);
+    Serial.println("rscpRequestCPUQuery: " + String(err));
+    if ( err != RSCP_ERR_OK) {
         errorHandler(mylcd, FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
     }
 

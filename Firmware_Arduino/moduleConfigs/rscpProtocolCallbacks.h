@@ -4,20 +4,25 @@
 #include <stdint.h>
 #include <Wire.h>
 
+#include "../Utils.h"
 #include "../rscpProtocol/rscpProtocol.h"
 
 static inline int8_t rscpGetRxByteCallback(uint8_t * data)
 {
-    if( Wire.available() > 0){
-        *data = Wire.read();
-        return 0;
+    if ( popByteFromRxBuffer(data) < 0 ){
+        return -1;
     }
-    return -1;
+    return 0;
 }
 
 static inline int8_t rscpSendSlotCallback(uint8_t * data, uint8_t length)
 {
     return (Wire.write(data, length) == length) ? 0 : -1;
+}
+
+static inline void rscpRxWaitingCallback(void)
+{
+    yield();    // This also kicks the watchdog
 }
 
 // Modbus-16 CRC calculation

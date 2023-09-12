@@ -30,19 +30,20 @@
 #include "basic_defines.h"
 #include "LowPower.h"
 #include "remote.h"
+#include "Utils.h"
 
 #include "moduleConfigs/radioProtocolConfig.h"
 
 #include "rscpProtocol/rscpProtocol.h"
 
 int buzzer_running = 1;
+volatile uint8_t _rxBuffer[64];
+volatile uint8_t _rxBufferLength;
 
 enum States {
   IDLING,
   SWITCH_RELAY,
   PROCCESS_I2C,
-  RECEIVE_EVENT,
-  REQUEST_EVENT,
 } SystemState;
 
 void setup(){
@@ -70,7 +71,9 @@ void loop(){
   switch( SystemState ) {
     case IDLING : {
       // Pendiente hacer modo bajo consumo
-      LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
+      Serial.println("Entering lower power mode...");
+      Serial.flush();
+      LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_ON, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
       delay(10);
       break;
     }
@@ -149,38 +152,53 @@ void loop(){
       SystemState = IDLING;
       break;
     }
+    /*
     case RECEIVE_EVENT : {
       Serial.println("RECEIVE_EVENT");
       Serial.flush();
+      int8_t ret = rscpHandle(1000);
+      Serial.print("rscpHandle = ");
+      Serial.println(ret);
       SystemState = IDLING;
       break;
     }
     case REQUEST_EVENT : {
       Serial.println("REQUEST_EVENT");
       Serial.flush();
+      int8_t ret = rscpHandle(1000);
+      Serial.print("rscpHandle = ");
+      Serial.println(ret);
       SystemState = IDLING;
       break;
     }
+    */
   }
 }
 
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany) {
-  (void)howMany;
-  Serial.print("howMany :");
-  Serial.println(howMany);
-  SystemState = RECEIVE_EVENT;
+  Serial.print("rxBuffer : ");
+  while( Wire.available() ) {
+    uint8_t data = Wire.read();    // receive byte as a character
+    if( pushByteToRxBuffer(data) < 0 ){
+      Serial.println("Buffer overflow");
+      break;
+    }
+    Serial.print(data,HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+  // SystemState = RECEIVE_EVENT;
 }
 
 // function that executes whenever data is requested by master
 // this function is registered as an event, see setup()
 void requestEvent() {
-  // TODO : Move to state machine
   int8_t ret = rscpHandle(1000);
-  Serial.print("ret = ");
+  Serial.print("rscpHandle = ");
   Serial.println(ret);
-  SystemState = REQUEST_EVENT;
+  // SystemState = REQUEST_EVENT;
 }
 
 void isrButton() {
@@ -197,7 +215,7 @@ ISR(TIMER1_COMPA_vect) {
 
   // Stop Timer 1 (clear prescaler) and reattach the button interrupt on falling edge
   TCCR1B = 0;
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, FALLING);
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, CHANGE);
 }
 
 void initButtonsFunction() {
@@ -205,7 +223,7 @@ void initButtonsFunction() {
   pinMode(PIN_BUTTON_USER, INPUT_PULLUP);
 
   // Attach the falling-edge interrupt for the button
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, FALLING);
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_USER), isrButton, CHANGE);
 
   // Set up Timer 1 for debounce
   TCCR1A = 0;  // normal operation

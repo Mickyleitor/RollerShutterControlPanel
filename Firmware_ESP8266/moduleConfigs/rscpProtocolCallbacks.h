@@ -52,39 +52,4 @@ static inline uint16_t rscpGetCrcCallback(uint8_t *data, uint8_t length)
     return crc;
 }
 
-static inline void rscpSetShutterActionCallback(RSCP_Arg_rollershutter * arg)
-{
-    (void)arg;
-}
-
-static inline void rscpSetShutterPositionCallback(RSCP_Arg_rollershutterposition * arg)
-{
-    (void)arg;
-}
-
-static inline void rscpGetShutterPositionCallback(RSCP_Reply_rollershutterposition * reply)
-{
-    (void)reply;
-}
-
-static inline void rscpSetSwitchRelayCallback(RSCP_Arg_switchrelay * arg)
-{
-    (void)arg;
-}
-
-static inline void rscpGetSwitchRelayCallback(RSCP_Reply_switchrelay * reply)
-{
-    (void)reply;
-}
-
-static inline void rscpSetBuzzerVolumeCallback(RSCP_Arg_buzzer_volume * arg)
-{
-    (void)arg;
-}
-
-static inline void rscpSetBuzzerActionCallback(RSCP_Arg_buzzer_action * arg)
-{
-    (void)arg;
-}
-
 #endif // __RSCP_PROTOCOL_CALLBACKS_H_INCLUDED__

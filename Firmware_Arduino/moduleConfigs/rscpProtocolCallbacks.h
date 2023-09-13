@@ -43,15 +43,19 @@ static inline uint16_t rscpGetCrcCallback(uint8_t *data, uint8_t length)
     return crc;
 }
 
-static inline void rscpSetShutterActionCallback(RSCP_Arg_rollershutter * arg)
+static inline int8_t rscpSetShutterActionCallback(RSCP_Arg_rollershutter * arg)
 {
-    sendCommand(arg->shutter, arg->action, arg->retries);
+    if ( pushTaskToBuffer(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(struct RSCP_Arg_rollershutter)) < 0){
+        return RSCP_ERR_TASK_BUFFER_FULL;
+    }
+    return RSCP_ERR_OK;
 }
 
-static inline void rscpSetShutterPositionCallback(RSCP_Arg_rollershutterposition * arg)
+static inline int8_t rscpSetShutterPositionCallback(RSCP_Arg_rollershutterposition * arg)
 {
-    (void)arg;
     // TODO: Implement
+    (void)arg;
+    return RSCP_ERR_NOT_SUPPORTED;
 }
 
 static inline void rscpGetShutterPositionCallback(RSCP_Reply_rollershutterposition * reply)
@@ -60,9 +64,12 @@ static inline void rscpGetShutterPositionCallback(RSCP_Reply_rollershutterpositi
     // TODO: Implement
 }
 
-static inline void rscpSetSwitchRelayCallback(RSCP_Arg_switchrelay * arg)
+static inline int8_t rscpSetSwitchRelayCallback(RSCP_Arg_switchrelay * arg)
 {
-    digitalWrite(PIN_RELAY, (arg->status == RSCP_DEF_SWITCH_RELAY_ON) ? HIGH : LOW);
+    if ( pushTaskToBuffer(RSCP_CMD_SET_SWITCH_RELAY, (uint8_t *)&arg, sizeof(struct RSCP_Arg_switchrelay)) < 0){
+        return RSCP_ERR_TASK_BUFFER_FULL;
+    }
+    return RSCP_ERR_OK;
 }
 
 static inline void rscpGetSwitchRelayCallback(RSCP_Reply_switchrelay * reply)
@@ -70,21 +77,12 @@ static inline void rscpGetSwitchRelayCallback(RSCP_Reply_switchrelay * reply)
     reply->status = (digitalRead(PIN_RELAY) == HIGH) ? RSCP_DEF_SWITCH_RELAY_ON : RSCP_DEF_SWITCH_RELAY_OFF;
 }
 
-static inline void rscpSetBuzzerVolumeCallback(RSCP_Arg_buzzer_volume * arg)
+static inline int8_t rscpSetBuzzerActionCallback(RSCP_Arg_buzzer_action * arg)
 {
-    (void)arg;
-    // TODO: Implement
-}
-
-static inline void rscpSetBuzzerActionCallback(RSCP_Arg_buzzer_action * arg)
-{
-    switch (arg->action){
-        case RSCP_DEF_BUZZER_ACTION_BUTTON_BEEP: {
-            // TODO: Implement
-            break;
-        }
-
+    if ( pushTaskToBuffer(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&arg, sizeof(struct RSCP_Arg_buzzer_action)) < 0){
+        return RSCP_ERR_TASK_BUFFER_FULL;
     }
+    return RSCP_ERR_OK;
 }
 
 #endif // __RSCP_PROTOCOL_CALLBACKS_H_INCLUDED__

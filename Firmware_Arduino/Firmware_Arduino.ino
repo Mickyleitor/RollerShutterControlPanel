@@ -37,14 +37,19 @@
 #include "rscpProtocol/rscpProtocol.h"
 
 int buzzer_running = 1;
-volatile uint8_t _rxBuffer[64];
-volatile uint8_t _rxBufferLength;
+uint8_t _rxBuffer[64];
+uint8_t _rxBufferLength;
 
 enum States {
-  IDLING,
-  SWITCH_RELAY,
-  PROCCESS_I2C,
+  SYSTEMSTATE_LOWPOWER,
+  SYSTEMSTATE_IDLE,
+  SYSTEMSTATE_RUNNING,
+  SYSTEMSTATE_SWITCH_RELAY,
+  SYSTEMSTATE_PROCCESS_I2C,
 } SystemState;
+
+rscpTaskType _rscpTasks[4];
+uint8_t _rscpTaskCount = 0;
 
 void setup(){
   pinMode(PIN_BUZZER,OUTPUT);
@@ -63,28 +68,28 @@ void setup(){
   // tone(PIN_BUZZER,BUZZER_MEDIUM_VOLUME,BUZZER_TIME_MILLIS);
   // delay(200);
   // tone(PIN_BUZZER,BUZZER_LOW_VOLUME,BUZZER_TIME_MILLIS);
-  SystemState = IDLING;
-  Serial.flush();
+  SystemState = SYSTEMSTATE_RUNNING;
 }
 
 void loop(){
+  static uint32_t timeout_ms;
+  static rscpTaskType task;
   switch( SystemState ) {
-    case IDLING : {
+    case SYSTEMSTATE_LOWPOWER : {
       // Pendiente hacer modo bajo consumo
       Serial.println("Entering lower power mode...");
       Serial.flush();
       LowPower.idle(SLEEP_FOREVER, ADC_OFF, TIMER2_OFF, TIMER1_ON, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_ON);
-      delay(10);
+      SystemState = SYSTEMSTATE_RUNNING;
       break;
     }
-    case SWITCH_RELAY : {
+    case SYSTEMSTATE_SWITCH_RELAY : {
       digitalWrite(PIN_RELAY,digitalRead(PIN_BUTTON_USER));
       Serial.println("Boton pulsado");
-      Serial.flush();
-      SystemState = IDLING;
+      SystemState = SYSTEMSTATE_RUNNING;
       break;
     }
-    case PROCCESS_I2C : {
+    case SYSTEMSTATE_PROCCESS_I2C : {
       unsigned long LastTimeSounded = 0;
       while (Wire.available()) {
         char cmd = Wire.read();         // receive byte as a character
@@ -149,29 +154,82 @@ void loop(){
       // las interrupciones del Timer2 usado por tone()
       while( abs(millis() - LastTimeSounded) <= BUZZER_TIME_MILLIS );
       // Volvemos a IDLING pues ya hemos procesado todas las tareas
-      SystemState = IDLING;
+      SystemState = SYSTEMSTATE_RUNNING;
       break;
     }
-    /*
-    case RECEIVE_EVENT : {
-      Serial.println("RECEIVE_EVENT");
-      Serial.flush();
+    case SYSTEMSTATE_RUNNING : {
       int8_t ret = rscpHandle(1000);
       Serial.print("rscpHandle = ");
       Serial.println(ret);
-      SystemState = IDLING;
+      // Check if there is any data to be processed
+      if( peekTaskFromBuffer(&task) < 0 ){
+        // If there is no data to be processed, we go to IDLE state
+        timeout_ms = millis();
+        SystemState = SYSTEMSTATE_IDLE;
+        break;
+      }
+
+      bool removeTask = true;
+
+      // If there is data to be processed, we process it
+      switch(task.command) {
+        case RSCP_CMD_SET_SHUTTER_ACTION : {
+          struct RSCP_Arg_rollershutter * arg = (struct RSCP_Arg_rollershutter *)task.arg;
+          if ( arg->shutter > 2 || arg->action > 3 ) {
+            break;
+          }
+          for(int retries = 0; retries < arg->retries; retries++){
+            sendCommand(arg->shutter,arg->action - 1);
+          }
+          break;
+        }
+        case RSCP_CMD_SET_SWITCH_RELAY : {
+          struct RSCP_Arg_switchrelay * arg = (struct RSCP_Arg_switchrelay *)task.arg;
+          digitalWrite(PIN_RELAY, (arg->status == RSCP_DEF_SWITCH_RELAY_ON) ? HIGH : LOW);
+          break;
+        }
+        case RSCP_CMD_SET_BUZZER_ACTION : {
+          struct RSCP_Arg_buzzer_action * arg = (struct RSCP_Arg_buzzer_action *)task.arg;
+          static bool buzzer_is_running;
+          switch (arg->action){
+            case RSCP_DEF_BUZZER_ACTION_ON: {
+              removeTask = false;
+              if ( buzzer_is_running ) {
+                if ( (timeout_ms - millis()) > arg->duration_ms ) {
+                  noTone(PIN_BUZZER);
+                  buzzer_is_running = false;
+                  removeTask = true;
+                  break;
+                }
+                break;
+              }
+              buzzer_is_running = true;
+              tone(PIN_BUZZER, arg->volume, arg->duration_ms);
+              timeout_ms = millis();
+              break;
+            }
+            case RSCP_DEF_BUZZER_ACTION_OFF: {
+              noTone(PIN_BUZZER);
+              buzzer_is_running = false;
+              break;
+            }
+          }
+          break;
+        }
+      }
+
+      if( removeTask ){
+        popTaskFromBuffer(&task);
+      }
+
       break;
     }
-    case REQUEST_EVENT : {
-      Serial.println("REQUEST_EVENT");
-      Serial.flush();
-      int8_t ret = rscpHandle(1000);
-      Serial.print("rscpHandle = ");
-      Serial.println(ret);
-      SystemState = IDLING;
+    case SYSTEMSTATE_IDLE : {
+      if ( (millis() - timeout_ms) > 10000 ) {
+        SystemState = SYSTEMSTATE_LOWPOWER;
+      }
       break;
     }
-    */
   }
 }
 
@@ -189,7 +247,7 @@ void receiveEvent(int howMany) {
     Serial.print(" ");
   }
   Serial.println();
-  // SystemState = RECEIVE_EVENT;
+  SystemState = SYSTEMSTATE_RUNNING;
 }
 
 // function that executes whenever data is requested by master
@@ -198,7 +256,7 @@ void requestEvent() {
   int8_t ret = rscpHandle(1000);
   Serial.print("rscpHandle = ");
   Serial.println(ret);
-  // SystemState = REQUEST_EVENT;
+  // SystemState = SYSTEMSTATE_RUNNING;
 }
 
 void isrButton() {
@@ -211,7 +269,7 @@ void isrButton() {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  SystemState = SWITCH_RELAY;
+  SystemState = SYSTEMSTATE_SWITCH_RELAY;
 
   // Stop Timer 1 (clear prescaler) and reattach the button interrupt on falling edge
   TCCR1B = 0;

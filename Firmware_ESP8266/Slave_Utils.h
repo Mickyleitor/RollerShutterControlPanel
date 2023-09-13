@@ -41,13 +41,13 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
         (reply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
         errorHandler(mylcd, FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
     }
-
-    return;
-/*
-  for (int i = 0; i < 3; i++) {
-    sendCommandToSlave(COMMAND_BUZZER_HIGH_VOLUME);
-    delay(200);
-    yield();
-  }
-  */
+    struct RSCP_Arg_buzzer_action buzzerAction;
+    buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
+    buzzerAction.volume = 5000;
+    buzzerAction.duration_ms = 500;
+    for (int i = 0; i < 3; i++) {
+      rscpSendBuzzerAction(&buzzerAction, 1000);
+      delay(1000);
+      yield();
+    }
 }

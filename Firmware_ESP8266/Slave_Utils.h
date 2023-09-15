@@ -25,6 +25,7 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     struct RSCP_Reply_cpuquery reply;
     int8_t err = rscpRequestCPUQuery(&reply, 1000);
     Serial.println("rscpRequestCPUQuery: " + String(err));
+
     if ( err != RSCP_ERR_OK) {
         errorHandler(mylcd, FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
     }
@@ -43,10 +44,25 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     }
     struct RSCP_Arg_buzzer_action buzzerAction;
     buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
-    buzzerAction.volume = 5000;
-    buzzerAction.duration_ms = 500;
+    buzzerAction.volume = 500;
+    buzzerAction.duration_ms = 100;
     for (int i = 0; i < 3; i++) {
-      rscpSendBuzzerAction(&buzzerAction, 1000);
+      err = rscpSendBuzzerAction(&buzzerAction, 1000);
+      Serial.println("rscpSendBuzzerAction: " + String(err));
+      delay(200);
+      yield();
+    }
+
+    for (int i = 0 ; i < 4 ; i++) {
+      struct RSCP_Reply_switchrelay switchRelay;
+      err = rscpRequestSwitchRelay(&switchRelay, 1000);
+      Serial.println("rscpRequestSwitchRelay: " + String(err));
+      Serial.println("switchRelay.status: " + String(switchRelay.status));
+
+      struct RSCP_Arg_switchrelay switchRelayArg;
+      switchRelayArg.status = (switchRelay.status == RSCP_DEF_SWITCH_RELAY_ON) ? RSCP_DEF_SWITCH_RELAY_OFF : RSCP_DEF_SWITCH_RELAY_ON;
+      err = rscpSendSwitchRelay(&switchRelayArg, 1000);
+      Serial.println("rscpSendSwitchRelay: " + String(err));
       delay(1000);
       yield();
     }

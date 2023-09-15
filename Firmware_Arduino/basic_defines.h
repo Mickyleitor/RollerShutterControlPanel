@@ -1,34 +1,69 @@
+#pragma once
+
+/**
+ * @file basic_defines.h
+ * @brief Contains various macros and definitions used in the project.
+ */
+
+// General macros
+
+/** @brief Timeout value for entering idle state in milliseconds. */
+#define IDLE_TIMEOUT_MS                                                  (10000)
+
+/** @brief Timeout value for I2C communication in milliseconds. */
+#define I2C_TIMEOUT_MS                                                    (1000)
+
 // Macros for PIN and PORTs
-#define PIN_BUTTON_USER 2
-#define DEBOUNCE_TIME_MILLIS 100
+
+/** @brief Pin number for the user button. */
+#define PIN_BUTTON_USER                                                      (2)
+
+/** @brief Debounce time for button presses in milliseconds. */
+#define DEBOUNCE_TIME_MILLIS                                               (100)
 
 // Buzzer
-#define PIN_BUZZER 5
+
+/** @brief Pin number for the buzzer. */
+#define PIN_BUZZER                                                           (5)
 
 // Relay
-#define PIN_RELAY 7
 
-#define PIN_I2C_SCL A5
-#define PIN_I2C_SDA A4
+/** @brief Pin number for the relay. */
+#define PIN_RELAY                                                            (7)
+
+/** @brief Pin number for I2C SCL. */
+#define PIN_I2C_SCL                                                         (A5)
+
+/** @brief Pin number for I2C SDA. */
+#define PIN_I2C_SDA                                                         (A4)
 
 // Macros for buzzer volume selections
-#define BUZZER_LOW_VOLUME 17000
-#define BUZZER_MEDIUM_VOLUME 300
-#define BUZZER_HIGH_VOLUME 5000
-#define BUZZER_TIME_MILLIS 100
+
+/** @brief Low volume setting for the buzzer. */
+#define BUZZER_LOW_VOLUME                                                (17000)
+
+/** @brief Medium volume setting for the buzzer. */
+#define BUZZER_MEDIUM_VOLUME                                               (300)
+
+/** @brief High volume setting for the buzzer. */
+#define BUZZER_HIGH_VOLUME                                                (5000)
 
 // Macros for LCD handing
-#define I2C_SLAVE_ADDRESS 8
 
-// Flag mask macro for I2C message
-#define FLAG_BIT_BUZZER 0x80
-#define COMMAND_BUZZER_LOW_VOLUME (FLAG_BIT_BUZZER | 0x0)
-#define COMMAND_BUZZER_MEDIUM_VOLUME (FLAG_BIT_BUZZER | 0x20)
-#define COMMAND_BUZZER_HIGH_VOLUME (FLAG_BIT_BUZZER | 0x40)
-#define COMMAND_BUZZER_CHANGE (FLAG_BIT_BUZZER | 0x60)
-#define COMMAND_LIGHT_ON 0x20
-#define COMMAND_LIGHT_OFF 0x40
-#define COMMAND_LIGHT_CHANGE 0x60
+/** @brief I2C slave address for LCD communication. */
+#define I2C_SLAVE_ADDRESS                                                    (8)
 
-#define FLAG_MASK_BUZZER ( FLAG_BIT_BUZZER | COMMAND_BUZZER_LOW_VOLUME |COMMAND_BUZZER_MEDIUM_VOLUME | COMMAND_BUZZER_HIGH_VOLUME)
-#define FLAG_MASK_LIGHT ( COMMAND_LIGHT_ON | COMMAND_LIGHT_OFF | COMMAND_LIGHT_CHANGE )
+/**
+ * @brief Structure to define an RSCP task.
+ */
+typedef struct rscpTaskDef {
+   uint8_t command;      /**< RSCP command. */
+   uint8_t arg[64];      /**< Argument data. */
+   uint8_t argLength;    /**< Length of the argument data. */
+} rscpTaskType;
+
+/** @brief Array to store RSCP tasks. */
+rscpTaskType _rscpTasks[4];
+
+/** @brief Number of RSCP tasks in the array. */
+uint8_t _rscpTaskCount = 0;

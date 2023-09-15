@@ -1,43 +1,25 @@
+/**
+ * @file TaskBuffer.h
+ * @brief Functions for managing a task buffer.
+ */
+
 #pragma once
 
 #include <stdint.h>
+#include "basic_defines.h"
 
-extern uint8_t _rxBuffer[64];
-extern uint8_t _rxBufferLength;
-
-typedef struct rscpTaskDef {
-   uint8_t command;
-   uint8_t arg[64];
-   uint8_t argLength;
-} rscpTaskType;
-
-extern rscpTaskType _rscpTasks[4];
+extern rscpTaskType _rscpTasks[];
 extern uint8_t _rscpTaskCount;
 
-int8_t pushByteToRxBuffer(uint8_t data)
-{
-    if(_rxBufferLength >= sizeof(_rxBuffer)){
-        return -1;
-    }
-
-    _rxBuffer[_rxBufferLength++] = data;
-    return 0;
-}
-
-int8_t popByteFromRxBuffer(uint8_t *data)
-{
-    if(_rxBufferLength == 0){
-        return -1;
-    }
-
-    *data = _rxBuffer[0];
-    for(uint8_t i = 0; i < _rxBufferLength; i++){
-        _rxBuffer[i] = _rxBuffer[i + 1];
-    }
-    _rxBufferLength--;
-    return 0;
-}
-
+/**
+ * @brief Pushes a task onto the task buffer.
+ *
+ * @param command The command for the task.
+ * @param arg Pointer to the argument data.
+ * @param argLength Length of the argument data.
+ *
+ * @return 0 on success, -1 if the task buffer is full.
+ */
 int8_t pushTaskToBuffer(uint8_t command, uint8_t * arg, uint8_t argLength)
 {
     if(_rscpTaskCount >= sizeof(_rscpTasks)){
@@ -47,12 +29,19 @@ int8_t pushTaskToBuffer(uint8_t command, uint8_t * arg, uint8_t argLength)
     _rscpTasks[_rscpTaskCount].command = command;
     _rscpTasks[_rscpTaskCount].argLength = argLength;
     for(uint8_t i = 0; i < argLength; i++){
-        _rscpTasks[_rscpTaskCount].arg[i] = arg[i];
+        _rscpTasks[_rscpTaskCount].arg[i] = (uint8_t)arg[i];
     }
     _rscpTaskCount++;
     return 0;
 }
 
+/**
+ * @brief Pops a task from the task buffer.
+ *
+ * @param task Pointer to store the popped task.
+ *
+ * @return 0 on success, -1 if the task buffer is empty.
+ */
 int8_t popTaskFromBuffer(rscpTaskType * task)
 {
     if(_rscpTaskCount == 0){
@@ -75,6 +64,13 @@ int8_t popTaskFromBuffer(rscpTaskType * task)
     return 0;
 }
 
+/**
+ * @brief Peeks at the first task in the task buffer without removing it.
+ *
+ * @param task Pointer to store the peeked task.
+ *
+ * @return 0 on success, -1 if the task buffer is empty.
+ */
 int8_t peekTaskFromBuffer(rscpTaskType * task)
 {
     if(_rscpTaskCount == 0){

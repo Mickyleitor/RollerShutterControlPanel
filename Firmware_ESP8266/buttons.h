@@ -12,6 +12,7 @@
 //---[ Includes ]---------------------------------------------------------------
 
 #include <Ticker.h>
+#include "basic_defines.h"
 
 //---[ Macros ]-----------------------------------------------------------------
 
@@ -24,14 +25,6 @@
 
 //---[ Constants ]--------------------------------------------------------------
 
-enum ButtonInput {
-  NONE,
-  LEFT,
-  UP,
-  DOWN,
-  RIGHT
-};
-
 //---[ Types ]------------------------------------------------------------------
 
 extern Ticker TimeOutTask;
@@ -40,22 +33,22 @@ extern void goIdleState(void);
 
 //---[ Public Variables ]-------------------------------------------------------
 
-ButtonInput _currentButton = NONE;
+enum ButtonState _currentButton = BUTTON_STATE_NONE;
 
 //---[ Public Function Prototypes ]---------------------------------------------
 
 //---[ Public static inline functions ]-----------------------------------------
 
 static inline void ButtonsISRFunction(void) {
-  _currentButton = NONE;
+  _currentButton = BUTTON_STATE_NONE;
   if (digitalRead(BUTTON_LEFT_PIN_NR) == LOW) {
-    _currentButton = LEFT;
+    _currentButton = BUTTON_STATE_LEFT;
   } else if (digitalRead(BUTTON_DOWN_PIN_NR) == LOW) {
-    _currentButton = DOWN;
+    _currentButton = BUTTON_STATE_DOWN;
   } else if (digitalRead(BUTTON_UP_PIN_NR) == LOW) {
-    _currentButton = UP;
+    _currentButton = BUTTON_STATE_UP;
   } else if (digitalRead(BUTTON_RIGHT_PIN_NR) == LOW) {
-    _currentButton = RIGHT;
+    _currentButton = BUTTON_STATE_RIGHT;
   }
   ButtonsISRTask.detach();
 }
@@ -80,27 +73,27 @@ static inline int buttonPressed(void) {
     while ( Serial.available() ) {
         char c = (char)Serial.read();
         if ( c == '4' or c == 'g'){
-            _currentButton = LEFT;
+            _currentButton = BUTTON_STATE_LEFT;
             break;
         }
         if ( c == '2' or c == 'h'){
-            _currentButton = DOWN;
+            _currentButton = BUTTON_STATE_DOWN;
             break;
         }
         if ( c == '8' or c == 'j'){
-            _currentButton = UP;
+            _currentButton = BUTTON_STATE_UP;
             break;
         }
         if ( c == '6' or c == 'k'){
-            _currentButton = RIGHT;
+            _currentButton = BUTTON_STATE_RIGHT;
             break;
         }
     }
-    if(_currentButton != NONE){
+    if(_currentButton != BUTTON_STATE_NONE){
         TimeOutTask.detach();
         TimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, goIdleState);
     }
     int buttonPress = _currentButton;
-    _currentButton = NONE;
+    _currentButton = BUTTON_STATE_NONE;
     return buttonPress;
 }

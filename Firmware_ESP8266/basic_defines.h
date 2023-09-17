@@ -1,3 +1,4 @@
+#pragma once
 
 #define SLAVE_I2C_ADDRESS                                                 (0x08)
 #define LCD_I2C_ADDRESS                                                   (0x3F)
@@ -46,3 +47,42 @@
     "&units=metric&lang=es HTTP/1.0"
 
 #define EEPROM_SIZE                                 (sizeof(struct EEPROM_Data))
+
+enum SystemState {
+    SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED,
+    SYSTEM_STATE_WIFI_STATION_CONNECTED,
+    SYSTEM_STATE_ENTERING_IDLE,
+    SYSTEM_STATE_IDLING,
+    SYSTEM_STATE_WAKEUP,
+    SYSTEM_STATE_SHUTTER_MANAGER,
+    SYSTEM_STATE_SLEEP_MANAGER,
+
+    // This below are menu states (in the future they will be moved to a new file)
+    SYSTEM_STATE_MENU_JOB_MODE,
+    SYSTEM_STATE_MENU_SLEEP_MODE,
+    SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE,
+    SYSTEM_STATE_MENU_DEACTIVATE_SLEEP_MODE,
+    SYSTEM_STATE_MENU_ACTIVATE_ALL_SLEEP_MODE,
+    SYSTEM_STATE_MENU_DEACTIVATE_ALL_SLEEP_MODE,
+};
+
+enum seleccionMenu {
+    SELECCION_MENU_PERSIANA_IZQUIERDA,
+    SELECCION_MENU_PERSIANA_CENTRAL,
+    SELECCION_MENU_PERSIANA_DERECHA,
+    SELECCION_MENU_OPTION_JOB_MODE,
+    SELECCION_MENU_OPTION_SLEEP_MODE,
+};
+
+enum ButtonState {
+    BUTTON_STATE_NONE,
+    BUTTON_STATE_LEFT,
+    BUTTON_STATE_UP,
+    BUTTON_STATE_DOWN,
+    BUTTON_STATE_RIGHT
+};
+
+struct ShutterParameters {
+  int status;
+  int LastMoved;
+};

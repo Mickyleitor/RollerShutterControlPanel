@@ -34,6 +34,7 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     buzzerAction.duration_ms = 100;
     for (int i = 0; i < 3; i++) {
       int8_t err = rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), RSCP_TIMEOUT_MS);
+      buzzerAction.volume += 500;
       Serial.println("rscpSendBuzzerAction: " + String(err));
       delay(200);
       yield();

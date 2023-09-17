@@ -3,10 +3,9 @@
 
 #include <stdint.h>
 #include <Wire.h>
+#include "../basic_defines.h"
 
 #include "../rscpProtocol/rscpProtocol.h"
-
-#define SLAVE_I2C_ADDRESS                                                   (0x08)
 
 static inline int8_t rscpGetRxByteCallback(uint8_t * data)
 {

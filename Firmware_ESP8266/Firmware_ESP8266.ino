@@ -20,6 +20,8 @@
 #include "EEPROM_Utils.h"
 #include "Slave_Utils.h"
 
+#include "rscpProtocol/rscpProtocol.h"
+
 int initLCDFunction(int32_t timeout_ms);
 
 enum State {
@@ -46,26 +48,15 @@ enum MenuSeleccion {
   OPTION_SLEEP_MODE = 4
 } seleccionMenu  = PERSIANA_CENTRAL;
 
-struct WeatherData {
-  double SunAzimuth = 0;
-  double SunElevation = 0;
-  time_t sunriseSecondsUTC = 0;
-  time_t sunsetSecondsUTC = 0;
-  unsigned long timezoneshift = MYTZ;
-  double Cloudiness = 0;
-  double TemperatureDegree = 0;
-} MyWeather;
-
 struct ShutterParameters {
   int status = 0;
   int LastMoved = 0;
 } ShutterData [3];
 
-struct EEPROM_Data _storedData = {0xFF};
 int ScheduledDataResetValue = 0;
 
 Ticker TimeOutTask, SystemFunctionTask;
-LiquidCrystal_PCF8574 lcd(ADDRESS_I2C_LCD);
+LiquidCrystal_PCF8574 lcd(LCD_I2C_ADDRESS);
 
 void goIdleState(void) {
   Serial.println("Buttons Time Out");
@@ -73,7 +64,7 @@ void goIdleState(void) {
 };
 
 void setup() {
-  Serial.begin(74880);
+  Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
   EEPROM_Read(&_storedData); // Comment this line to reset the EEPROM
@@ -330,7 +321,11 @@ void loop() {
     case SLEEP_MANAGER : {
         Serial.println("Modo dormir activado");
         EEPROM_Write(&_storedData);
-        sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
+        struct RSCP_Arg_buzzer_action buzzerAction;
+        buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
+        buzzerAction.volume = 300;
+        buzzerAction.duration_ms = 500;
+        rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
         delay(200);
         bajarPersiana(PERSIANA_DERECHA);
         delay(200);
@@ -405,20 +400,32 @@ void encenderBrilloPantalla() {
 void subirPersiana(int persiana) {
   ShutterData[persiana].status = 1;
   ShutterData[persiana].LastMoved = millis();
-  sendRollerCommand(persiana, 1);
+  struct RSCP_Arg_rollershutter arg;
+  arg.action = RSCP_DEF_SHUTTER_ACTION_UP;
+  arg.shutter = persiana;
+  arg.retries = 3;
+  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
   SystemFunctionTask.detach();
   SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
 };
 void bajarPersiana(int persiana) {
   ShutterData[persiana].status = 2;
   ShutterData[persiana].LastMoved = millis();
-  sendRollerCommand(persiana, 2);
+  struct RSCP_Arg_rollershutter arg;
+  arg.action = RSCP_DEF_SHUTTER_ACTION_DOWN;
+  arg.shutter = persiana;
+  arg.retries = 3;
+  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
   SystemFunctionTask.detach();
   SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
 };
 void PararPersiana(int persiana) {
   ShutterData[persiana].status = 0;
-  sendRollerCommand(persiana, 0);
+  struct RSCP_Arg_rollershutter arg;
+  arg.action = RSCP_DEF_SHUTTER_ACTION_STOP;
+  arg.shutter = persiana;
+  arg.retries = 3;
+  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
 };
 
 void SystemFunctionManager(){
@@ -478,7 +485,11 @@ void resetScheduledData(struct tm * timenow){
 
 void activarModoTrabajo() {
   Serial.println("Modo trabajo activado");
-  sendCommandToSlave(COMMAND_BUZZER_MEDIUM_VOLUME);
+  struct RSCP_Arg_buzzer_action buzzerAction;
+  buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
+  buzzerAction.volume = 300;
+  buzzerAction.duration_ms = 500;
+  rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
   getWeatherDataFunction();
   time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
   // According to Requirements the current time should be between sunrise and sunset time.
@@ -491,7 +502,9 @@ void activarModoTrabajo() {
         delay(500);
         bajarPersiana(PERSIANA_CENTRAL);
         delay(500);
-        sendCommandToSlave(COMMAND_LIGHT_ON);
+        struct RSCP_Arg_switchrelay switchRelayArg;
+        switchRelayArg.status = RSCP_DEF_SWITCH_RELAY_ON;
+        rscpSendAction(RSCP_CMD_SET_SWITCH_RELAY, (uint8_t *)&switchRelayArg, sizeof(switchRelayArg), 1000);
       // Center shutter only lower when 100 < SunAzimuth < 230
       }else if( 100 < MyWeather.SunAzimuth  && MyWeather.SunAzimuth < 230){
         bajarPersiana(PERSIANA_CENTRAL);
@@ -499,93 +512,6 @@ void activarModoTrabajo() {
     }
   }
 };
-
-int getWeatherDataFunction(){
-
-  double NewAzimuth = -9999;
-  double NewElevation = -9999;
-  SolarAzEl(time(NULL), _storedData._openweathermap_lat, _storedData._openweathermap_lon, 1, &NewAzimuth, &NewElevation);
-  if(NewAzimuth > -9999 && NewElevation > -9999){
-    MyWeather.SunAzimuth = NewAzimuth;
-    MyWeather.SunElevation = NewElevation;
-  }
-  Serial.print("SunAzimuth :");
-  Serial.print(MyWeather.SunAzimuth);
-  Serial.print(" SunElevation : ");
-  Serial.println(MyWeather.SunElevation);
-  
-  WiFiClient client;
-  // Connect to HTTP server
-  client.setTimeout(10000);
-  if (!client.connect("api.openweathermap.org", 80)) {
-    Serial.println("Connection failed");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-
-  // Send HTTP request
-  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(_storedData._openweathermap_appid, _storedData._openweathermap_lat, _storedData._openweathermap_lon);
-  client.println(HTTPrequest);
-  client.println("Host: api.openweathermap.org");
-  client.println("Connection: close");
-  if (client.println() == 0) {
-    Serial.println("Failed to send request");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  // Skip HTTP headers
-  if (!client.find("\r\n\r\n")) {
-    Serial.println("Invalid response");
-    // Disconnect
-    client.stop();
-    return -1;
-  }
-  if(client.find("\"temp\":")){
-    double NewTemp = client.readStringUntil(',').toDouble();
-    if(NewTemp > 273) NewTemp -= 273.15;
-    Serial.print("Temperature: ");
-    Serial.println(NewTemp);
-    MyWeather.TemperatureDegree = NewTemp;
-  }else{
-    Serial.println("No Temperature JSON object found");
-  }
-  if(client.find("\"clouds\":{\"all\":")){
-    double NewCloudiness = client.readStringUntil('}').toDouble();
-    Serial.print("Cloudiness: ");
-    Serial.print(NewCloudiness);
-    Serial.println("%");
-    MyWeather.Cloudiness = NewCloudiness;
-  }else{
-    Serial.println("No Cloudiness JSON object found");
-  }
-  if(client.find("\"sunrise\":")){
-    MyWeather.sunriseSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
-    Serial.print("Current Sunrise UTC time: ");
-    Serial.print(ctime(&MyWeather.sunriseSecondsUTC));
-  }else{
-    Serial.println("No sunrise JSON object found");
-  }
-  if(client.find("\"sunset\":")){
-    MyWeather.sunsetSecondsUTC = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10)  % (60 * 60 * 24);
-    Serial.print("Current Sunset UTC time: ");
-    Serial.print(ctime(&MyWeather.sunsetSecondsUTC));    
-  }else{
-    Serial.println("No sunsetTime JSON object found");
-  }
-  if(client.find("\"timezone\":")){
-    unsigned long timezoneshift = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
-    Serial.print("Timezone shift: ");
-    Serial.println(timezoneshift);
-    MyWeather.timezoneshift = timezoneshift;
-  }else{
-    Serial.println("No timezoneshift JSON object found");
-  } 
-  // Disconnect
-  client.stop();
-  return 0;
-}
 
 int procesoConfirmarFecha(int & sday, int & smonth){
   bool ConfirmationState = false;
@@ -892,7 +818,7 @@ int initLCDFunction(int32_t timeout_ms) {
   // Search LCD into I2C line:
   while( status != 0 && timeout_ms > 0) {
     Wire.begin(2, 14);
-    Wire.beginTransmission(ADDRESS_I2C_LCD);
+    Wire.beginTransmission(LCD_I2C_ADDRESS);
     status = Wire.endTransmission();
     if (status != 0) {
       // wait 2 seconds for reconnection:

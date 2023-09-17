@@ -156,7 +156,7 @@ void receiveEvent(int howMany) {
 void requestEvent() {
   int8_t err;
   if ((err = rscpHandle(I2C_TIMEOUT_MS)) < 0) {
-    rscpSendAnswer(RSCP_CMD_FAIL, err);
+    Serial.println("[ERROR] rscpHandle: " + String(err));
   }
   currentSystemState = RUNNING;
 }

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <EEPROM.h>
-
-#define EEPROM_SIZE                                 (sizeof(struct EEPROM_Data))
+#include "basic_defines.h"
 
 struct __attribute__ ((__packed__)) EEPROM_Data {
     char ScheduledData[12][31];
@@ -14,7 +13,7 @@ struct __attribute__ ((__packed__)) EEPROM_Data {
     double _openweathermap_lat;
     double _openweathermap_lon;
     uint16_t crc16;
-};
+} _storedData;
 
 uint16_t CRC16(const uint8_t * data, uint16_t size){
     uint16_t crc = 0xFFFF;

@@ -7,39 +7,25 @@
 
 #include "rscpProtocol/rscpProtocol.h"
 
-#define SLAVE_I2C_ADDRESS                                                   (0x08)
-
-void sendCommandToSlave(char type) {
-  // Wire.beginTransmission(SLAVE_I2C_ADDRESS); // transmit to device #8
-  // Wire.write(1);        // This should wake up the device
-  // Wire.write(type);        // sends five bytes
-  // Wire.endTransmission();    // stop transmitting
-}
-
-void sendRollerCommand(int persiana, int comando) {
-  char type = 1 << (persiana + 2) | (0x3  & comando);
-  sendCommandToSlave(type);
-}
-
 void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
-    struct RSCP_Reply_cpuquery reply;
-    int8_t err = rscpRequestCPUQuery(&reply, 1000);
+    struct RSCP_Reply_cpuquery cpureply;
+    int8_t err = rscpRequestData(RSCP_CMD_CPU_QUERY, (uint8_t *)&cpureply, sizeof(cpureply), RSCP_TIMEOUT_MS);
     Serial.println("rscpRequestCPUQuery: " + String(err));
 
     if ( err != RSCP_ERR_OK) {
         errorHandler(mylcd, FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
     }
 
-    Serial.println("reply.flags: " + String(reply.flags));
-    Serial.println("reply.crcType: " + String(reply.crcType));
-    Serial.println("reply.protocolversion: " + String(reply.protocolversion));
-    Serial.println("reply.cpuType: " + String(reply.cpuType));
-    Serial.println("reply.swversion: " + String(reply.swversion));
-    Serial.println("reply.packetMaxLen: " + String(reply.packetMaxLen));
+    Serial.println("reply.flags: " + String(cpureply.flags));
+    Serial.println("reply.crcType: " + String(cpureply.crcType));
+    Serial.println("reply.protocolversion: " + String(cpureply.protocolversion));
+    Serial.println("reply.cpuType: " + String(cpureply.cpuType));
+    Serial.println("reply.swversion: " + String(cpureply.swversion));
+    Serial.println("reply.packetMaxLen: " + String(cpureply.packetMaxLen));
 
     // Just check crcType and protocolversion
-    if ((reply.crcType != RSCP_DEF_CRC_TYPE_MODBUS16) || 
-        (reply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
+    if ((cpureply.crcType != RSCP_DEF_CRC_TYPE_MODBUS16) || 
+        (cpureply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
         errorHandler(mylcd, FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
     }
     struct RSCP_Arg_buzzer_action buzzerAction;
@@ -47,21 +33,21 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     buzzerAction.volume = 500;
     buzzerAction.duration_ms = 100;
     for (int i = 0; i < 3; i++) {
-      err = rscpSendBuzzerAction(&buzzerAction, 1000);
+      int8_t err = rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), RSCP_TIMEOUT_MS);
       Serial.println("rscpSendBuzzerAction: " + String(err));
       delay(200);
       yield();
     }
 
     for (int i = 0 ; i < 4 ; i++) {
-      struct RSCP_Reply_switchrelay switchRelay;
-      err = rscpRequestSwitchRelay(&switchRelay, 1000);
+      struct RSCP_Reply_switchrelay switchRelayReply;
+      err = rscpRequestData(RSCP_CMD_GET_SWITCH_RELAY, (uint8_t *)&switchRelayReply, sizeof(switchRelayReply), RSCP_TIMEOUT_MS);
       Serial.println("rscpRequestSwitchRelay: " + String(err));
-      Serial.println("switchRelay.status: " + String(switchRelay.status));
+      Serial.println("switchRelay.status: " + String(switchRelayReply.status));
 
       struct RSCP_Arg_switchrelay switchRelayArg;
-      switchRelayArg.status = (switchRelay.status == RSCP_DEF_SWITCH_RELAY_ON) ? RSCP_DEF_SWITCH_RELAY_OFF : RSCP_DEF_SWITCH_RELAY_ON;
-      err = rscpSendSwitchRelay(&switchRelayArg, 1000);
+      switchRelayArg.status = (switchRelayReply.status == RSCP_DEF_SWITCH_RELAY_ON) ? RSCP_DEF_SWITCH_RELAY_OFF : RSCP_DEF_SWITCH_RELAY_ON;
+      err = rscpSendAction(RSCP_CMD_SET_SWITCH_RELAY, (uint8_t *)&switchRelayArg, sizeof(switchRelayArg), RSCP_TIMEOUT_MS);
       Serial.println("rscpSendSwitchRelay: " + String(err));
       delay(1000);
       yield();

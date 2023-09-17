@@ -79,7 +79,7 @@ static inline int8_t rscpSetShutterActionCallback(RSCP_Arg_rollershutter *arg) {
  * @brief Callback function to set the shutter position
  *
  * @param arg Pointer to the shutter position argument.
- * @return RSCP error code (RSCP_ERR_NOT_SUPPORTED).
+ * @return RSCP error code.
  */
 static inline int8_t rscpSetShutterPositionCallback(RSCP_Arg_rollershutterposition *arg) {
     (void)arg;
@@ -116,6 +116,15 @@ static inline int8_t rscpSetSwitchRelayCallback(RSCP_Arg_switchrelay *arg) {
  */
 static inline void rscpGetSwitchRelayCallback(RSCP_Reply_switchrelay *reply) {
     reply->status = (digitalRead(PIN_RELAY) == HIGH) ? RSCP_DEF_SWITCH_RELAY_ON : RSCP_DEF_SWITCH_RELAY_OFF;
+}
+
+/**
+ * @brief Callback function to get the switch relay status.
+ *
+ * @param reply Pointer to the switch relay reply.
+ */
+static inline void rscpGetSwitchButtonCallback(RSCP_Reply_switchbutton *reply) {
+    reply->status = (digitalRead(PIN_BUTTON_USER) == HIGH) ? RSCP_DEF_SWITCH_BUTTON_ON : RSCP_DEF_SWITCH_BUTTON_OFF;
 }
 
 /**

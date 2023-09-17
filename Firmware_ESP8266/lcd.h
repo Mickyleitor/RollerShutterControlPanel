@@ -10,14 +10,48 @@ extern enum SystemState _SystemState;
 extern enum seleccionMenu _seleccionMenu;
 extern struct ShutterParameters ShutterData [];
 
-LiquidCrystal_PCF8574 lcd(LCD_I2C_ADDRESS);
+LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
+
+#define LCD_SPECIAL_CHAR_BASE                                         (char)(10)
+#define LCD_SPECIAL_CHAR_LEFT_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 0)
+#define LCD_SPECIAL_CHAR_UP_ARROW              (char)(LCD_SPECIAL_CHAR_BASE + 1)
+#define LCD_SPECIAL_CHAR_DOWN_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 2)
+#define LCD_SPECIAL_CHAR_RIGHT_ARROW           (char)(LCD_SPECIAL_CHAR_BASE + 3)
+#define LCD_SPECIAL_CHAR_STOP_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 4)
+#define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
 void apagarBrilloPantalla()  {
-  lcd.setBacklight(0);
+  _lcd.setBacklight(0);
 }
 
 void encenderBrilloPantalla() {
-  lcd.setBacklight(255);
+  _lcd.setBacklight(255);
+}
+
+void sendLcdBuffer(String line1, String line2) {
+  _lcd.home();
+  _lcd.clear();
+  for(int i = 0 ; i < 16 ; i++) {
+    _lcd.setCursor(i, 0);
+    if( (line1[i] >= LCD_SPECIAL_CHAR_BASE) && (line1[i] < LCD_SPECIAL_CHAR_BASE + 6)) {
+        _lcd.write(line1[i] - LCD_SPECIAL_CHAR_BASE);
+    }else{
+        _lcd.print(line1[i]);
+    }
+    _lcd.setCursor(i, 1);
+    if( (line2[i] >= LCD_SPECIAL_CHAR_BASE) && (line2[i] < LCD_SPECIAL_CHAR_BASE + 6)) {
+        _lcd.write(line2[i] - LCD_SPECIAL_CHAR_BASE);
+    }else{
+        _lcd.print(line2[i]);
+    }
+  }
+}
+
+bool sendLcdBuffer(String buffer) {
+  String line1 = buffer.substring(0, 16);
+  String line2 = buffer.substring(16, 32);
+  sendLcdBuffer(line1, line2);
+  return true;
 }
 
 String makeLcdStringDate( int sday, int smonth) {
@@ -103,8 +137,8 @@ int initLCDFunction(int32_t timeout_ms) {
     return -1;
   }
 
-  lcd.begin(16, 2);
-  lcd.setBacklight(255);
+  _lcd.begin(16, 2);
+  encenderBrilloPantalla();
   uint8_t customArrayChar[6][8] =
   {
     /* Flecha izquierda */  {0x00, 0x07, 0x0E, 0x1C, 0x1C, 0x0E, 0x07, 0x00},
@@ -115,10 +149,8 @@ int initLCDFunction(int32_t timeout_ms) {
     /* Flecha arribacan */  {0x04, 0x0E, 0x1F, 0x15, 0x04, 0x04, 0x07, 0x00}
   };
   for( int i = 0 ; i < 6 ; i ++ ){
-    lcd.createChar(i, customArrayChar[i]);
+    _lcd.createChar(i, customArrayChar[i]);
   }
-  lcd.home(); lcd.clear();
-  lcd.print("...INICIANDO...");
   return 0;
 }
 
@@ -127,130 +159,129 @@ void mostrarHoraPantalla() {
   struct tm * timeinfo;
   now = time(&now) + MyWeather.timezoneshift;
   timeinfo = localtime(&now);
-  lcd.clear();
-  lcd.setCursor(3, 0);
-  if ((timeinfo->tm_hour) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_hour), DEC);
+  String buffer = "   ";
+  
+  if ((timeinfo->tm_hour) < 10){
+    buffer += String('0');
+  }
+  buffer += String(timeinfo->tm_hour);
+  buffer += String(':');
 
-  lcd.print(':');
-  if ((timeinfo->tm_min) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_min), DEC);
-/*
-  lcd.print(':');
-  if ((timeinfo->tm_sec) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_sec), DEC);
-*/
-  lcd.setCursor(12, 0);
-  if (((int)MyWeather.TemperatureDegree) < 10) lcd.print('0');
-  lcd.print(((int)MyWeather.TemperatureDegree), DEC);
-  lcd.print((char)223);
-  lcd.print('C');
+  if ((timeinfo->tm_min) < 10){
+    buffer += String('0');
+  }
+  buffer += String(timeinfo->tm_min);
+  buffer += String("    ");
 
-  lcd.setCursor(0, 1);
-  if ((timeinfo->tm_mday) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_mday), DEC);
+  if (((int)MyWeather.TemperatureDegree) < 10){
+    buffer += String('0');
+  }
+  buffer += String((int)MyWeather.TemperatureDegree);
+  buffer += (char)223;
+  buffer += String("C");
 
-  lcd.print('/');
-  if ((timeinfo->tm_mon+1) < 10) lcd.print('0');
-  lcd.print((timeinfo->tm_mon+1), DEC);
+  if ((timeinfo->tm_mday) < 10){
+    buffer += String('0');
+  }
+  buffer += String(timeinfo->tm_mday);
+  buffer += String("/");
 
-  lcd.print('/');
-  lcd.print((timeinfo->tm_year) + 1900, DEC);
-  lcd.print(' ');
+  if ((timeinfo->tm_mon+1) < 10){
+    buffer += String('0');
+  }
+  buffer += String(timeinfo->tm_mon+1);
+  buffer += String("/");
 
-  lcd.setCursor(12, 1);
+  buffer += String((timeinfo->tm_year) + 1900);
+  buffer += String("  ");
+
   int dayofweek = (timeinfo->tm_wday);
   switch (dayofweek) {
     case 0:
-      lcd.print("Dom.");
+      buffer += String("Dom.");
       break;
     case 1:
-      lcd.print("Lun.");
+      buffer += String("Lun.");
       break;
     case 2:
-      lcd.print("Mar.");
+      buffer += String("Mar.");
       break;
     case 3:
-      lcd.print("Mie.");
+      buffer += String("Mie.");
       break;
     case 4:
-      lcd.print("Jue.");
+      buffer += String("Jue.");
       break;
     case 5:
-      lcd.print("Vie.");
+      buffer += String("Vie.");
       break;
     case 6:
-      lcd.print("Sab.");
+      buffer += String("Sab.");
       break;
     default:
-      lcd.print("Err.");
+      buffer += String("Err.");
       break;
   }
-  // Serial.println("Hora pantalla actualizada");
+  sendLcdBuffer(buffer);
 }
 
 void actualizarMenuPantalla() {
-  lcd.clear(); lcd.home();
+  String buffer = "";
   switch (_SystemState) {
     case SYSTEM_STATE_WAKEUP :
       // fall through
     case SYSTEM_STATE_SHUTTER_MANAGER : {
         if (_seleccionMenu < 3) {
           String namePersiana [] = {" PERSIANA IZQDA ", "PERSIANA CENTRAL", "PERSIANA DERECHA", "  ERROR MENU  "};
-          lcd.print(namePersiana[_seleccionMenu]);
-          lcd.setCursor(0, 1);
-          lcd.print("<");
-          lcd.setCursor(5, 1);
+          buffer += namePersiana[_seleccionMenu];
+          buffer += String("<    ");
           
-          if (ShutterData[_seleccionMenu].status == 1) lcd.write(4);
-          else lcd.write(1);
-          
-          lcd.setCursor(10, 1);
-          
-          if (ShutterData[_seleccionMenu].status == 2) lcd.write(4);
-          else lcd.write(2);
-          
-          lcd.setCursor(15, 1);
-          lcd.print(">");
+          if (ShutterData[_seleccionMenu].status == 1){
+            buffer += LCD_SPECIAL_CHAR_STOP_ARROW;
+          }else{
+            buffer += LCD_SPECIAL_CHAR_UP_ARROW;
+          }
+
+          buffer += String("    ");
+
+          if (ShutterData[_seleccionMenu].status == 2){
+            buffer += LCD_SPECIAL_CHAR_STOP_ARROW;
+          }else{
+            buffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+          }
+
+          buffer += String("    >");
         }
         break;
       }
     case SYSTEM_STATE_MENU_JOB_MODE : {
-        lcd.print("  MODO TRABAJO  ");
-        lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        buffer += String("  MODO TRABAJO  <        OK    >");
         break;
       }
     case SYSTEM_STATE_MENU_SLEEP_MODE : {
-        lcd.print("  MODO DORMIR   ");
-        lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        buffer += String("  MODO DORMIR   <        OK    >");
         break;
       }
-    case SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE : {   
-        lcd.print(" ACTIVAR UN DIA ");
-        lcd.setCursor(0, 1);
-        lcd.write(5);
-        lcd.print("        OK    >");
+    case SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE : {
+        buffer += String(" ACTIVAR UN DIA ");
+        buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+        buffer += String("        OK    >");
         break;
       }
     case SYSTEM_STATE_MENU_DEACTIVATE_SLEEP_MODE : {
-        lcd.print("CANCELAR UN DIA ");
-        lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        buffer += String("CANCELAR UN DIA <        OK    >");
         break;
       }
     case SYSTEM_STATE_MENU_ACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print("ACTIVAR  SIEMPRE");
-        lcd.setCursor(0, 1);
-        lcd.print("<        OK    >");
+        buffer += String("ACTIVAR  SIEMPRE<        OK    >");
         break;
       }
     case SYSTEM_STATE_MENU_DEACTIVATE_ALL_SLEEP_MODE : {
-        lcd.print(" CANCELAR TODO  ");
-        lcd.setCursor(0, 1);
-        lcd.print("<        OK     ");
+        buffer += String(" CANCELAR TODO  <        OK     ");
         break;
       }
+  }
+  if ( buffer != "" ) {
+    sendLcdBuffer(buffer);
   }
 }

@@ -1,19 +1,18 @@
 #pragma once
 
 #include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>
 #include "error.h"
 #include "basic_defines.h"
 
 #include "rscpProtocol/rscpProtocol.h"
 
-void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
+void checkSlaveConnection() {
     struct RSCP_Reply_cpuquery cpureply;
     int8_t err = rscpRequestData(RSCP_CMD_CPU_QUERY, (uint8_t *)&cpureply, sizeof(cpureply), RSCP_TIMEOUT_MS);
     Serial.println("rscpRequestCPUQuery: " + String(err));
 
     if ( err != RSCP_ERR_OK) {
-        errorHandler(mylcd, FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
+        errorHandler(FATAL_ERROR_CODE_NO_SLAVE_HARDWARE);
     }
 
     Serial.println("reply.flags: " + String(cpureply.flags));
@@ -26,7 +25,7 @@ void checkSlaveConnection(LiquidCrystal_PCF8574 * mylcd) {
     // Just check crcType and protocolversion
     if ((cpureply.crcType != RSCP_DEF_CRC_TYPE_MODBUS16) || 
         (cpureply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
-        errorHandler(mylcd, FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
+        errorHandler(FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
     }
     struct RSCP_Arg_buzzer_action buzzerAction;
     buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LiquidCrystal_PCF8574.h>
+#include "lcd.h"
 
 #define LED_GREEN_PIN_NR                                                    (16)
 
@@ -16,16 +16,19 @@ static String fatalErrorListStr [] = {
     "INVALID SLAVE HW"
 };
 
-static inline void errorHandler(LiquidCrystal_PCF8574 * screen, uint8_t fatalErrorCode) {
+static inline void errorHandler(uint8_t fatalErrorCode) {
     Serial.println("FATAL ERROR. code : " + String(fatalErrorCode));
     // When no lcd is connected, blink the led on pin 16
     if( fatalErrorCode > FATAL_ERROR_CODE_LCD_INIT_FAILED ){
-        screen->clear();
-        screen->home();
-        screen->print("FATAL ERROR: ");
-        screen->print(fatalErrorCode);
-        screen->setCursor(0, 1);
-        screen->print(fatalErrorListStr[fatalErrorCode - 1]);
+        String buffer = String("FATAL ERROR: ");
+        if( fatalErrorCode < 10) {
+            buffer += String("00");
+        }else if( fatalErrorCode < 100) {
+            buffer += String("0");
+        }
+        buffer += String(fatalErrorCode);
+        buffer += String(fatalErrorListStr[fatalErrorCode - 1]);
+        sendLcdBuffer(buffer);
         WiFi.mode(WIFI_OFF);
         WiFi.forceSleepBegin();
         while (true){

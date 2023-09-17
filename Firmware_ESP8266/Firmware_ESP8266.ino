@@ -40,18 +40,18 @@ void setup() {
   EEPROM_Check(&_storedData);
 
   if( initLCDFunction(10000) < 0){
-    errorHandler(&lcd, FATAL_ERROR_CODE_LCD_INIT_FAILED);
+    errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);
   }
 
-  lcd.setCursor(0, 1);
-  lcd.print("Conectando Wifi");
+  // sendLcdBuffer("                ", "                ");
+  sendLcdBuffer("....INICIANDO...", "CONECTANDO  WIFI");
   if( !ConnectWiFi_STA(_storedData._ssid_sta, _storedData._password_sta, 10000) ){
     Serial.print("Error connecting to SSID: ");
     Serial.println(_storedData._ssid_sta);
     if( !ConnectWiFi_AP(_storedData._ssid_ap, _storedData._password_ap, 10000) ){
       Serial.print("Error creating AP with SSID: ");
       Serial.println(_storedData._ssid_ap);
-      errorHandler(&lcd, FATAL_ERROR_CODE_WIFI_AP_FAILED);
+      errorHandler(FATAL_ERROR_CODE_WIFI_AP_FAILED);
     }else{
       Serial.print("AP created with SSID: ");
       Serial.println(_storedData._ssid_ap);
@@ -72,10 +72,10 @@ void loop() {
 
       if ( (millis() - timerMs) > 250 ) {
         timerMs = millis();
-        lcd.home(); lcd.clear();
-        lcd.print("SSID:" + displayString1.substring(indexDisplay1, indexDisplay1 + 11));
-        lcd.setCursor(0, 1);
-        lcd.print(displayString2.substring(indexDisplay2, indexDisplay2 + 16));
+
+        sendLcdBuffer(String("SSID:" + displayString1.substring(indexDisplay1, indexDisplay1 + 11)),
+                      displayString2.substring(indexDisplay2, indexDisplay2 + 16));
+
         indexDisplay1++;
         indexDisplay2++;
         if (indexDisplay1 > displayString1.length() - 10) indexDisplay1 = 0;
@@ -84,9 +84,11 @@ void loop() {
       break;
     }
     case SYSTEM_STATE_WIFI_STATION_CONNECTED : {
+      sendLcdBuffer("....INICIANDO...", "   PERIFERICOS  ");
       // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
       initButtonsFunction();
-      checkSlaveConnection(&lcd);
+      checkSlaveConnection();
+      sendLcdBuffer("....INICIANDO...", "OBTENIENDO DATOS");
       getWeatherDataFunction();
       SystemFunctionTask.detach();
       SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
@@ -426,22 +428,17 @@ void activarModoTrabajo() {
 
 int procesoConfirmarFecha(int & sday, int & smonth){
   bool ConfirmationState = false;
-  lcd.clear(); lcd.home();
+  String buffer = "";
   if(sday == -1){
-    lcd.print("ACTIVAR SIEMPRE?");
-    lcd.setCursor(0, 1);
-    lcd.print("<             OK");
+    buffer += String("ACTIVAR SIEMPRE?<             OK");
   }else if(sday == -2){
-    lcd.print(" CANCELAR TODO? ");
-    lcd.setCursor(0, 1);
-    lcd.print("<             OK");
+    buffer += String(" CANCELAR TODO? <             OK");
   }else{
-    lcd.print("CONFIRMAR  FECHA");
-    lcd.setCursor(0, 1);
-    lcd.print("<             OK");
-    lcd.setCursor(5, 1);
-    lcd.print(makeLcdStringDate(sday, smonth));
+    buffer += String("CONFIRMAR  FECHA<    ");
+    buffer += makeLcdStringDate(sday, smonth);
+    buffer += String("    OK");
   }
+  sendLcdBuffer(buffer);
   while ((_SystemState != SYSTEM_STATE_ENTERING_IDLE || _SystemState != SYSTEM_STATE_IDLING) && _SystemState != SYSTEM_STATE_MENU_SLEEP_MODE)
   {
     switch (buttonPressed()) {
@@ -464,17 +461,16 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
   int SleepTaskState = 0;
   bool FechaConfirmada = false;
   int daysOfMonths [] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  String buffer = "";
   while ((_SystemState != SYSTEM_STATE_ENTERING_IDLE || _SystemState != SYSTEM_STATE_IDLING) && _SystemState != SYSTEM_STATE_MENU_SLEEP_MODE)
   {
+    buffer = "";
     switch (SleepTaskState) {
       case 0 : {
-          lcd.clear(); lcd.home();
-          lcd.print("SEL. FECHA ");
-          lcd.setCursor(11, 0);
-          lcd.print(makeLcdStringDate(sday, smonth));
-          lcd.setCursor(0, 1);
-          lcd.write(5);
-          lcd.print("    +    -    >");
+          buffer = "SEL. FECHA ";
+          buffer += makeLcdStringDate(sday, smonth);
+          buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+          buffer += String("    +    -    >");
           SleepTaskState = 1;
           break;
         }
@@ -486,8 +482,10 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                   else smonth++;
                   sday = 1;
                 } else sday += 1;
-                lcd.setCursor(11, 0);
-                lcd.print(makeLcdStringDate(sday, smonth));
+                buffer = "SEL. FECHA ";
+                buffer += makeLcdStringDate(sday, smonth);
+                buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+                buffer += String("    +    -    >");
                 break;
               }
             case BUTTON_STATE_DOWN : {
@@ -496,8 +494,10 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                   else smonth--;
                   sday = daysOfMonths[smonth - 1];
                 } else sday -= 1;
-                lcd.setCursor(11, 0);
-                lcd.print(makeLcdStringDate(sday, smonth));
+                buffer = "SEL. FECHA ";
+                buffer += makeLcdStringDate(sday, smonth);
+                buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+                buffer += String("    +    -    >");
                 break;
               }
             case BUTTON_STATE_LEFT : {
@@ -506,8 +506,9 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
               }
             case BUTTON_STATE_RIGHT : {
                 SleepTaskState = 2;
-                lcd.setCursor(0, 1);
-                lcd.print("<    +    -   OK");
+                buffer = "SEL. FECHA ";
+                buffer += makeLcdStringDate(sday, smonth);
+                buffer += String("<    +    -   OK");
                 break;
               }
           }
@@ -519,16 +520,18 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
                 if (smonth == 12) smonth = 1;
                 else smonth++;
                 if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
-                lcd.setCursor(11, 0);
-                lcd.print(makeLcdStringDate(sday, smonth));
+                buffer = "SEL. FECHA ";
+                buffer += makeLcdStringDate(sday, smonth);
+                buffer += String("<    +    -   OK");
                 break;
               }
             case BUTTON_STATE_DOWN : {
                 if (smonth == 1) smonth = 12;
                 else smonth--;
                 if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
-                lcd.setCursor(11, 0);
-                lcd.print(makeLcdStringDate(sday, smonth));
+                buffer = "SEL. FECHA ";
+                buffer += makeLcdStringDate(sday, smonth);
+                buffer += String("<    +    -   OK");
                 break;
               }
             case BUTTON_STATE_LEFT : {
@@ -545,6 +548,9 @@ int procesoSeleccionarFecha(int & sday, int & smonth){
         }
     }
     yield();
+    if(buffer != ""){
+      sendLcdBuffer(buffer);
+    }
   }
   return FechaConfirmada;
 }

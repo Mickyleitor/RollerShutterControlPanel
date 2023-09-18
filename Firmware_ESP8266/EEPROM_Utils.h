@@ -68,3 +68,8 @@ void EEPROM_Check(struct EEPROM_Data * data){
         EEPROM_Write(data);
     }
 }
+
+void EEPROM_Begin(struct EEPROM_Data * data){
+    EEPROM_Read(data); // Comment this line to reset the EEPROM
+    EEPROM_Check(data);
+}

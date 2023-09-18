@@ -36,8 +36,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
-  EEPROM_Read(&_storedData); // Comment this line to reset the EEPROM
-  EEPROM_Check(&_storedData);
+  EEPROM_Begin(&_storedData);
 
   if( initLCDFunction(10000) < 0){
     errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);

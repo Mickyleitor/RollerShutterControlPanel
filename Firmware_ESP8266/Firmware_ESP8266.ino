@@ -8,7 +8,6 @@
 
 
 #include <Ticker.h>
-#include <ESP8266WiFi.h>
 #include "basic_defines.h"
 #include "SolarAzEl.h"
 #include "error.h"
@@ -36,7 +35,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println("Master inicializado");
-  EEPROM_Begin(&_storedData);
+  EEPROM_Begin(&settings);
 
   if( initLCDFunction(10000) < 0){
     errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);
@@ -44,30 +43,32 @@ void setup() {
 
   // sendLcdBuffer("                ", "                ");
   sendLcdBuffer("....INICIANDO...", "CONECTANDO  WIFI");
-  if( !ConnectWiFi_STA(_storedData._ssid_sta, _storedData._password_sta, 10000) ){
+  if( !ESP8266Utils_Connect_STA(settings.wifiSettings.ssid_sta, settings.wifiSettings.password_sta, settings.wifiSettings.hostname, WIFI_CONNECTION_TIMEOUT) ){
     Serial.print("Error connecting to SSID: ");
-    Serial.println(_storedData._ssid_sta);
-    if( !ConnectWiFi_AP(_storedData._ssid_ap, _storedData._password_ap, 10000) ){
+    Serial.println(settings.wifiSettings.ssid_sta);
+    if( !ESP8266Utils_Connect_AP(settings.wifiSettings.ssid_ap, settings.wifiSettings.password_ap, settings.wifiSettings.hostname, WIFI_CONNECTION_TIMEOUT) ){
       Serial.print("Error creating AP with SSID: ");
-      Serial.println(_storedData._ssid_ap);
+      Serial.println(settings.wifiSettings.ssid_ap);
       errorHandler(FATAL_ERROR_CODE_WIFI_AP_FAILED);
     }else{
       Serial.print("AP created with SSID: ");
-      Serial.println(_storedData._ssid_ap);
+      Serial.println(settings.wifiSettings.ssid_ap);
       _SystemState = SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED;
     }
   }
 }
 
 void loop() {
-  // Serial.println(digitalRead(2));
+
+  ESP8266Utils_handleWifi();
+
   switch (_SystemState) {
     case SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED : {
       static int indexDisplay1;
       static int indexDisplay2;
       static uint32_t timerMs;
-      String displayString1 = "           " + String(_storedData._ssid_ap) + "          ";
-      String displayString2 = "                Password: " + String(_storedData._password_ap) + " IP: " + String(WiFi.softAPIP().toString()) + "               "; 
+      String displayString1 = "            " + String(settings.wifiSettings.ssid_ap) + "           ";
+      String displayString2 = "                Password: " + String(settings.wifiSettings.password_ap) + " IP: " + ESP8266Utils_get_hostname(&settings) + "               "; 
 
       if ( (millis() - timerMs) > 250 ) {
         timerMs = millis();
@@ -88,7 +89,7 @@ void loop() {
       initButtonsFunction();
       checkSlaveConnection();
       sendLcdBuffer("....INICIANDO...", "OBTENIENDO DATOS");
-      getWeatherDataFunction();
+      ESP8266Utils_update_WeatherData(&settings);
       SystemFunctionTask.detach();
       SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
       _SystemState = SYSTEM_STATE_ENTERING_IDLE;
@@ -244,10 +245,10 @@ void loop() {
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
                   for(int dia = 0; dia < 31 ; dia ++ ){
-                    _storedData.ScheduledData[mes][dia] |= 0x1;
+                    settings.ScheduledData[mes][dia] |= 0x1;
                   }
                 }
-                EEPROM_Write(&_storedData);
+                EEPROM_Write(&settings);
               }
               actualizarMenuPantalla();
               break;
@@ -272,10 +273,10 @@ void loop() {
               if(procesoConfirmarFecha(snumber,snumber)){
                 for(int mes = 0; mes < 12 ; mes++){
                   for(int dia = 0; dia < 31 ; dia ++ ){
-                    _storedData.ScheduledData[mes][dia] &= 0x2;
+                    settings.ScheduledData[mes][dia] &= 0x2;
                   }
                 }
-                EEPROM_Write(&_storedData);
+                EEPROM_Write(&settings);
               }
               actualizarMenuPantalla();
               break;
@@ -290,7 +291,7 @@ void loop() {
       }
     case SYSTEM_STATE_SLEEP_MANAGER : {
         Serial.println("Modo dormir activado");
-        EEPROM_Write(&_storedData);
+        EEPROM_Write(&settings);
         struct RSCP_Arg_buzzer_action buzzerAction;
         buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
         buzzerAction.volume = 300;
@@ -301,7 +302,7 @@ void loop() {
         delay(200);
         bajarPersiana(SELECCION_MENU_PERSIANA_CENTRAL);
         _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-		    EEPROM_Read(&_storedData);
+		    EEPROM_Read(&settings);
         break;
       }
   }
@@ -371,9 +372,9 @@ void SystemFunctionManager(){
     // Check if a reset of the data is needed
     resetScheduledData(timenow);
     // Check if today there is a scheduled task and isn't done yet.
-    if(_storedData.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
+    if(settings.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
       // Switch to true the notification flag
-      _storedData.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
+      settings.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
       _SystemState = SYSTEM_STATE_SLEEP_MANAGER;
     }
     
@@ -385,10 +386,10 @@ void resetScheduledData(struct tm * timenow){
   if(timenow->tm_yday == 0 && ScheduledDataResetValue == 0){
     for(int mes = 0; mes < 12 ; mes++){
       for(int dia = 0; dia < 31 ; dia ++ ){
-        _storedData.ScheduledData[mes][dia] &= 0x1;
+        settings.ScheduledData[mes][dia] &= 0x1;
       }
     }
-    EEPROM_Write(&_storedData);
+    EEPROM_Write(&settings);
     ScheduledDataResetValue = 1;
   }else if(timenow->tm_yday != 0 && ScheduledDataResetValue != 0){
     ScheduledDataResetValue = 0;
@@ -402,7 +403,7 @@ void activarModoTrabajo() {
   buzzerAction.volume = 300;
   buzzerAction.duration_ms = 500;
   rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
-  getWeatherDataFunction();
+  ESP8266Utils_update_WeatherData(&settings);
   time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
   // According to Requirements the current time should be between sunrise and sunset time.
   if((MyWeather.sunriseSecondsUTC <= nowSecondsUTC) && (nowSecondsUTC <= MyWeather.sunsetSecondsUTC)){
@@ -558,11 +559,11 @@ void procesoDesactivarTarea() {
   int sday = 1, smonth = 1;
   if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Desactivar tarea en fecha seleccionada");
-    _storedData.ScheduledData[smonth-1][sday-1] &= 0x2;
+    settings.ScheduledData[smonth-1][sday-1] &= 0x2;
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
-    EEPROM_Write(&_storedData);
+    EEPROM_Write(&settings);
   }
 }
 
@@ -570,10 +571,10 @@ void procesoActivarTarea() {
   int sday = 1, smonth = 1;
   if (procesoSeleccionarFecha(sday, smonth)) {
     Serial.println("Activar tarea en fecha seleccionada");
-    _storedData.ScheduledData[smonth-1][sday-1] = 0x1;
+    settings.ScheduledData[smonth-1][sday-1] = 0x1;
     Serial.print(sday);
     Serial.print("-");
     Serial.println(smonth);
-    EEPROM_Write(&_storedData);
+    EEPROM_Write(&settings);
   }
 }

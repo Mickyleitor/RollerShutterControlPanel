@@ -29,6 +29,7 @@
 #define DEFAULT_STA_SSID                                             "YOUR_SSID"
 #define DEFAULT_STA_PASSWORD                                     "YOUR_PASSWORD"
 #define DEFAULT_AP_SSID_AND_PASSWORD                             "ESP8266Config"
+#define DEFAULT_HOSTNAME                                         "esp8266config"
 
 #define OPENWEATHERMAP_HOST                             "api.openweathermap.org"
 #define OPENWEATHERMAP_PORT                                                 (80)
@@ -36,6 +37,7 @@
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LAT                                  (0)
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LON                                  (0)
 #define HTTP_SERVER_REQUEST_TIMEOUT                                      (10000)
+#define WIFI_CONNECTION_TIMEOUT                                          (10000)
 
 #define DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(appid, lat, long) \
     "GET /data/2.5/weather?lat=" + \
@@ -46,7 +48,7 @@
     String(appid) + \
     "&units=metric&lang=es HTTP/1.0"
 
-#define EEPROM_SIZE                                 (sizeof(struct EEPROM_Data))
+#define EEPROM_SIZE                                    (sizeof(struct Settings))
 
 enum SystemState {
     SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED,

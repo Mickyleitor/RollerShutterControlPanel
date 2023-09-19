@@ -17,7 +17,8 @@ Here are several potential enhancements to consider:
    - Providing the ability to update the SSID and password of the access point, particularly when the device cannot connect to the user's Wi-Fi network. Displaying this information on the LCD would be helpful.
 
 3. **HTTPS Implementation**:
-   - Implementing HTTPS on the microcontroller's web server to ensure that Wi-Fi settings are not transmitted in plain text. This can be achieved through a self-signed certificate, with the user accepting it in their browser. Additionally, consider whether to disable this option once the user uploads a new certificate for added security, preventing potential attackers connected to the user access point from intercepting traffic.
+   - Implement HTTPS on the microcontroller's web server to encrypt Wi-Fi settings transmission, preventing plain text transmission. This can be achieved using a self-signed certificate, requiring user acceptance in their browser. 
+   Additionally, consider to whether to permanently disable this option once the user uploads a new certificate for enhanced security. This measure safeguards against potential attackers connected to the user access point intercepting traffic.
 
 4. **OTA Firmware Updates**:
    - Exploring the possibility of updating the microcontroller's firmware without requiring a physical connection to a computer. This could involve using a web server on the microcontroller and a web interface for uploading new firmware. It's worth considering whether to erase all stored data on the microcontroller after a firmware update to prevent the new firmware from accessing old data. This step would enhance security and thwart potential attackers from reading sensitive information like Wi-Fi settings.

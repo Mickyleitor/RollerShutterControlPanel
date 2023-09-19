@@ -1,8 +1,12 @@
 #pragma once
 
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 #include "basic_defines.h"
 #include "EEPROM_Utils.h"
+
+ESP8266WebServer server(80);
 
 struct WeatherData {
   double SunAzimuth = 0;
@@ -14,33 +18,48 @@ struct WeatherData {
   double TemperatureDegree = 0;
 } MyWeather;
 
-void initTimeFunction() {
-  // We want UTC time.
-  int dst = 0;
-  configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
-  while (!time(nullptr)){
-    yield();
-    delay(1000);
-  }
+void InitServer()
+{
+    server.on("/", HTTP_GET, []() {
+      server.sendHeader("Connection", "close");
+      server.send(200, "text/html", "Hello from ESP8266");
+    });
+    server.begin();
+    MDNS.addService("http", "tcp", 80);
 }
 
-bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
+bool initTime(int32_t timeout_ms = 10000){
+    // We want UTC time.
+  int dst = 0;
+  configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
+  while (!time(nullptr) && timeout_ms > 0){
+    yield();
+    delay(1000);
+    timeout_ms -= 1000;
+  }
+
+  return (timeout_ms > 0);
+}
+
+bool ESP8266Utils_Connect_STA(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000)
 {
     Serial.println("");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
-    while(WiFi.status() != WL_CONNECTED && timeout > 0) 
+    while(WiFi.status() != WL_CONNECTED && timeout_ms > 0) 
     {
         delay(100);
-        timeout -= 100;
+        timeout_ms -= 100;
         yield();
     }
 
-    if(timeout <= 0){
+    if(timeout_ms <= 0){
         Serial.println("STA Failed");
         return false;
     }
+
+    MDNS.begin(hostname);
 
     Serial.println("");
     Serial.print("Iniciado STA:\t");
@@ -48,26 +67,33 @@ bool ConnectWiFi_STA(char * ssid, char * password, int32_t timeout = 10000)
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());
 
-    initTimeFunction();
+    if ( ! initTime() ) {
+      Serial.println("Failed to get time from NTP server");
+      return false;
+    }
+
+    InitServer();
 
     return true;
 }
 
-bool ConnectWiFi_AP(char * ssid, char * password, int32_t timeout = 10000)
+bool ESP8266Utils_Connect_AP(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000)
 { 
    Serial.println("");
    WiFi.mode(WIFI_AP);
-    while(!WiFi.softAP(ssid, password) && timeout > 0) 
+    while(!WiFi.softAP(ssid, password) && timeout_ms > 0) 
     {
         delay(100);
-        timeout -= 100;
+        timeout_ms -= 100;
         yield();
     }
 
-    if(timeout <= 0){
+    if(timeout_ms <= 0){
         Serial.println("AP Failed");
         return false;
     }
+
+    MDNS.begin(hostname);
 
     Serial.println("");
     Serial.print("Iniciado AP:\t");
@@ -75,14 +101,21 @@ bool ConnectWiFi_AP(char * ssid, char * password, int32_t timeout = 10000)
     Serial.print("IP address:\t");
     Serial.println(WiFi.softAPIP());
 
+    InitServer();
+
     return true;
 }
 
-bool getWeatherDataFunction(){
+bool ESP8266Utils_update_WeatherData(struct Settings * myData){
+
+  if( (String(myData->openWeatherMapSettings.appid) == String(DEFAULT_OPENWEATHERMAP_APPID))){
+    Serial.println("No OpenWeatherMap API key set");
+    return false;
+  }
 
   double NewAzimuth = -9999;
   double NewElevation = -9999;
-  SolarAzEl(time(NULL), _storedData._openweathermap_lat, _storedData._openweathermap_lon, 1, &NewAzimuth, &NewElevation);
+  SolarAzEl(time(NULL), myData->openWeatherMapSettings.lat, myData->openWeatherMapSettings.lon, 1, &NewAzimuth, &NewElevation);
   if(NewAzimuth > -9999 && NewElevation > -9999){
     MyWeather.SunAzimuth = NewAzimuth;
     MyWeather.SunElevation = NewElevation;
@@ -103,7 +136,7 @@ bool getWeatherDataFunction(){
   }
 
   // Send HTTP request
-  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(_storedData._openweathermap_appid, _storedData._openweathermap_lat, _storedData._openweathermap_lon);
+  String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST( myData->openWeatherMapSettings.appid,  myData->openWeatherMapSettings.lat,  myData->openWeatherMapSettings.lon);
   client.println(HTTPrequest);
   client.println("Host : " + String(OPENWEATHERMAP_HOST));
   client.println("Connection: close");
@@ -163,4 +196,25 @@ bool getWeatherDataFunction(){
   // Disconnect
   client.stop();
   return true;
+}
+
+void ESP8266Utils_handleWifi()
+{
+    server.handleClient();
+    MDNS.update();
+}
+
+String ESP8266Utils_get_SSID()
+{
+    return WiFi.SSID();
+}
+
+String ESP8266Utils_get_hostname(struct Settings * myData)
+{
+  // Return hostname if mDNS is active, other wise return IP
+  if (MDNS.isRunning()) {
+    return String(myData->wifiSettings.hostname) + String(".local");
+  } else {
+    return WiFi.localIP().toString();
+  }
 }

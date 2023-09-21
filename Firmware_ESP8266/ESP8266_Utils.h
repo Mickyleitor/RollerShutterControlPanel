@@ -108,8 +108,10 @@ bool ESP8266Utils_Connect_AP(const char * ssid, const char * password, const cha
 
 bool ESP8266Utils_update_WeatherData(struct Settings * myData){
 
-  if( (String(myData->openWeatherMapSettings.appid) == String(DEFAULT_OPENWEATHERMAP_APPID))){
-    Serial.println("No OpenWeatherMap API key set");
+  String default_appid = DEFAULT_OPENWEATHERMAP_APPID;
+  if( (String(myData->openWeatherMapSettings.appid) == default_appid) || 
+      (String(myData->openWeatherMapSettings.appid) == String(""))){
+    Serial.println("Invalid Weather API key : " + String(myData->openWeatherMapSettings.appid));
     return false;
   }
 

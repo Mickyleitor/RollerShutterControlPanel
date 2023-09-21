@@ -38,7 +38,7 @@
         {
             "label": "Upload esp8266 sketch",
             "type": "shell",
-            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM4 -t Firmware_ESP8266",
+            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM7 -t Firmware_ESP8266",
             "problemMatcher": [
                 "$gcc"
             ]
@@ -46,7 +46,7 @@
         {
             "label": "Compile and upload esp8266 sketch",
             "type": "shell",
-            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM4 -t Firmware_ESP8266",
+            "command": "arduino-cli upload --log -b esp8266:esp8266:generic:ResetMethod=ck,baud=3000000 -p COM7 -t Firmware_ESP8266",
             "problemMatcher": [
                 "$gcc"
             ],

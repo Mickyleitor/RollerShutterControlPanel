@@ -13,17 +13,17 @@
 #include "error.h"
 #include "buttons.h"
 #include "lcd.h"
-
+#include "ShutterManager.h"
 #include "ESP8266_Utils.h"
 #include "EEPROM_Utils.h"
 #include "Slave_Utils.h"
 
 #include "rscpProtocol/rscpProtocol.h"
 
-int ScheduledDataResetValue = 0;
 enum SystemState _SystemState = SYSTEM_STATE_WIFI_STATION_CONNECTED;
-enum seleccionMenu _seleccionMenu = SELECCION_MENU_PERSIANA_CENTRAL;
-struct ShutterParameters ShutterData[3] = {0};
+uint8_t _seleccionMenu = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
+uint8_t _seleccionMenuAnterior = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
+struct ShutterParameters ShutterData[3];
 Ticker TimeOutTask, SystemFunctionTask;
 
 void goIdleState(void) {
@@ -97,14 +97,18 @@ void loop() {
     }
     case SYSTEM_STATE_ENTERING_IDLE : {
         apagarBrilloPantalla();
-        mostrarHoraPantalla();
+        actualizarHoraPantalla();
         TimeOutTask.detach();
-        TimeOutTask.attach(UPDATE_SCREEN_SECONDS, mostrarHoraPantalla);
+        TimeOutTask.attach(UPDATE_SCREEN_SECONDS, actualizarHoraPantalla);
+        if ( _seleccionMenu > SELECCION_MENU_NONE) {
+          _seleccionMenuAnterior = _seleccionMenu;
+        }
+        _seleccionMenu = SELECCION_MENU_NONE;
         _SystemState = SYSTEM_STATE_IDLING;
         break;
       }
     case SYSTEM_STATE_IDLING : {
-        if(buttonPressed() != BUTTON_STATE_NONE){
+        if(buttonPressed() != BUTTON_STATUS_NONE){
           _SystemState = SYSTEM_STATE_WAKEUP;
         }
         break;
@@ -113,183 +117,28 @@ void loop() {
         // Update Weather condition every wake up?
         // getWeatherDataFunction();
         encenderBrilloPantalla();
-        _SystemState = SYSTEM_STATE_SHUTTER_MANAGER;
-        if (_seleccionMenu == SELECCION_MENU_OPTION_JOB_MODE){
-          _SystemState = SYSTEM_STATE_MENU_JOB_MODE;
-        }
-        if (_seleccionMenu == SELECCION_MENU_OPTION_SLEEP_MODE){
-          _SystemState = SYSTEM_STATE_MENU_SLEEP_MODE;
-        }
-        actualizarMenuPantalla();
+        _seleccionMenu = _seleccionMenuAnterior;
+        _SystemState = SYSTEM_STATE_MENU;
         break;
       }
-    case SYSTEM_STATE_SHUTTER_MANAGER : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_LEFT : {
-              seleccionarAnterior();
-              actualizarMenuPantalla();
-              break;
-            }
-          case BUTTON_STATE_RIGHT : {
-              seleccionarSiguiente();
-              actualizarMenuPantalla();
-              break;
-            }
-          case BUTTON_STATE_UP : {
-              if (ShutterData[_seleccionMenu].status != 0) {
-                PararPersiana(_seleccionMenu);
-              } else {
-                subirPersiana(_seleccionMenu);
-              }
-              actualizarMenuPantalla();
-              break;
-            }
-          case BUTTON_STATE_DOWN : {
-              if (ShutterData[_seleccionMenu].status != 0) {
-                PararPersiana(_seleccionMenu);
-              } else {
-                bajarPersiana(_seleccionMenu);
-              }
-              actualizarMenuPantalla();
-              break;
-            }
+    case SYSTEM_STATE_MENU : {
+        uint8_t button = buttonPressed();
+        handleButtonFromMenu(&_seleccionMenu, button);
+        actualizarMenuPantalla(_seleccionMenu);
+        break;
+      }
+    case SYSTEM_STATE_ACTION_JOB : {
+        apagarBrilloPantalla();
+        delay(200);
+        encenderBrilloPantalla();
+        activarModoTrabajo();
+        _SystemState = SYSTEM_STATE_ENTERING_IDLE;
+        if(_seleccionMenu > SELECCION_MENU_NONE){
+          _SystemState = SYSTEM_STATE_MENU;
         }
         break;
       }
-    case SYSTEM_STATE_MENU_JOB_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_DOWN : {
-			        apagarBrilloPantalla();
-              delay(200);
-              encenderBrilloPantalla();
-              activarModoTrabajo();
-              break;
-          }
-          case BUTTON_STATE_LEFT : {
-              seleccionarAnterior();
-              actualizarMenuPantalla();
-              break;
-            }
-          case BUTTON_STATE_RIGHT : {
-              seleccionarSiguiente();
-              actualizarMenuPantalla();
-              break;
-            }
-        }
-        break;
-      }
-    case SYSTEM_STATE_MENU_SLEEP_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_LEFT : {
-              seleccionarAnterior();
-              actualizarMenuPantalla();
-              break;
-            }
-          case BUTTON_STATE_DOWN : {
-              _SystemState = SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_RIGHT : {
-              seleccionarSiguiente();
-              actualizarMenuPantalla();
-              break;
-          }
-        }
-        break;
-      }
-    case SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_DOWN : {
-              procesoActivarTarea();
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_RIGHT : {
-              _SystemState = SYSTEM_STATE_MENU_DEACTIVATE_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_LEFT : {
-              _SystemState = SYSTEM_STATE_MENU_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-            }
-        }
-        break;
-      }
-    case SYSTEM_STATE_MENU_DEACTIVATE_SLEEP_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_DOWN : {
-              procesoDesactivarTarea();
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_RIGHT : {
-              _SystemState = SYSTEM_STATE_MENU_ACTIVATE_ALL_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_LEFT : {
-              _SystemState = SYSTEM_STATE_MENU_ACTIVATE_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
-        }
-        break;
-      }
-    case SYSTEM_STATE_MENU_ACTIVATE_ALL_SLEEP_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_DOWN : {
-              int snumber = -1;
-              if(procesoConfirmarFecha(snumber,snumber)){
-                for(int mes = 0; mes < 12 ; mes++){
-                  for(int dia = 0; dia < 31 ; dia ++ ){
-                    settings.ScheduledData[mes][dia] |= 0x1;
-                  }
-                }
-                EEPROM_Write(&settings);
-              }
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_LEFT : {
-              _SystemState = SYSTEM_STATE_MENU_DEACTIVATE_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_RIGHT : {
-              _SystemState = SYSTEM_STATE_MENU_DEACTIVATE_ALL_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-            }
-        }
-        break;
-      }
-    case SYSTEM_STATE_MENU_DEACTIVATE_ALL_SLEEP_MODE : {
-        switch (buttonPressed()) {
-          case BUTTON_STATE_DOWN : {
-              int snumber = -2;
-              if(procesoConfirmarFecha(snumber,snumber)){
-                for(int mes = 0; mes < 12 ; mes++){
-                  for(int dia = 0; dia < 31 ; dia ++ ){
-                    settings.ScheduledData[mes][dia] &= 0x2;
-                  }
-                }
-                EEPROM_Write(&settings);
-              }
-              actualizarMenuPantalla();
-              break;
-          }
-          case BUTTON_STATE_LEFT : {
-              _SystemState = SYSTEM_STATE_MENU_ACTIVATE_ALL_SLEEP_MODE;
-              actualizarMenuPantalla();
-              break;
-            }
-        }
-        break;
-      }
-    case SYSTEM_STATE_SLEEP_MANAGER : {
+    case SYSTEM_STATE_ACTION_SLEEP : {
         Serial.println("Modo dormir activado");
         EEPROM_Write(&settings);
         struct RSCP_Arg_buzzer_action buzzerAction;
@@ -298,101 +147,16 @@ void loop() {
         buzzerAction.duration_ms = 500;
         rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
         delay(200);
-        bajarPersiana(SELECCION_MENU_PERSIANA_DERECHA);
+        bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_DERECHA));
         delay(200);
-        bajarPersiana(SELECCION_MENU_PERSIANA_CENTRAL);
-        _SystemState = SYSTEM_STATE_ENTERING_IDLE;
+        bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
 		    EEPROM_Read(&settings);
+        _SystemState = SYSTEM_STATE_ENTERING_IDLE;
+        if(_seleccionMenu > SELECCION_MENU_NONE){
+          _SystemState = SYSTEM_STATE_MENU;
+        }
         break;
       }
-  }
-}
-
-void subirPersiana(int persiana) {
-  ShutterData[persiana].status = 1;
-  ShutterData[persiana].LastMoved = millis();
-  struct RSCP_Arg_rollershutter arg;
-  arg.action = RSCP_DEF_SHUTTER_ACTION_UP;
-  arg.shutter = persiana;
-  arg.retries = 3;
-  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
-  SystemFunctionTask.detach();
-  SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
-}
-
-void bajarPersiana(int persiana) {
-  ShutterData[persiana].status = 2;
-  ShutterData[persiana].LastMoved = millis();
-  struct RSCP_Arg_rollershutter arg;
-  arg.action = RSCP_DEF_SHUTTER_ACTION_DOWN;
-  arg.shutter = persiana;
-  arg.retries = 3;
-  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
-  SystemFunctionTask.detach();
-  SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
-}
-
-void PararPersiana(int persiana) {
-  ShutterData[persiana].status = 0;
-  struct RSCP_Arg_rollershutter arg;
-  arg.action = RSCP_DEF_SHUTTER_ACTION_STOP;
-  arg.shutter = persiana;
-  arg.retries = 3;
-  (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t *)&arg, sizeof(arg), 1000);
-}
-
-void SystemFunctionManager(){
-  SystemFunctionTask.detach();
-  SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS,SystemFunctionManager);
-  
-  // Check Roller Shutter status
-  for(int index = 0; index < 3 ; index ++ ){
-    // Is this roller(supposedly) not stopped?
-    if(ShutterData[index].status != 0){
-      // Is the total duration of the movement time out for this roller?
-      int ShutterDuration = millis() - ShutterData[index].LastMoved;
-      if( abs(ShutterDuration) > SHUTTER_DURATION_SECONDS){
-        // This roller is for sure reached the limit.
-        ShutterData[index].status = 0;
-        if(_SystemState == SYSTEM_STATE_SHUTTER_MANAGER){
-          actualizarMenuPantalla();
-        } 
-      }else{
-        // Check again next time
-        SystemFunctionTask.detach();
-        SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS,SystemFunctionManager);
-      }
-    }
-  } 
-  // Check if time is ahead from sunrise time.
-  time_t nowSecondsUTC = time(NULL) + MyWeather.timezoneshift;
-  if( (nowSecondsUTC % (60 * 60 * 24)) >= (MyWeather.sunriseSecondsUTC+MyWeather.timezoneshift)){
-    struct tm * timenow;
-    timenow = gmtime(&nowSecondsUTC);
-    // Check if a reset of the data is needed
-    resetScheduledData(timenow);
-    // Check if today there is a scheduled task and isn't done yet.
-    if(settings.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] == 0x1){
-      // Switch to true the notification flag
-      settings.ScheduledData[timenow->tm_mon][timenow->tm_mday-1] = 0x3;
-      _SystemState = SYSTEM_STATE_SLEEP_MANAGER;
-    }
-    
-  }
-  Serial.println("System Manager updated");
-}
-
-void resetScheduledData(struct tm * timenow){
-  if(timenow->tm_yday == 0 && ScheduledDataResetValue == 0){
-    for(int mes = 0; mes < 12 ; mes++){
-      for(int dia = 0; dia < 31 ; dia ++ ){
-        settings.ScheduledData[mes][dia] &= 0x1;
-      }
-    }
-    EEPROM_Write(&settings);
-    ScheduledDataResetValue = 1;
-  }else if(timenow->tm_yday != 0 && ScheduledDataResetValue != 0){
-    ScheduledDataResetValue = 0;
   }
 }
 
@@ -411,170 +175,17 @@ void activarModoTrabajo() {
     if(MyWeather.Cloudiness < 75){
       // Both shutter lowered when 60 < SunAzimuth < 260
       if( 60 < MyWeather.SunAzimuth  && MyWeather.SunAzimuth < 260){
-        bajarPersiana(SELECCION_MENU_PERSIANA_DERECHA);
+        bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_DERECHA));
         delay(500);
-        bajarPersiana(SELECCION_MENU_PERSIANA_CENTRAL);
+        bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
         delay(500);
         struct RSCP_Arg_switchrelay switchRelayArg;
         switchRelayArg.status = RSCP_DEF_SWITCH_RELAY_ON;
         rscpSendAction(RSCP_CMD_SET_SWITCH_RELAY, (uint8_t *)&switchRelayArg, sizeof(switchRelayArg), 1000);
       // Center shutter only lower when 100 < SunAzimuth < 230
       }else if( 100 < MyWeather.SunAzimuth  && MyWeather.SunAzimuth < 230){
-        bajarPersiana(SELECCION_MENU_PERSIANA_CENTRAL);
+        bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
       }
     }
-  }
-};
-
-int procesoConfirmarFecha(int & sday, int & smonth){
-  bool ConfirmationState = false;
-  String buffer = "";
-  if(sday == -1){
-    buffer += String("ACTIVAR SIEMPRE?<             OK");
-  }else if(sday == -2){
-    buffer += String(" CANCELAR TODO? <             OK");
-  }else{
-    buffer += String("CONFIRMAR  FECHA<    ");
-    buffer += makeLcdStringDate(sday, smonth);
-    buffer += String("    OK");
-  }
-  sendLcdBuffer(buffer);
-  while ((_SystemState != SYSTEM_STATE_ENTERING_IDLE || _SystemState != SYSTEM_STATE_IDLING) && _SystemState != SYSTEM_STATE_MENU_SLEEP_MODE)
-  {
-    switch (buttonPressed()) {
-      case BUTTON_STATE_LEFT : {
-          _SystemState = SYSTEM_STATE_MENU_SLEEP_MODE;
-          break;
-        }
-      case BUTTON_STATE_RIGHT : {
-          ConfirmationState = true;
-          _SystemState= SYSTEM_STATE_MENU_SLEEP_MODE;
-          break;
-        }
-    }
-    yield();
-  }
-  return ConfirmationState;
-};
-
-int procesoSeleccionarFecha(int & sday, int & smonth){
-  int SleepTaskState = 0;
-  bool FechaConfirmada = false;
-  int daysOfMonths [] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  String buffer = "";
-  while ((_SystemState != SYSTEM_STATE_ENTERING_IDLE || _SystemState != SYSTEM_STATE_IDLING) && _SystemState != SYSTEM_STATE_MENU_SLEEP_MODE)
-  {
-    buffer = "";
-    switch (SleepTaskState) {
-      case 0 : {
-          buffer = "SEL. FECHA ";
-          buffer += makeLcdStringDate(sday, smonth);
-          buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-          buffer += String("    +    -    >");
-          SleepTaskState = 1;
-          break;
-        }
-      case 1 : {
-          switch (buttonPressed()) {
-            case BUTTON_STATE_UP : {
-                if ( (sday + 1) > daysOfMonths[smonth - 1]) {
-                  if (smonth == 12) smonth = 1;
-                  else smonth++;
-                  sday = 1;
-                } else sday += 1;
-                buffer = "SEL. FECHA ";
-                buffer += makeLcdStringDate(sday, smonth);
-                buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-                buffer += String("    +    -    >");
-                break;
-              }
-            case BUTTON_STATE_DOWN : {
-                if ( (sday - 1) == 0) {
-                  if (smonth == 1) smonth = 12;
-                  else smonth--;
-                  sday = daysOfMonths[smonth - 1];
-                } else sday -= 1;
-                buffer = "SEL. FECHA ";
-                buffer += makeLcdStringDate(sday, smonth);
-                buffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-                buffer += String("    +    -    >");
-                break;
-              }
-            case BUTTON_STATE_LEFT : {
-                _SystemState = SYSTEM_STATE_MENU_SLEEP_MODE;
-                break;
-              }
-            case BUTTON_STATE_RIGHT : {
-                SleepTaskState = 2;
-                buffer = "SEL. FECHA ";
-                buffer += makeLcdStringDate(sday, smonth);
-                buffer += String("<    +    -   OK");
-                break;
-              }
-          }
-          break;
-        }
-      case 2 : {
-          switch (buttonPressed()) {
-            case BUTTON_STATE_UP : {
-                if (smonth == 12) smonth = 1;
-                else smonth++;
-                if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
-                buffer = "SEL. FECHA ";
-                buffer += makeLcdStringDate(sday, smonth);
-                buffer += String("<    +    -   OK");
-                break;
-              }
-            case BUTTON_STATE_DOWN : {
-                if (smonth == 1) smonth = 12;
-                else smonth--;
-                if (sday > daysOfMonths[smonth - 1]) sday = daysOfMonths[smonth - 1];
-                buffer = "SEL. FECHA ";
-                buffer += makeLcdStringDate(sday, smonth);
-                buffer += String("<    +    -   OK");
-                break;
-              }
-            case BUTTON_STATE_LEFT : {
-                SleepTaskState = 0;
-                break;
-              }
-            case BUTTON_STATE_RIGHT : {
-                FechaConfirmada = procesoConfirmarFecha(sday,smonth);
-                if(!FechaConfirmada) SleepTaskState = 0;
-                break;
-              }
-          }
-          break;
-        }
-    }
-    yield();
-    if(buffer != ""){
-      sendLcdBuffer(buffer);
-    }
-  }
-  return FechaConfirmada;
-}
-
-void procesoDesactivarTarea() {
-  int sday = 1, smonth = 1;
-  if (procesoSeleccionarFecha(sday, smonth)) {
-    Serial.println("Desactivar tarea en fecha seleccionada");
-    settings.ScheduledData[smonth-1][sday-1] &= 0x2;
-    Serial.print(sday);
-    Serial.print("-");
-    Serial.println(smonth);
-    EEPROM_Write(&settings);
-  }
-}
-
-void procesoActivarTarea() {
-  int sday = 1, smonth = 1;
-  if (procesoSeleccionarFecha(sday, smonth)) {
-    Serial.println("Activar tarea en fecha seleccionada");
-    settings.ScheduledData[smonth-1][sday-1] = 0x1;
-    Serial.print(sday);
-    Serial.print("-");
-    Serial.println(smonth);
-    EEPROM_Write(&settings);
   }
 }

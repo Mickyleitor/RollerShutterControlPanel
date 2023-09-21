@@ -33,22 +33,22 @@ extern void goIdleState(void);
 
 //---[ Public Variables ]-------------------------------------------------------
 
-enum ButtonState _currentButton = BUTTON_STATE_NONE;
+enum ButtonStatus _currentButton = BUTTON_STATUS_NONE;
 
 //---[ Public Function Prototypes ]---------------------------------------------
 
 //---[ Public static inline functions ]-----------------------------------------
 
 static inline void ButtonsISRFunction(void) {
-  _currentButton = BUTTON_STATE_NONE;
+  _currentButton = BUTTON_STATUS_NONE;
   if (digitalRead(BUTTON_LEFT_PIN_NR) == LOW) {
-    _currentButton = BUTTON_STATE_LEFT;
+    _currentButton = BUTTON_STATUS_LEFT;
   } else if (digitalRead(BUTTON_DOWN_PIN_NR) == LOW) {
-    _currentButton = BUTTON_STATE_DOWN;
+    _currentButton = BUTTON_STATUS_DOWN;
   } else if (digitalRead(BUTTON_UP_PIN_NR) == LOW) {
-    _currentButton = BUTTON_STATE_UP;
+    _currentButton = BUTTON_STATUS_UP;
   } else if (digitalRead(BUTTON_RIGHT_PIN_NR) == LOW) {
-    _currentButton = BUTTON_STATE_RIGHT;
+    _currentButton = BUTTON_STATUS_RIGHT;
   }
   ButtonsISRTask.detach();
 }
@@ -73,27 +73,27 @@ static inline int buttonPressed(void) {
     while ( Serial.available() ) {
         char c = (char)Serial.read();
         if ( c == '4' or c == 'g'){
-            _currentButton = BUTTON_STATE_LEFT;
+            _currentButton = BUTTON_STATUS_LEFT;
             break;
         }
         if ( c == '2' or c == 'h'){
-            _currentButton = BUTTON_STATE_DOWN;
+            _currentButton = BUTTON_STATUS_DOWN;
             break;
         }
         if ( c == '8' or c == 'j'){
-            _currentButton = BUTTON_STATE_UP;
+            _currentButton = BUTTON_STATUS_UP;
             break;
         }
         if ( c == '6' or c == 'k'){
-            _currentButton = BUTTON_STATE_RIGHT;
+            _currentButton = BUTTON_STATUS_RIGHT;
             break;
         }
     }
-    if(_currentButton != BUTTON_STATE_NONE){
+    if(_currentButton != BUTTON_STATUS_NONE){
         TimeOutTask.detach();
         TimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, goIdleState);
     }
     int buttonPress = _currentButton;
-    _currentButton = BUTTON_STATE_NONE;
+    _currentButton = BUTTON_STATUS_NONE;
     return buttonPress;
 }

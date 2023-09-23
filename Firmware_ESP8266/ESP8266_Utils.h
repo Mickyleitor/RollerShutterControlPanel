@@ -6,6 +6,11 @@
 #include "basic_defines.h"
 #include "EEPROM_Utils.h"
 
+#define HTTP_SERVER_PING_ADDRESS                                       "1.1.1.1"
+#define HTTP_SERVER_PING_INTERVAL_MS                                     (10000)
+
+extern struct Settings settings;
+
 ESP8266WebServer server(80);
 
 struct WeatherData {
@@ -14,12 +19,11 @@ struct WeatherData {
   time_t sunriseSecondsUTC = 0;
   time_t sunsetSecondsUTC = 0;
   unsigned long timezoneshift = MYTZ;
-  double Cloudiness = 0;
-  double TemperatureDegree = 0;
+  double Cloudiness = 255;
+  double TemperatureDegree = 65535;
 } MyWeather;
 
-void InitServer()
-{
+void InitServer() {
     server.on("/", HTTP_GET, []() {
       server.sendHeader("Connection", "close");
       server.send(200, "text/html", "Hello from ESP8266");
@@ -41,8 +45,7 @@ bool initTime(int32_t timeout_ms = 10000){
   return (timeout_ms > 0);
 }
 
-bool ESP8266Utils_Connect_STA(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000)
-{
+bool ESP8266Utils_Connect_STA(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000) {
     Serial.println("");
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
@@ -77,8 +80,7 @@ bool ESP8266Utils_Connect_STA(const char * ssid, const char * password, const ch
     return true;
 }
 
-bool ESP8266Utils_Connect_AP(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000)
-{ 
+bool ESP8266Utils_Connect_AP(const char * ssid, const char * password, const char * hostname, int32_t timeout_ms = 10000) { 
    Serial.println("");
    WiFi.mode(WIFI_AP);
     while(!WiFi.softAP(ssid, password) && timeout_ms > 0) 
@@ -106,7 +108,73 @@ bool ESP8266Utils_Connect_AP(const char * ssid, const char * password, const cha
     return true;
 }
 
+void ESP8266Utils_handleWifi() {
+    server.handleClient();
+    MDNS.update();
+}
+
+bool ESP8266Utils_is_STA_connected() {
+    return WiFi.isConnected();
+}
+
+bool ESP8266Utils_is_STA_online() {   
+    if ( ! ESP8266Utils_is_STA_connected() ) {
+        return false;
+    }
+    static bool isOnline;
+    static uint32_t timeout_ms;
+    if ( (millis() - timeout_ms) > HTTP_SERVER_PING_INTERVAL_MS ) {
+        timeout_ms = millis();
+        isOnline = true;
+        WiFiClient client;
+        // Ping the server to see if it is online
+        client.setTimeout(HTTP_SERVER_REQUEST_TIMEOUT);
+        if (!client.connect(HTTP_SERVER_PING_ADDRESS, 80)) {
+            isOnline = false;
+        }
+        client.stop();
+    }
+    return isOnline;
+}
+
+int8_t ESP8266Utils_get_STA_RSSI() {
+    return WiFi.RSSI();
+}
+
+String ESP8266Utils_get_STA_SSID() {
+    return WiFi.SSID();
+}
+
+bool ESP8266Utils_is_AP_created() {
+    return (WiFi.getMode() == WIFI_AP);
+}
+
+String ESP8266Utils_get_AP_SSID() {
+    return WiFi.softAPSSID();
+}
+
+String ESP8266Utils_get_AP_PWD() {
+    return WiFi.softAPPSK();
+}
+
+uint8_t ESP8266Utils_get_AP_clients() {
+    return WiFi.softAPgetStationNum();
+}
+
+String ESP8266Utils_get_hostname() {
+    if ( MDNS.isRunning() ) {
+        return (String(settings.wifiSettings.hostname) + String(".local"));
+    }else{
+        return WiFi.localIP().toString();
+    }
+}
+
 bool ESP8266Utils_update_WeatherData(struct Settings * myData){
+
+  if ( ! ESP8266Utils_is_STA_online() ) {
+    Serial.println("No internet connection");
+    return false;
+  }
 
   String default_appid = DEFAULT_OPENWEATHERMAP_APPID;
   if( (String(myData->openWeatherMapSettings.appid) == default_appid) || 
@@ -198,25 +266,4 @@ bool ESP8266Utils_update_WeatherData(struct Settings * myData){
   // Disconnect
   client.stop();
   return true;
-}
-
-void ESP8266Utils_handleWifi()
-{
-    server.handleClient();
-    MDNS.update();
-}
-
-String ESP8266Utils_get_SSID()
-{
-    return WiFi.SSID();
-}
-
-String ESP8266Utils_get_hostname(struct Settings * myData)
-{
-  // Return hostname if mDNS is active, other wise return IP
-  if (MDNS.isRunning()) {
-    return String(myData->wifiSettings.hostname) + String(".local");
-  } else {
-    return WiFi.localIP().toString();
-  }
 }

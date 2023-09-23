@@ -68,9 +68,9 @@ void loop() {
       static int indexDisplay2;
       static uint32_t timerMs;
       String displayString1 = "            " + String(settings.wifiSettings.ssid_ap) + "           ";
-      String displayString2 = "                Password: " + String(settings.wifiSettings.password_ap) + " IP: " + ESP8266Utils_get_hostname(&settings) + "               "; 
+      String displayString2 = "                Password: " + String(settings.wifiSettings.password_ap) + " IP: " + ESP8266Utils_get_hostname() + "               "; 
 
-      if ( (millis() - timerMs) > 250 ) {
+      if ( (millis() - timerMs) > LCD_SLIDE_SPEED_MS ) {
         timerMs = millis();
 
         sendLcdBuffer(String("SSID:" + displayString1.substring(indexDisplay1, indexDisplay1 + 11)),

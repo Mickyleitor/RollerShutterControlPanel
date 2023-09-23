@@ -23,7 +23,8 @@
 #define DEFAULT_OPENWEATHERMAP_APPID                              "YOUR_API_KEY"
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LAT                                  (0)
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LON                                  (0)
-#define HTTP_SERVER_REQUEST_TIMEOUT                                      (10000)
+
+#define HTTP_SERVER_REQUEST_TIMEOUT                                       (2000)
 #define WIFI_CONNECTION_TIMEOUT                                          (10000)
 
 #define DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(appid, lat, long) \

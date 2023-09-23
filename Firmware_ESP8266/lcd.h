@@ -26,6 +26,8 @@ LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 #define LCD_SPECIAL_CHAR_STOP_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 4)
 #define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
+#define LCD_SLIDE_SPEED_MS                                                 (500)
+
 void apagarBrilloPantalla() {
     _lcd.setBacklight(0);
 }
@@ -138,15 +140,20 @@ void actualizarHoraPantalla()
         lcdBuffer += String('0');
     }
     lcdBuffer += String(timeinfo->tm_min);
-    lcdBuffer += String("    ");
+    lcdBuffer += String("   ");
 
-    if (((int)MyWeather.TemperatureDegree) < 10)
-    {
-        lcdBuffer += String('0');
+    uint8_t _localLength = String((int)MyWeather.TemperatureDegree).length();
+    // Limit degree to 2 digits
+    if( _localLength < 4 ){
+        for ( int i = 0 ; i < (3 - _localLength) ; i++ ){
+            lcdBuffer += String(" ");
+        }
+        lcdBuffer += String((int)MyWeather.TemperatureDegree);
+        lcdBuffer += (char)223;
+        lcdBuffer += String("C");
+    }else {
+        lcdBuffer += String("     ");
     }
-    lcdBuffer += String((int)MyWeather.TemperatureDegree);
-    lcdBuffer += (char)223;
-    lcdBuffer += String("C");
 
     if ((timeinfo->tm_mday) < 10)
     {
@@ -845,14 +852,101 @@ void actualizarMenuPantalla(uint8_t _localMenu)
             break;
         }
         case SELECCION_MENU_INFO:
-            // fall through
+            lcdBuffer += String("  WIFI  STATUS  ");
+            lcdBuffer += String("<    ");
+            lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+            lcdBuffer += String(" OK ");
+            lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+            lcdBuffer += String("    >");
+            break;
         case SELECCION_MENU_INFO_WIFI_STATUS:
-            // fall through
-        case SELECCION_MENU_INFO_WIFI_SSID:
-            // fall through
-        case SELECCION_MENU_INFO_WIFI_IP:
-        {
-            lcdBuffer += String("NOT  IMPLEMENTED");
+            lcdBuffer += String(" WIFI ");
+            if ( ESP8266Utils_is_STA_connected() ){
+                lcdBuffer += String("(STA): ");
+                lcdBuffer += ESP8266Utils_is_STA_online() ? String("ON ") : String("OFF");
+                lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+                lcdBuffer += String("  RSSI: ");
+                String rssi = String(ESP8266Utils_get_STA_RSSI());
+                for (int i = 0; i < 4 - rssi.length(); i++) {
+                    lcdBuffer += String(" ");
+                }
+                lcdBuffer += rssi;
+                lcdBuffer += String("  >");
+            }else if ( ESP8266Utils_is_AP_created() ){
+                lcdBuffer += String(": AP Mode ");
+                lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+                lcdBuffer += String(" Clients : ");
+                int _localClients = ESP8266Utils_get_AP_clients();
+                if ( _localClients < 10 ) {
+                    lcdBuffer += String("0");
+                }
+                lcdBuffer += String(_localClients);
+                lcdBuffer += String(" >");
+            }else{
+                lcdBuffer += String(": OFFLINE ");
+                lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
+                lcdBuffer += String("              >");
+            }
+            break;
+        case SELECCION_MENU_INFO_WIFI_SSID: {
+            static String _locaBuffer;
+            static uint8_t _localBufferIndex;
+            static uint32_t timeout_ms;
+            if ( ESP8266Utils_is_STA_connected() ){
+                if ( ((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == "" ){
+                    timeout_ms = millis();
+                    _locaBuffer = "               SSID: ";
+                    _locaBuffer += ESP8266Utils_get_STA_SSID();
+                    _locaBuffer += String("                ");
+
+                    _localBufferIndex++;
+                    if ( _localBufferIndex > (_locaBuffer.length() - 16) ){
+                        _localBufferIndex = 0;
+                    }
+                    _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
+                }
+                lcdBuffer += _locaBuffer;
+                lcdBuffer += String("<              >");
+            }else if ( ESP8266Utils_is_AP_created() ){
+                if ( ((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == ""){
+                    timeout_ms = millis();
+                    _locaBuffer = "               SSID (AP): ";
+                    _locaBuffer += ESP8266Utils_get_AP_SSID();
+                    _locaBuffer += String(" PWD: ");
+                    _locaBuffer += ESP8266Utils_get_AP_PWD();
+                    _locaBuffer += String("                ");
+
+                    _localBufferIndex++;
+                    if ( _localBufferIndex > (_locaBuffer.length() - 16) ){
+                        _localBufferIndex = 0;
+                    }
+                    _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
+                }
+                lcdBuffer += _locaBuffer;
+                lcdBuffer += String("<              >");
+            }else{
+                lcdBuffer += String("  SSID STA & AP ");
+                lcdBuffer += String("<  NOT AVAIL.  >");
+            }
+            break;
+        }
+        case SELECCION_MENU_INFO_WIFI_IP: {
+            static String _locaBuffer;
+            static uint8_t _localBufferIndex;
+            static uint32_t timeout_ms;
+            if ( ((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == "" ){
+                timeout_ms = millis();
+                _locaBuffer = "               IP: ";
+                _locaBuffer += ESP8266Utils_get_hostname();
+                _locaBuffer += String("                ");
+
+                _localBufferIndex++;
+                if ( _localBufferIndex > (_locaBuffer.length() - 16) ){
+                    _localBufferIndex = 0;
+                }
+                _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
+            }
+            lcdBuffer += _locaBuffer;
             lcdBuffer += String("<              >");
             break;
         }

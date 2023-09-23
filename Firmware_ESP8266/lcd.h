@@ -26,6 +26,7 @@ LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 #define LCD_SPECIAL_CHAR_STOP_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 4)
 #define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
+#define LCD_TRANSITION_SPEED_MS                                           (5000)
 #define LCD_SLIDE_SPEED_MS                                                 (500)
 
 void apagarBrilloPantalla() {
@@ -36,7 +37,7 @@ void encenderBrilloPantalla() {
     _lcd.setBacklight(255);
 }
 
-void sendLcdBuffer(String line1, String line2) {
+void _sendLcdBuffer(String line1, String line2) {
     _lcd.home();
     _lcd.clear();
     for (int i = 0; i < 16; i++) {
@@ -62,7 +63,7 @@ bool sendLcdBuffer(String newBuffer) {
         bufferAnterior = newBuffer;
         String line1 = newBuffer.substring(0, 16);
         String line2 = newBuffer.substring(16, 32);
-        sendLcdBuffer(line1, line2);
+        _sendLcdBuffer(line1, line2);
         return true;
     }
     return false;
@@ -947,7 +948,7 @@ void actualizarMenuPantalla(uint8_t _localMenu)
                 _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
             }
             lcdBuffer += _locaBuffer;
-            lcdBuffer += String("<              >");
+            lcdBuffer += String("<               ");
             break;
         }
     }

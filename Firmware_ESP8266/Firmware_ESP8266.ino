@@ -2,25 +2,25 @@
 // This sketch is in development and uses ESP13-WROOM-02.
 //
 // Libraries used and need to be installed from Arduino IDE
-// - Shield manager ESP8266 by ESP8266 Community version 3.1.2 : http://arduino.esp8266.com/stable/package_esp8266com_index.json
+// - Shield manager ESP8266 by ESP8266 Community version 3.1.2 :
+// http://arduino.esp8266.com/stable/package_esp8266com_index.json
 // - NTPClient by Fabrice Weinberg 3.2.0 : https://github.com/arduino-libraries/NTPClient
 // - LiquidCrystal_PCF8574 by mathertel 2.2.0  : https://github.com/mathertel/LiquidCrystal_PCF8574
 
 #include <Ticker.h>
-#include "basic_defines.h"
-#include "SolarAzEl.h"
-#include "error.h"
-#include "buttons.h"
-#include "lcd.h"
-#include "ShutterManager.h"
-#include "ESP8266_Utils.h"
-#include "EEPROM_Utils.h"
-#include "Slave_Utils.h"
 
+#include "EEPROM_Utils.h"
+#include "ESP8266_Utils.h"
+#include "ShutterManager.h"
+#include "Slave_Utils.h"
+#include "basic_defines.h"
+#include "buttons.h"
+#include "error.h"
+#include "lcd.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-enum SystemState _SystemState = SYSTEM_STATE_WIFI_STATION_CONNECTED;
-uint8_t _seleccionMenu = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
+enum SystemState _SystemState  = SYSTEM_STATE_WIFI_STATION_CONNECTED;
+uint8_t _seleccionMenu         = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
 uint8_t _seleccionMenuAnterior = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
 struct ShutterParameters ShutterData[3];
 Ticker TimeOutTask, SystemFunctionTask;
@@ -42,10 +42,18 @@ void setup() {
 
     // sendLcdBuffer("                ", "                ");
     sendLcdBuffer("....INICIANDO...CONECTANDO  WIFI");
-    if (!ESP8266Utils_Connect_STA(settings.wifiSettings.ssid_sta, settings.wifiSettings.password_sta, settings.wifiSettings.hostname, WIFI_CONNECTION_TIMEOUT)) {
+    if (!ESP8266Utils_Connect_STA(
+                settings.wifiSettings.ssid_sta,
+                settings.wifiSettings.password_sta,
+                settings.wifiSettings.hostname,
+                WIFI_CONNECTION_TIMEOUT)) {
         Serial.print("Error connecting to SSID: ");
         Serial.println(settings.wifiSettings.ssid_sta);
-        if (!ESP8266Utils_Connect_AP(settings.wifiSettings.ssid_ap, settings.wifiSettings.password_ap, settings.wifiSettings.hostname, WIFI_CONNECTION_TIMEOUT)) {
+        if (!ESP8266Utils_Connect_AP(
+                    settings.wifiSettings.ssid_ap,
+                    settings.wifiSettings.password_ap,
+                    settings.wifiSettings.hostname,
+                    WIFI_CONNECTION_TIMEOUT)) {
             Serial.print("Error creating AP with SSID: ");
             Serial.println(settings.wifiSettings.ssid_ap);
             errorHandler(FATAL_ERROR_CODE_WIFI_AP_FAILED);
@@ -58,7 +66,6 @@ void setup() {
 }
 
 void loop() {
-
     ESP8266Utils_handleWifi();
 
     switch (_SystemState) {
@@ -71,28 +78,31 @@ void loop() {
             String displayString1;
             String displayString2;
 
-            if(  lcd_transition_state == 1){
+            if (lcd_transition_state == 1) {
                 sendLcdBuffer(String("PORFAVOR CONECTE A LA RED WIFI  "));
 
-                if((millis() - lcd_transition_timerMs) > LCD_TRANSITION_SPEED_MS){
+                if ((millis() - lcd_transition_timerMs) > LCD_TRANSITION_SPEED_MS) {
                     lcd_transition_timerMs = millis();
                     lcd_transition_state++;
                 }
-            }else if(lcd_transition_state == 2){
+            } else if (lcd_transition_state == 2) {
                 displayString1 = "      SSID      ";
-                displayString2 = "                " + String(settings.wifiSettings.ssid_ap) + "                ";
-            }else if(lcd_transition_state == 3){
+                displayString2 = "                " + String(settings.wifiSettings.ssid_ap)
+                               + "                ";
+            } else if (lcd_transition_state == 3) {
                 displayString1 = "    PASSWORD    ";
-                displayString2 = "                " + String(settings.wifiSettings.password_ap) + "                ";
-            }else if(lcd_transition_state == 4){
+                displayString2 = "                " + String(settings.wifiSettings.password_ap)
+                               + "                ";
+            } else if (lcd_transition_state == 4) {
                 displayString1 = " LOCAL  ADDRESS ";
-                displayString2 = "                " + ESP8266Utils_get_hostname() + "                ";
-            }else{
-                lcd_transition_state = 1;
+                displayString2
+                        = "                " + ESP8266Utils_get_hostname() + "                ";
+            } else {
+                lcd_transition_state   = 1;
                 lcd_transition_timerMs = millis();
             }
 
-            if(lcd_transition_state > 1){
+            if (lcd_transition_state > 1) {
                 if ((millis() - slide_timerMs) > LCD_SLIDE_SPEED_MS) {
                     slide_timerMs = millis();
 
@@ -100,8 +110,10 @@ void loop() {
                     if (indexDisplay >= (displayString2.length() - 16)) {
                         indexDisplay = 0;
                         lcd_transition_state++;
-                    }else{
-                        sendLcdBuffer(displayString1 + displayString2.substring(indexDisplay, indexDisplay + 16));
+                    } else {
+                        sendLcdBuffer(
+                                displayString1
+                                + displayString2.substring(indexDisplay, indexDisplay + 16));
                     }
                 }
             }
@@ -129,7 +141,7 @@ void loop() {
                 _seleccionMenuAnterior = _seleccionMenu;
             }
             _seleccionMenu = SELECCION_MENU_NONE;
-            _SystemState = SYSTEM_STATE_IDLING;
+            _SystemState   = SYSTEM_STATE_IDLING;
             break;
         }
         case SYSTEM_STATE_IDLING: {
@@ -143,7 +155,7 @@ void loop() {
             // getWeatherDataFunction();
             encenderBrilloPantalla();
             _seleccionMenu = _seleccionMenuAnterior;
-            _SystemState = SYSTEM_STATE_MENU;
+            _SystemState   = SYSTEM_STATE_MENU;
             break;
         }
         case SYSTEM_STATE_MENU: {
@@ -167,10 +179,14 @@ void loop() {
             Serial.println("Modo dormir activado");
             EEPROM_Write(&settings);
             struct RSCP_Arg_buzzer_action buzzerAction;
-            buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
-            buzzerAction.volume = 300;
+            buzzerAction.action      = RSCP_DEF_BUZZER_ACTION_ON;
+            buzzerAction.volume      = 300;
             buzzerAction.duration_ms = 500;
-            rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
+            rscpSendAction(
+                    RSCP_CMD_SET_BUZZER_ACTION,
+                    (uint8_t*)&buzzerAction,
+                    sizeof(buzzerAction),
+                    1000);
             delay(200);
             bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_DERECHA));
             delay(200);
@@ -188,14 +204,15 @@ void loop() {
 void activarModoTrabajo() {
     Serial.println("Modo trabajo activado");
     struct RSCP_Arg_buzzer_action buzzerAction;
-    buzzerAction.action = RSCP_DEF_BUZZER_ACTION_ON;
-    buzzerAction.volume = 300;
+    buzzerAction.action      = RSCP_DEF_BUZZER_ACTION_ON;
+    buzzerAction.volume      = 300;
     buzzerAction.duration_ms = 500;
-    rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t *)&buzzerAction, sizeof(buzzerAction), 1000);
+    rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t*)&buzzerAction, sizeof(buzzerAction), 1000);
     ESP8266Utils_update_WeatherData(&settings);
     time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
     // According to Requirements the current time should be between sunrise and sunset time.
-    if ((MyWeather.sunriseSecondsUTC <= nowSecondsUTC) && (nowSecondsUTC <= MyWeather.sunsetSecondsUTC)) {
+    if ((MyWeather.sunriseSecondsUTC <= nowSecondsUTC)
+        && (nowSecondsUTC <= MyWeather.sunsetSecondsUTC)) {
         // According to Requirements there is no need if the Cloudiness is less than 75%
         if (MyWeather.Cloudiness < 75) {
             // Both shutter lowered when 60 < SunAzimuth < 260
@@ -206,7 +223,11 @@ void activarModoTrabajo() {
                 delay(500);
                 struct RSCP_Arg_switchrelay switchRelayArg;
                 switchRelayArg.status = RSCP_DEF_SWITCH_RELAY_ON;
-                rscpSendAction(RSCP_CMD_SET_SWITCH_RELAY, (uint8_t *)&switchRelayArg, sizeof(switchRelayArg), 1000);
+                rscpSendAction(
+                        RSCP_CMD_SET_SWITCH_RELAY,
+                        (uint8_t*)&switchRelayArg,
+                        sizeof(switchRelayArg),
+                        1000);
                 // Center shutter only lower when 100 < SunAzimuth < 230
             } else if (100 < MyWeather.SunAzimuth && MyWeather.SunAzimuth < 230) {
                 bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));

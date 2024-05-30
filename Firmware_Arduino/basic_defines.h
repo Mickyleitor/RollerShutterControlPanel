@@ -57,9 +57,9 @@
  * @brief Structure to define an RSCP task.
  */
 typedef struct rscpTaskDef {
-   uint8_t command;      /**< RSCP command. */
-   uint8_t arg[64];      /**< Argument data. */
-   uint8_t argLength;    /**< Length of the argument data. */
+    uint8_t command;   /**< RSCP command. */
+    uint8_t arg[64];   /**< Argument data. */
+    uint8_t argLength; /**< Length of the argument data. */
 } rscpTaskType;
 
 /** @brief Array to store RSCP tasks. */

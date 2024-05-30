@@ -7,9 +7,9 @@
 #define TZ_Europe_Madrid                                              (2 * 3600)
 #endif
 #define MYTZ TZ_Europe_Madrid
-#define UPDATE_SCREEN_SECONDS                                               (60)    // Refresh screen every minute
+#define UPDATE_SCREEN_SECONDS                                               (60) // Refresh screen every minute
 #define SHUTTER_DURATION_SECONDS                                            (27)
-#define SYSTEM_MANAGER_SECONDS                                          (60 * 5)    // Check tasks every 5 minutes
+#define SYSTEM_MANAGER_SECONDS                                          (60 * 5) // Check tasks every 5 minutes
 
 #define RSCP_TIMEOUT_MS                                                   (1000)
 

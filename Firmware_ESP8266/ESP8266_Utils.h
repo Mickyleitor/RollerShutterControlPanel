@@ -211,7 +211,7 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
             myData->openWeatherMapSettings.lat,
             myData->openWeatherMapSettings.lon);
     client.println(HTTPrequest);
-    client.println("Host : " + String(OPENWEATHERMAP_HOST));
+    client.println("Host: " + String(OPENWEATHERMAP_HOST));
     client.println("Connection: close");
     if (client.println() == 0) {
         Serial.println("Failed to send request");

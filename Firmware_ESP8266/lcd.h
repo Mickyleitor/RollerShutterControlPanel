@@ -217,7 +217,7 @@ void handleButtonFromMenu(uint8_t* _localMenu, uint8_t _localButton) {
                     _nextMenu++;
                     // Sanitize menu transition to right
                     if (_nextMenu > SELECCION_MENU_PERSIANA_DERECHA) {
-                        _nextMenu = SELECCION_MENU_JOB_MODE;
+                        _nextMenu = SELECCION_MENU_SLEEP_MODE;
                     }
                     break;
                 case BUTTON_STATUS_UP:
@@ -237,24 +237,10 @@ void handleButtonFromMenu(uint8_t* _localMenu, uint8_t _localButton) {
             }
             break;
         }
-        case SELECCION_MENU_JOB_MODE: {
-            switch (_localButton) {
-                case BUTTON_STATUS_LEFT:
-                    _nextMenu = SELECCION_MENU_PERSIANA_DERECHA;
-                    break;
-                case BUTTON_STATUS_RIGHT:
-                    _nextMenu = SELECCION_MENU_SLEEP_MODE;
-                    break;
-                case BUTTON_STATUS_DOWN:
-                    _SystemState = SYSTEM_STATE_ACTION_JOB;
-                    break;
-            }
-            break;
-        }
         case SELECCION_MENU_SLEEP_MODE: {
             switch (_localButton) {
                 case BUTTON_STATUS_LEFT:
-                    _nextMenu = SELECCION_MENU_JOB_MODE;
+                    _nextMenu = SELECCION_MENU_PERSIANA_DERECHA;
                     break;
                 case BUTTON_STATUS_RIGHT:
                     _nextMenu = SELECCION_MENU_INFO;
@@ -510,165 +496,6 @@ void handleButtonFromMenu(uint8_t* _localMenu, uint8_t _localButton) {
     *_localMenu = _nextMenu;
 }
 
-/*
-void actionSubirPersiana()
-{
-    uint8_t _localShutterIndex = (_seleccionMenu - SELECCION_MENU_NONE) - 1;
-    if (ShutterData[_localShutterIndex].status != SHUTTER_STATUS_STOPPED)
-    {
-        PararPersiana(_localShutterIndex);
-    }
-    else
-    {
-        subirPersiana(_localShutterIndex);
-    }
-}
-
-void actionBajarPersiana()
-{
-    uint8_t _localShutterIndex = (_seleccionMenu - SELECCION_MENU_NONE) - 1;
-    if (ShutterData[_localShutterIndex].status != SHUTTER_STATUS_STOPPED)
-    {
-        PararPersiana(_localShutterIndex);
-    }
-    else
-    {
-        bajarPersiana(_localShutterIndex);
-    }
-}
-
-void actionJobMode()
-{
-}
-
-void actionIncreaseDaySelected()
-{
-}
-
-void actionDecreaseDaySelected()
-{
-}
-
-void actionIncreaseMonthSelected()
-{
-}
-
-void actionDecreaseMonthSelected()
-{
-}
-
-void actionRegisterSleepMode()
-{
-}
-
-// Define a structure to represent menu transitions
-struct MenuTransition {
-    uint8_t left;
-    uint8_t right;
-    uint8_t up;
-    uint8_t down;
-    void (*actionLeft)();
-    void (*actionRight)();
-    void (*actionUp)();
-    void (*actionDown)();
-};
-
-// Define menu transitions for each menu item with associated actions
-const struct MenuTransition menuTransitions[] = {
-    {SELECCION_MENU_NONE, SELECCION_MENU_NONE, SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL,
-NULL, NULL}, {SELECCION_MENU_INFO, SELECCION_MENU_PERSIANA_CENTRAL, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, NULL, actionSubirPersiana, actionBajarPersiana},
-    {SELECCION_MENU_PERSIANA_IZQUIERDA, SELECCION_MENU_PERSIANA_DERECHA, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, NULL, actionSubirPersiana, actionBajarPersiana},
-    {SELECCION_MENU_PERSIANA_CENTRAL, SELECCION_MENU_JOB_MODE, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, NULL, actionSubirPersiana, actionBajarPersiana},
-    {SELECCION_MENU_PERSIANA_DERECHA, SELECCION_MENU_SLEEP_MODE, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, NULL, NULL, actionJobMode}, {SELECCION_MENU_JOB_MODE,
-SELECCION_MENU_INFO, SELECCION_MENU_NONE, SELECCION_MENU_SLEEP_MODE_ACTIVATE, NULL, NULL, NULL,
-NULL}, {SELECCION_MENU_SLEEP_MODE, SELECCION_MENU_SLEEP_MODE_DEACTIVATE, SELECCION_MENU_NONE,
-SELECCION_MENU_SLEEP_MODE_ACTIVATE_SEL_DATE_DAY, NULL, NULL, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_ACTIVATE, SELECCION_MENU_SLEEP_MODE_ACTIVATE_SEL_DATE_MONTH,
-SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL, actionIncreaseDaySelected,
-actionDecreaseDaySelected}, {SELECCION_MENU_SLEEP_MODE_ACTIVATE_SEL_DATE_DAY,
-SELECCION_MENU_SLEEP_MODE_ACTIVATE_CONFIRM, SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL,
-actionIncreaseMonthSelected, actionDecreaseMonthSelected},
-    {SELECCION_MENU_SLEEP_MODE_ACTIVATE_SEL_DATE_MONTH, SELECCION_MENU_SLEEP_MODE,
-SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, actionRegisterSleepMode, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_ACTIVATE, SELECCION_MENU_SLEEP_MODE_ACTIVATE_ALL,
-SELECCION_MENU_NONE, SELECCION_MENU_SLEEP_MODE_DEACTIVATE_SEL_DATE_DAY, NULL, NULL, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_DEACTIVATE, SELECCION_MENU_SLEEP_MODE_DEACTIVATE_SEL_DATE_DAY,
-SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL, actionIncreaseDaySelected,
-actionDecreaseDaySelected}, {SELECCION_MENU_SLEEP_MODE_DEACTIVATE_SEL_DATE_DAY,
-SELECCION_MENU_SLEEP_MODE_DEACTIVATE_CONFIRM, SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL,
-actionIncreaseMonthSelected, actionDecreaseMonthSelected},
-    {SELECCION_MENU_SLEEP_MODE_DEACTIVATE_SEL_DATE_MONTH, SELECCION_MENU_SLEEP_MODE,
-SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, actionRegisterSleepMode, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_DEACTIVATE, SELECCION_MENU_SLEEP_MODE_DEACTIVATE_ALL,
-SELECCION_MENU_NONE, SELECCION_MENU_SLEEP_MODE_ACTIVATE_ALL_CONFIRM, NULL, NULL, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_ACTIVATE_ALL, SELECCION_MENU_SLEEP_MODE, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, actionRegisterSleepMode, NULL, NULL},
-    {SELECCION_MENU_SLEEP_MODE_ACTIVATE_ALL, SELECCION_MENU_NONE, SELECCION_MENU_NONE,
-SELECCION_MENU_DEACTIVATE_ALL, NULL, NULL, NULL, NULL}, {SELECCION_MENU_SLEEP_MODE_DEACTIVATE_ALL,
-SELECCION_MENU_SLEEP_MODE, SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, actionRegisterSleepMode,
-NULL, NULL}, {SELECCION_MENU_SLEEP_MODE, SELECCION_MENU_PERSIANA_IZQUIERDA, SELECCION_MENU_NONE,
-SELECCION_MENU_INFO_WIFI_STATUS, NULL, NULL, NULL, NULL}, {SELECCION_MENU_INFO,
-SELECCION_MENU_INFO_WIFI_SSID, SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL, NULL, NULL},
-    {SELECCION_MENU_INFO_WIFI_STATUS, SELECCION_MENU_INFO_WIFI_IP, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, NULL, NULL, NULL, NULL}, {SELECCION_MENU_INFO_WIFI_SSID, SELECCION_MENU_NONE,
-SELECCION_MENU_NONE, SELECCION_MENU_NONE, NULL, NULL, NULL, NULL},
-};
-
-// Define a function to handle button presses and menu transitions
-void handleButtonFromMenu(uint8_t * _localMenu, uint8_t _localButton) {
-    uint8_t _nextMenu = *_localMenu;
-
-    if (_nextMenu < sizeof(menuTransitions) / sizeof(menuTransitions[0])) {
-        const struct MenuTransition *transitions = &menuTransitions[_nextMenu];
-
-        switch (_localButton) {
-            case BUTTON_STATUS_LEFT:
-                if (transitions->actionLeft) {
-                    transitions->actionLeft();
-                }
-                if ( transitions->left != SELECCION_MENU_NONE)
-                {
-                    _nextMenu = transitions->left;
-                }
-                break;
-            case BUTTON_STATUS_RIGHT:
-                if (transitions->actionRight) {
-                    transitions->actionRight();
-                }
-                if ( transitions->right != SELECCION_MENU_NONE)
-                {
-                    _nextMenu = transitions->right;
-                }
-                break;
-            case BUTTON_STATUS_UP:
-                if (transitions->actionUp) {
-                    transitions->actionUp();
-                }
-                if ( transitions->up != SELECCION_MENU_NONE)
-                {
-                    _nextMenu = transitions->up;
-                }
-                break;
-            case BUTTON_STATUS_DOWN:
-                if (transitions->actionDown) {
-                    transitions->actionDown();
-                }
-                if ( transitions->down != SELECCION_MENU_NONE)
-                {
-                    _nextMenu = transitions->down;
-                }
-                break;
-        }
-    }
-
-    *_localMenu = _nextMenu;
-}
-*/
-
 void actualizarMenuPantalla(uint8_t _localMenu) {
     String lcdBuffer = "";
     switch (_localMenu) {
@@ -699,14 +526,6 @@ void actualizarMenuPantalla(uint8_t _localMenu) {
                 lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
             }
 
-            lcdBuffer += String("    >");
-            break;
-        }
-        case SELECCION_MENU_JOB_MODE: {
-            lcdBuffer += String("  MODO TRABAJO  <    ");
-            lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-            lcdBuffer += String(" OK ");
-            lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
             lcdBuffer += String("    >");
             break;
         }

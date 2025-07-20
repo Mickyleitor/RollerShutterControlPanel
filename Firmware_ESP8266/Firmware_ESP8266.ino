@@ -161,17 +161,6 @@ void loop() {
             actualizarMenuPantalla(_seleccionMenu);
             break;
         }
-        case SYSTEM_STATE_ACTION_JOB: {
-            apagarBrilloPantalla();
-            delay(200);
-            encenderBrilloPantalla();
-            activarModoTrabajo();
-            _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-            if (_seleccionMenu > SELECCION_MENU_NONE) {
-                _SystemState = SYSTEM_STATE_MENU;
-            }
-            break;
-        }
         case SYSTEM_STATE_ACTION_SLEEP: {
             Serial.println("Modo dormir activado");
             EEPROM_Write(&settings);
@@ -194,41 +183,6 @@ void loop() {
                 _SystemState = SYSTEM_STATE_MENU;
             }
             break;
-        }
-    }
-}
-
-void activarModoTrabajo() {
-    Serial.println("Modo trabajo activado");
-    struct RSCP_Arg_buzzer_action buzzerAction;
-    buzzerAction.action      = RSCP_DEF_BUZZER_ACTION_ON;
-    buzzerAction.volume      = 300;
-    buzzerAction.duration_ms = 500;
-    rscpSendAction(RSCP_CMD_SET_BUZZER_ACTION, (uint8_t*)&buzzerAction, sizeof(buzzerAction), 1000);
-    ESP8266Utils_update_WeatherData(&settings);
-    time_t nowSecondsUTC = time(NULL) % (60 * 60 * 24);
-    // According to Requirements the current time should be between sunrise and sunset time.
-    if ((MyWeather.sunriseSecondsUTC <= nowSecondsUTC)
-        && (nowSecondsUTC <= MyWeather.sunsetSecondsUTC)) {
-        // According to Requirements there is no need if the Cloudiness is less than 75%
-        if (MyWeather.Cloudiness < 75) {
-            // Both shutter lowered when 60 < SunAzimuth < 260
-            if (60 < MyWeather.SunAzimuth && MyWeather.SunAzimuth < 260) {
-                bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_DERECHA));
-                delay(500);
-                bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
-                delay(500);
-                struct RSCP_Arg_switchrelay switchRelayArg;
-                switchRelayArg.status = RSCP_DEF_SWITCH_RELAY_ON;
-                rscpSendAction(
-                        RSCP_CMD_SET_SWITCH_RELAY,
-                        (uint8_t*)&switchRelayArg,
-                        sizeof(switchRelayArg),
-                        1000);
-                // Center shutter only lower when 100 < SunAzimuth < 230
-            } else if (100 < MyWeather.SunAzimuth && MyWeather.SunAzimuth < 230) {
-                bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
-            }
         }
     }
 }

@@ -161,28 +161,5 @@ void loop() {
             actualizarMenuPantalla(_seleccionMenu);
             break;
         }
-        case SYSTEM_STATE_ACTION_SLEEP: {
-            Serial.println("Modo dormir activado");
-            EEPROM_Write(&settings);
-            struct RSCP_Arg_buzzer_action buzzerAction;
-            buzzerAction.action      = RSCP_DEF_BUZZER_ACTION_ON;
-            buzzerAction.volume      = 300;
-            buzzerAction.duration_ms = 500;
-            rscpSendAction(
-                    RSCP_CMD_SET_BUZZER_ACTION,
-                    (uint8_t*)&buzzerAction,
-                    sizeof(buzzerAction),
-                    1000);
-            delay(200);
-            bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_DERECHA));
-            delay(200);
-            bajarPersiana(SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL));
-            EEPROM_Read(&settings);
-            _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-            if (_seleccionMenu > SELECCION_MENU_NONE) {
-                _SystemState = SYSTEM_STATE_MENU;
-            }
-            break;
-        }
     }
 }

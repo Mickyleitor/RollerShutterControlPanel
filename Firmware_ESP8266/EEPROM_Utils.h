@@ -19,7 +19,6 @@ struct __attribute__((__packed__)) OpenWeatherMapSettings {
 };
 
 struct __attribute__((__packed__)) Settings {
-    char ScheduledData[12][31];
     struct WifiSettings wifiSettings;
     struct OpenWeatherMapSettings openWeatherMapSettings;
     uint16_t crc16;
@@ -67,7 +66,6 @@ void EEPROM_Check(struct Settings* data) {
     uint16_t crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
     if (crc16 != data->crc16) {
         Serial.println("Corrupted data in EEPROM, writing default values");
-        memset(data->ScheduledData, 0x03, sizeof(data->ScheduledData));
         strcpy(data->wifiSettings.hostname, DEFAULT_HOSTNAME);
         strcpy(data->wifiSettings.ssid_sta, DEFAULT_STA_SSID);
         strcpy(data->wifiSettings.password_sta, DEFAULT_STA_PASSWORD);

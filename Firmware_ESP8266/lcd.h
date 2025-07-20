@@ -115,6 +115,9 @@ int initLCDFunction(int32_t timeout_ms) {
 }
 
 void actualizarHoraPantallaISR() {
+    if (!ntp_time_is_initialized()) {
+        return;
+    }
     String lcdBuffer = "   ";
     time_t now;
     struct tm* timeinfo;
@@ -253,28 +256,6 @@ void handleButtonFromMenu(uint8_t* _localMenu, uint8_t _localButton) {
                 case BUTTON_STATUS_LEFT:
                     _nextMenu = SELECCION_MENU_INFO;
                     break;
-                case BUTTON_STATUS_RIGHT:
-                    _nextMenu = SELECCION_MENU_INFO_WIFI_SSID;
-                    break;
-            }
-            break;
-        }
-        case SELECCION_MENU_INFO_WIFI_SSID: {
-            switch (_localButton) {
-                case BUTTON_STATUS_LEFT:
-                    _nextMenu = SELECCION_MENU_INFO_WIFI_STATUS;
-                    break;
-                case BUTTON_STATUS_RIGHT:
-                    _nextMenu = SELECCION_MENU_INFO_WIFI_IP;
-                    break;
-            }
-            break;
-        }
-        case SELECCION_MENU_INFO_WIFI_IP: {
-            switch (_localButton) {
-                case BUTTON_STATUS_LEFT:
-                    _nextMenu = SELECCION_MENU_INFO_WIFI_SSID;
-                    break;
             }
             break;
         }
@@ -335,85 +316,13 @@ void actualizarMenuPantalla(uint8_t _localMenu) {
                     lcdBuffer += String(" ");
                 }
                 lcdBuffer += rssi;
-                lcdBuffer += String("  >");
-            } else if (ESP8266Utils_is_AP_created()) {
-                lcdBuffer         += String(": AP Mode ");
-                lcdBuffer         += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-                lcdBuffer         += String(" Clients : ");
-                int _localClients  = ESP8266Utils_get_AP_clients();
-                if (_localClients < 10) {
-                    lcdBuffer += String("0");
-                }
-                lcdBuffer += String(_localClients);
-                lcdBuffer += String(" >");
+                lcdBuffer += String("   ");
             } else {
                 lcdBuffer += String(": OFFLINE ");
                 lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-                lcdBuffer += String("              >");
+                lcdBuffer += String("               ");
             }
             break;
-        case SELECCION_MENU_INFO_WIFI_SSID: {
-            static String _locaBuffer;
-            static uint8_t _localBufferIndex;
-            static uint32_t timeout_ms;
-            if (ESP8266Utils_is_STA_connected()) {
-                if (((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == "") {
-                    timeout_ms   = millis();
-                    _locaBuffer  = "               SSID: ";
-                    _locaBuffer += ESP8266Utils_get_STA_SSID();
-                    _locaBuffer += String("                ");
-
-                    _localBufferIndex++;
-                    if (_localBufferIndex > (_locaBuffer.length() - 16)) {
-                        _localBufferIndex = 0;
-                    }
-                    _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
-                }
-                lcdBuffer += _locaBuffer;
-                lcdBuffer += String("<              >");
-            } else if (ESP8266Utils_is_AP_created()) {
-                if (((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == "") {
-                    timeout_ms   = millis();
-                    _locaBuffer  = "               SSID (AP): ";
-                    _locaBuffer += ESP8266Utils_get_AP_SSID();
-                    _locaBuffer += String(" PWD: ");
-                    _locaBuffer += ESP8266Utils_get_AP_PWD();
-                    _locaBuffer += String("                ");
-
-                    _localBufferIndex++;
-                    if (_localBufferIndex > (_locaBuffer.length() - 16)) {
-                        _localBufferIndex = 0;
-                    }
-                    _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
-                }
-                lcdBuffer += _locaBuffer;
-                lcdBuffer += String("<              >");
-            } else {
-                lcdBuffer += String("  SSID STA & AP ");
-                lcdBuffer += String("<  NOT AVAIL.  >");
-            }
-            break;
-        }
-        case SELECCION_MENU_INFO_WIFI_IP: {
-            static String _locaBuffer;
-            static uint8_t _localBufferIndex;
-            static uint32_t timeout_ms;
-            if (((millis() - timeout_ms) > LCD_SLIDE_SPEED_MS) || _locaBuffer == "") {
-                timeout_ms   = millis();
-                _locaBuffer  = "               IP: ";
-                _locaBuffer += ESP8266Utils_get_hostname();
-                _locaBuffer += String("                ");
-
-                _localBufferIndex++;
-                if (_localBufferIndex > (_locaBuffer.length() - 16)) {
-                    _localBufferIndex = 0;
-                }
-                _locaBuffer = _locaBuffer.substring(_localBufferIndex, _localBufferIndex + 16);
-            }
-            lcdBuffer += _locaBuffer;
-            lcdBuffer += String("<               ");
-            break;
-        }
     }
     sendLcdBuffer(lcdBuffer);
 }

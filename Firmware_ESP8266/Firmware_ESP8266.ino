@@ -19,7 +19,7 @@
 #include "lcd.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-enum SystemState _SystemState  = SYSTEM_STATE_WIFI_STATION_CONNECTED;
+enum SystemState _SystemState  = SYSTEM_STATE_ENTERING_IDLE;
 uint8_t _seleccionMenu         = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
 uint8_t _seleccionMenuAnterior = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
 struct ShutterParameters ShutterData[3];
@@ -38,7 +38,9 @@ void setup() {
     }
 
     // sendLcdBuffer("                ", "                ");
-    sendLcdBuffer("....INICIANDO...CONECTANDO  WIFI");
+    sendLcdBuffer("    INICIANDO   PANEL DE CONTROL");
+    initButtonsFunction();
+    checkSlaveConnection();
     if (!ESP8266Utils_Connect_STA(
                 settings.wifiSettings.ssid_sta,
                 settings.wifiSettings.password_sta,
@@ -46,92 +48,23 @@ void setup() {
                 WIFI_CONNECTION_TIMEOUT)) {
         Serial.print("Error connecting to SSID: ");
         Serial.println(settings.wifiSettings.ssid_sta);
-        if (!ESP8266Utils_Connect_AP(
-                    settings.wifiSettings.ssid_ap,
-                    settings.wifiSettings.password_ap,
-                    settings.wifiSettings.hostname,
-                    WIFI_CONNECTION_TIMEOUT)) {
-            Serial.print("Error creating AP with SSID: ");
-            Serial.println(settings.wifiSettings.ssid_ap);
-            errorHandler(FATAL_ERROR_CODE_WIFI_AP_FAILED);
-        } else {
-            Serial.print("AP created with SSID: ");
-            Serial.println(settings.wifiSettings.ssid_ap);
-            _SystemState = SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED;
-        }
+    } else {
+        Serial.println("STA connected");
+        ESP8266Utils_update_WeatherData(&settings);
     }
+    SystemFunctionTask.detach();
+    SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManagerISR);
 }
 
 void loop() {
-    ESP8266Utils_handleWifi();
-
     switch (_SystemState) {
-        case SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED: {
-            static int lcd_transition_state;
-            static uint32_t lcd_transition_timerMs;
-            static int indexDisplay;
-            static uint32_t slide_timerMs;
-
-            String displayString1;
-            String displayString2;
-
-            if (lcd_transition_state == 1) {
-                sendLcdBuffer(String("PORFAVOR CONECTE A LA RED WIFI  "));
-
-                if ((millis() - lcd_transition_timerMs) > LCD_TRANSITION_SPEED_MS) {
-                    lcd_transition_timerMs = millis();
-                    lcd_transition_state++;
-                }
-            } else if (lcd_transition_state == 2) {
-                displayString1 = "      SSID      ";
-                displayString2 = "                " + String(settings.wifiSettings.ssid_ap)
-                               + "                ";
-            } else if (lcd_transition_state == 3) {
-                displayString1 = "    PASSWORD    ";
-                displayString2 = "                " + String(settings.wifiSettings.password_ap)
-                               + "                ";
-            } else if (lcd_transition_state == 4) {
-                displayString1 = " LOCAL  ADDRESS ";
-                displayString2
-                        = "                " + ESP8266Utils_get_hostname() + "                ";
-            } else {
-                lcd_transition_state   = 1;
-                lcd_transition_timerMs = millis();
-            }
-
-            if (lcd_transition_state > 1) {
-                if ((millis() - slide_timerMs) > LCD_SLIDE_SPEED_MS) {
-                    slide_timerMs = millis();
-
-                    indexDisplay++;
-                    if (indexDisplay >= (displayString2.length() - 16)) {
-                        indexDisplay = 0;
-                        lcd_transition_state++;
-                    } else {
-                        sendLcdBuffer(
-                                displayString1
-                                + displayString2.substring(indexDisplay, indexDisplay + 16));
-                    }
-                }
-            }
-
-            break;
-        }
-        case SYSTEM_STATE_WIFI_STATION_CONNECTED: {
-            sendLcdBuffer("....INICIANDO...    PERIFERICOS  ");
-            // Before ACCESS_POINT_OPENED it makes no sense to do all this bottom functions
-            initButtonsFunction();
-            checkSlaveConnection();
-            sendLcdBuffer("....INICIANDO... OBTENIENDO DATOS");
-            ESP8266Utils_update_WeatherData(&settings);
-            SystemFunctionTask.detach();
-            SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManagerISR);
-            _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-            break;
-        }
         case SYSTEM_STATE_ENTERING_IDLE: {
             apagarBrilloPantalla();
-            actualizarHoraPantallaISR();
+            if (ntp_time_is_initialized()) {
+                actualizarHoraPantallaISR();
+            } else {
+                actualizarMenuPantalla(_seleccionMenu);
+            }
             TimeOutTask.detach();
             TimeOutTask.attach(UPDATE_SCREEN_SECONDS, actualizarHoraPantallaISR);
             if (_seleccionMenu > SELECCION_MENU_NONE) {
@@ -148,8 +81,6 @@ void loop() {
             break;
         }
         case SYSTEM_STATE_WAKEUP: {
-            // Update Weather condition every wake up?
-            // getWeatherDataFunction();
             encenderBrilloPantalla();
             _seleccionMenu = _seleccionMenuAnterior;
             _SystemState   = SYSTEM_STATE_MENU;

@@ -5,12 +5,10 @@
 #define LED_GREEN_PIN_NR                                                    (16)
 
 #define FATAL_ERROR_CODE_LCD_INIT_FAILED                                     (1)
-#define FATAL_ERROR_CODE_WIFI_AP_FAILED                                      (2)
-#define FATAL_ERROR_CODE_NO_SLAVE_HARDWARE                                   (3)
-#define FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE                              (4)
+#define FATAL_ERROR_CODE_NO_SLAVE_HARDWARE                                   (2)
+#define FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE                              (3)
 
-static String fatalErrorListStr[]
-        = { "   LCD FAILED   ", " WIFI AP FAILED ", " NO SLAVE HARDW ", "INVALID SLAVE HW" };
+static String fatalErrorListStr[] = { "   LCD FAILED   ", " NO SLAVE HARDW ", "INVALID SLAVE HW" };
 
 static inline void errorHandler(uint8_t fatalErrorCode) {
     Serial.println("FATAL ERROR. code : " + String(fatalErrorCode));

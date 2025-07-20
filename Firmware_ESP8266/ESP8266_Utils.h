@@ -1,8 +1,6 @@
 #pragma once
 
-#include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 
 #include "EEPROM_Utils.h"
 #include "basic_defines.h"
@@ -14,22 +12,11 @@
 
 extern struct Settings settings;
 
-ESP8266WebServer server(80);
-
 struct WeatherData {
     unsigned long timezoneshift = MYTZ;
     double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
     bool initializedNTPtime     = false;
 } MyWeather;
-
-void InitServer() {
-    server.on("/", HTTP_GET, []() {
-        server.sendHeader("Connection", "close");
-        server.send(200, "text/html", "Hello from ESP8266");
-    });
-    server.begin();
-    MDNS.addService("http", "tcp", 80);
-}
 
 void ntp_time_is_set_cb() {
     MyWeather.initializedNTPtime = true;
@@ -71,8 +58,6 @@ bool ESP8266Utils_Connect_STA(
         return false;
     }
 
-    MDNS.begin(hostname);
-
     Serial.println("");
     Serial.print("Iniciado STA:\t");
     Serial.println(ssid);
@@ -81,45 +66,7 @@ bool ESP8266Utils_Connect_STA(
 
     ntp_time_init();
 
-    InitServer();
-
     return true;
-}
-
-bool ESP8266Utils_Connect_AP(
-        const char* ssid,
-        const char* password,
-        const char* hostname,
-        int32_t timeout_ms = 10000) {
-    Serial.println("");
-    WiFi.mode(WIFI_AP);
-    while (!WiFi.softAP(ssid, password) && timeout_ms > 0) {
-        delay(100);
-        timeout_ms -= 100;
-        yield();
-    }
-
-    if (timeout_ms <= 0) {
-        Serial.println("AP Failed");
-        return false;
-    }
-
-    MDNS.begin(hostname);
-
-    Serial.println("");
-    Serial.print("Iniciado AP:\t");
-    Serial.println(ssid);
-    Serial.print("IP address:\t");
-    Serial.println(WiFi.softAPIP());
-
-    InitServer();
-
-    return true;
-}
-
-void ESP8266Utils_handleWifi() {
-    server.handleClient();
-    MDNS.update();
 }
 
 bool ESP8266Utils_is_STA_connected() { return WiFi.isConnected(); }
@@ -147,22 +94,6 @@ bool ESP8266Utils_is_STA_online() {
 int8_t ESP8266Utils_get_STA_RSSI() { return WiFi.RSSI(); }
 
 String ESP8266Utils_get_STA_SSID() { return WiFi.SSID(); }
-
-bool ESP8266Utils_is_AP_created() { return (WiFi.getMode() == WIFI_AP); }
-
-String ESP8266Utils_get_AP_SSID() { return WiFi.softAPSSID(); }
-
-String ESP8266Utils_get_AP_PWD() { return WiFi.softAPPSK(); }
-
-uint8_t ESP8266Utils_get_AP_clients() { return WiFi.softAPgetStationNum(); }
-
-String ESP8266Utils_get_hostname() {
-    if (MDNS.isRunning()) {
-        return (String(settings.wifiSettings.hostname) + String(".local"));
-    } else {
-        return WiFi.localIP().toString();
-    }
-}
 
 bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
     if (!ESP8266Utils_is_STA_online()) {

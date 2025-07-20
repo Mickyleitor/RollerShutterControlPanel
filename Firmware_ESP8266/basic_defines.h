@@ -39,8 +39,6 @@
 #define EEPROM_SIZE                                    (sizeof(struct Settings))
 
 enum SystemState {
-    SYSTEM_STATE_WIFI_ACCESS_POINT_OPENED,
-    SYSTEM_STATE_WIFI_STATION_CONNECTED,
     SYSTEM_STATE_ENTERING_IDLE,
     SYSTEM_STATE_IDLING,
     SYSTEM_STATE_WAKEUP,
@@ -54,8 +52,6 @@ enum seleccionMenu {
     SELECCION_MENU_PERSIANA_DERECHA,
     SELECCION_MENU_INFO,
     SELECCION_MENU_INFO_WIFI_STATUS,
-    SELECCION_MENU_INFO_WIFI_SSID,
-    SELECCION_MENU_INFO_WIFI_IP,
 };
 
 // This macro is used to convert the enum to the index of the array

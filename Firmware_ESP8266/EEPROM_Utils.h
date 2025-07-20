@@ -4,7 +4,6 @@
 
 #include "basic_defines.h"
 
-
 struct __attribute__((__packed__)) WifiSettings {
     char ssid_sta[64];
     char password_sta[64];

@@ -25,10 +25,7 @@ uint8_t _seleccionMenuAnterior = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU
 struct ShutterParameters ShutterData[3];
 Ticker TimeOutTask, SystemFunctionTask;
 
-void goIdleState(void) {
-    Serial.println("Buttons Time Out");
-    _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-}
+void systemStateGoToIdle(void) { _SystemState = SYSTEM_STATE_ENTERING_IDLE; }
 
 void setup() {
     Serial.begin(115200);

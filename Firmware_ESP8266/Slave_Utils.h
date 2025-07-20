@@ -46,28 +46,4 @@ void checkSlaveConnection() {
         delay(200);
         yield();
     }
-
-    for (int i = 0; i < 4; i++) {
-        struct RSCP_Reply_switchrelay switchRelayReply;
-        err = rscpRequestData(
-                RSCP_CMD_GET_SWITCH_RELAY,
-                (uint8_t*)&switchRelayReply,
-                sizeof(switchRelayReply),
-                RSCP_TIMEOUT_MS);
-        Serial.println("rscpRequestSwitchRelay: " + String(err));
-        Serial.println("switchRelay.status: " + String(switchRelayReply.status));
-
-        struct RSCP_Arg_switchrelay switchRelayArg;
-        switchRelayArg.status = (switchRelayReply.status == RSCP_DEF_SWITCH_RELAY_ON)
-                                      ? RSCP_DEF_SWITCH_RELAY_OFF
-                                      : RSCP_DEF_SWITCH_RELAY_ON;
-        err                   = rscpSendAction(
-                RSCP_CMD_SET_SWITCH_RELAY,
-                (uint8_t*)&switchRelayArg,
-                sizeof(switchRelayArg),
-                RSCP_TIMEOUT_MS);
-        Serial.println("rscpSendSwitchRelay: " + String(err));
-        delay(1000);
-        yield();
-    }
 }

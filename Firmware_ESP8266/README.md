@@ -6,6 +6,16 @@ This serves as the primary CPU for the roller shutter control panel, based on th
 
 The main CPU handles several critical tasks, including displaying appropriate content on the LCD, processing user input from buttons, and communicating via I2C with the radio module to control the roller shutters. Additionally, it can connect to a Wi-Fi network, enabling data retrieval from the internet for functions like displaying weather forecasts and time. This data is crucial for specific user requirements, such as scheduling shutter control based on time and weather conditions.
 
+## Roadmap
+
+Make the solution simpler!! There are many features that are not strictly necessary for the roller shutter control panel. I want a working solution soon and will remove unnecessary features to achieve that. In order to do that, I will only need the following features:
+
+- Control of the roller shutters via the radio module.
+- Connect to a Wi-Fi network.
+- Get current time and weather forecast from the internet.
+- Display the current time and temperature on the LCD when idle.
+- Allowing the user to change the time UTC and the Wi-Fi network settings via LCD buttons.
+
 ## Proposed Enhancements
 
 Here are several potential enhancements to consider:

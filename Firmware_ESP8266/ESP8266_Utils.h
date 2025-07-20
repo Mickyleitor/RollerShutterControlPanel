@@ -8,9 +8,10 @@
 #include "SolarAzEl.h"
 #include "basic_defines.h"
 
-
 #define HTTP_SERVER_PING_ADDRESS                                       "1.1.1.1"
 #define HTTP_SERVER_PING_INTERVAL_MS                                     (10000)
+
+#define TEMPERATURE_DEGREE_INVALID                                       (65535)
 
 extern struct Settings settings;
 
@@ -23,7 +24,8 @@ struct WeatherData {
     time_t sunsetSecondsUTC     = 0;
     unsigned long timezoneshift = MYTZ;
     double Cloudiness           = 255;
-    double TemperatureDegree    = 65535;
+    double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
+    bool initializedNTPtime     = false;
 } MyWeather;
 
 void InitServer() {
@@ -35,18 +37,25 @@ void InitServer() {
     MDNS.addService("http", "tcp", 80);
 }
 
-bool initTime(int32_t timeout_ms = 10000) {
+void ntp_time_is_set_cb() {
+    MyWeather.initializedNTPtime = true;
+    Serial.println("\nNTP time initialized");
+}
+
+void ntp_time_uninit() {
+    MyWeather.initializedNTPtime = false;
+    Serial.println("\nNTP time uninitialized");
+}
+
+void ntp_time_init() {
     // We want UTC time.
     int dst = 0;
+    settimeofday_cb(ntp_time_is_set_cb);
+    ntp_time_uninit();
     configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
-    while (!time(nullptr) && timeout_ms > 0) {
-        yield();
-        delay(1000);
-        timeout_ms -= 1000;
-    }
-
-    return (timeout_ms > 0);
 }
+
+bool ntp_time_is_initialized() { return MyWeather.initializedNTPtime; }
 
 bool ESP8266Utils_Connect_STA(
         const char* ssid,
@@ -76,10 +85,7 @@ bool ESP8266Utils_Connect_STA(
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());
 
-    if (!initTime()) {
-        Serial.println("Failed to get time from NTP server");
-        return false;
-    }
+    ntp_time_init();
 
     InitServer();
 

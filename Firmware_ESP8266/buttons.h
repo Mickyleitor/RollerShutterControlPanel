@@ -15,7 +15,6 @@
 
 #include "basic_defines.h"
 
-
 //---[ Macros ]-----------------------------------------------------------------
 
 #define BUTTONS_TIMEOUT_SECONDS                                             (10)
@@ -31,7 +30,7 @@
 
 extern Ticker TimeOutTask;
 static Ticker ButtonsISRTask;
-extern void goIdleState(void);
+extern void systemStateGoToIdle(void);
 
 //---[ Public Variables ]-------------------------------------------------------
 
@@ -93,7 +92,7 @@ static inline int buttonPressed(void) {
     }
     if (_currentButton != BUTTON_STATUS_NONE) {
         TimeOutTask.detach();
-        TimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, goIdleState);
+        TimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, systemStateGoToIdle);
     }
     int buttonPress = _currentButton;
     _currentButton  = BUTTON_STATUS_NONE;

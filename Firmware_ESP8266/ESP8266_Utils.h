@@ -5,7 +5,6 @@
 #include <ESP8266mDNS.h>
 
 #include "EEPROM_Utils.h"
-#include "SolarAzEl.h"
 #include "basic_defines.h"
 
 #define HTTP_SERVER_PING_ADDRESS                                       "1.1.1.1"
@@ -18,12 +17,7 @@ extern struct Settings settings;
 ESP8266WebServer server(80);
 
 struct WeatherData {
-    double SunAzimuth           = 0;
-    double SunElevation         = 0;
-    time_t sunriseSecondsUTC    = 0;
-    time_t sunsetSecondsUTC     = 0;
     unsigned long timezoneshift = MYTZ;
-    double Cloudiness           = 255;
     double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
     bool initializedNTPtime     = false;
 } MyWeather;
@@ -183,24 +177,6 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
         return false;
     }
 
-    double NewAzimuth   = -9999;
-    double NewElevation = -9999;
-    SolarAzEl(
-            time(NULL),
-            myData->openWeatherMapSettings.lat,
-            myData->openWeatherMapSettings.lon,
-            1,
-            &NewAzimuth,
-            &NewElevation);
-    if (NewAzimuth > -9999 && NewElevation > -9999) {
-        MyWeather.SunAzimuth   = NewAzimuth;
-        MyWeather.SunElevation = NewElevation;
-    }
-    Serial.print("SunAzimuth :");
-    Serial.print(MyWeather.SunAzimuth);
-    Serial.print(" SunElevation : ");
-    Serial.println(MyWeather.SunElevation);
-
     WiFiClient client;
     // Connect to HTTP server
     client.setTimeout(HTTP_SERVER_REQUEST_TIMEOUT);
@@ -243,31 +219,6 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
     } else {
         Serial.println("No Temperature JSON object found");
     }
-    if (client.find("\"clouds\":{\"all\":")) {
-        double NewCloudiness = client.readStringUntil('}').toDouble();
-        Serial.print("Cloudiness: ");
-        Serial.print(NewCloudiness);
-        Serial.println("%");
-        MyWeather.Cloudiness = NewCloudiness;
-    } else {
-        Serial.println("No Cloudiness JSON object found");
-    }
-    if (client.find("\"sunrise\":")) {
-        MyWeather.sunriseSecondsUTC
-                = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10) % (60 * 60 * 24);
-        Serial.print("Current Sunrise UTC time: ");
-        Serial.print(ctime(&MyWeather.sunriseSecondsUTC));
-    } else {
-        Serial.println("No sunrise JSON object found");
-    }
-    if (client.find("\"sunset\":")) {
-        MyWeather.sunsetSecondsUTC
-                = (time_t)strtoul(client.readStringUntil(',').c_str(), NULL, 10) % (60 * 60 * 24);
-        Serial.print("Current Sunset UTC time: ");
-        Serial.print(ctime(&MyWeather.sunsetSecondsUTC));
-    } else {
-        Serial.println("No sunsetTime JSON object found");
-    }
     if (client.find("\"timezone\":")) {
         unsigned long timezoneshift = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
         Serial.print("Timezone shift: ");
@@ -276,6 +227,7 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
     } else {
         Serial.println("No timezoneshift JSON object found");
     }
+
     // Disconnect
     client.stop();
     return true;

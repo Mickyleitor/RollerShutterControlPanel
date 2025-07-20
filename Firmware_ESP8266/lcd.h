@@ -117,7 +117,7 @@ int initLCDFunction(int32_t timeout_ms) {
     return 0;
 }
 
-void actualizarHoraPantalla() {
+void actualizarHoraPantallaISR() {
     String lcdBuffer = "   ";
     time_t now;
     struct tm* timeinfo;

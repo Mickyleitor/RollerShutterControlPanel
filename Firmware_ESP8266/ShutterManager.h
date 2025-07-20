@@ -6,7 +6,6 @@
 #include "basic_defines.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-
 #define SCHEDULED_DATA_FLAG_PENDING                                       (0x01)
 #define SCHEDULED_DATA_FLAG_DONE                                          (0x02)
 
@@ -46,9 +45,9 @@ void clearAllDoneFlagAtNewYear(bool isNewYear) {
     }
 }
 
-void SystemFunctionManager() {
+void SystemFunctionManagerISR() {
     SystemFunctionTask.detach();
-    SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManager);
+    SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManagerISR);
 
     // Check Roller Shutter status
     for (int index = 0; index < 3; index++) {
@@ -62,7 +61,7 @@ void SystemFunctionManager() {
             } else {
                 // Check again next time
                 SystemFunctionTask.detach();
-                SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManager);
+                SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManagerISR);
             }
         }
     }
@@ -96,7 +95,7 @@ void subirPersiana(int persiana) {
     (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
 
     SystemFunctionTask.detach();
-    SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManager);
+    SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManagerISR);
 }
 
 void bajarPersiana(int persiana) {
@@ -109,7 +108,7 @@ void bajarPersiana(int persiana) {
     (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
 
     SystemFunctionTask.detach();
-    SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManager);
+    SystemFunctionTask.attach(SHUTTER_DURATION_SECONDS, SystemFunctionManagerISR);
 }
 
 void PararPersiana(int persiana) {

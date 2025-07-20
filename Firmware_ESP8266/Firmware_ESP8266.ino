@@ -125,15 +125,15 @@ void loop() {
             sendLcdBuffer("....INICIANDO... OBTENIENDO DATOS");
             ESP8266Utils_update_WeatherData(&settings);
             SystemFunctionTask.detach();
-            SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManager);
+            SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManagerISR);
             _SystemState = SYSTEM_STATE_ENTERING_IDLE;
             break;
         }
         case SYSTEM_STATE_ENTERING_IDLE: {
             apagarBrilloPantalla();
-            actualizarHoraPantalla();
+            actualizarHoraPantallaISR();
             TimeOutTask.detach();
-            TimeOutTask.attach(UPDATE_SCREEN_SECONDS, actualizarHoraPantalla);
+            TimeOutTask.attach(UPDATE_SCREEN_SECONDS, actualizarHoraPantallaISR);
             if (_seleccionMenu > SELECCION_MENU_NONE) {
                 _seleccionMenuAnterior = _seleccionMenu;
             }

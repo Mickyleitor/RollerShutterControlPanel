@@ -31,19 +31,4 @@ void checkSlaveConnection() {
         || (cpureply.protocolversion != RSCP_DEF_PROTOCOL_VERSION)) {
         errorHandler(FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE);
     }
-    struct RSCP_Arg_buzzer_action buzzerAction;
-    buzzerAction.action      = RSCP_DEF_BUZZER_ACTION_ON;
-    buzzerAction.volume      = 500;
-    buzzerAction.duration_ms = 100;
-    for (int i = 0; i < 3; i++) {
-        int8_t err = rscpSendAction(
-                RSCP_CMD_SET_BUZZER_ACTION,
-                (uint8_t*)&buzzerAction,
-                sizeof(buzzerAction),
-                RSCP_TIMEOUT_MS);
-        buzzerAction.volume += 500;
-        Serial.println("rscpSendBuzzerAction: " + String(err));
-        delay(200);
-        yield();
-    }
 }

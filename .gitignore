@@ -33,3 +33,6 @@ build
 
 CriticalData.h
 .vscode
+
+# PlatformIO files
+.pio

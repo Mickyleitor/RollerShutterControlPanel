@@ -28,8 +28,7 @@
 
 //---[ Types ]------------------------------------------------------------------
 
-extern Ticker TimeOutTask;
-static Ticker ButtonsISRTask;
+static Ticker ButtonsDebounceTask, ButtonsTimeOutTask;
 extern void systemStateGoToIdle(void);
 
 //---[ Public Variables ]-------------------------------------------------------
@@ -39,6 +38,11 @@ enum ButtonStatus _currentButton = BUTTON_STATUS_NONE;
 //---[ Public Function Prototypes ]---------------------------------------------
 
 //---[ Public static inline functions ]-----------------------------------------
+
+static inline void onButtonTimeout(void) {
+    ButtonsTimeOutTask.detach();
+    systemStateGoToIdle();
+}
 
 static inline void ButtonsISRFunction(void) {
     _currentButton = BUTTON_STATUS_NONE;
@@ -51,12 +55,12 @@ static inline void ButtonsISRFunction(void) {
     } else if (digitalRead(BUTTON_RIGHT_PIN_NR) == LOW) {
         _currentButton = BUTTON_STATUS_RIGHT;
     }
-    ButtonsISRTask.detach();
+    ButtonsDebounceTask.detach();
 }
 
 void IRAM_ATTR isrButtons(void) {
-    ButtonsISRTask.detach();
-    ButtonsISRTask.attach_ms(BUTTON_DEBOUNCE_TIME_MS, ButtonsISRFunction);
+    ButtonsDebounceTask.detach();
+    ButtonsDebounceTask.attach_ms(BUTTON_DEBOUNCE_TIME_MS, ButtonsISRFunction);
 }
 
 static inline void initButtonsFunction(void) {
@@ -91,8 +95,8 @@ static inline int buttonPressed(void) {
         }
     }
     if (_currentButton != BUTTON_STATUS_NONE) {
-        TimeOutTask.detach();
-        TimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, systemStateGoToIdle);
+        ButtonsTimeOutTask.detach();
+        ButtonsTimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, onButtonTimeout);
     }
     int buttonPress = _currentButton;
     _currentButton  = BUTTON_STATUS_NONE;

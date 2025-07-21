@@ -4,16 +4,22 @@
 
 #define LED_GREEN_PIN_NR                                                    (16)
 
-#define FATAL_ERROR_CODE_LCD_INIT_FAILED                                     (1)
-#define FATAL_ERROR_CODE_NO_SLAVE_HARDWARE                                   (2)
-#define FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE                              (3)
+enum FatalErrorCode {
+    FATAL_ERROR_CODE_LCD_INIT_FAILED        = 1,
+    FATAL_ERROR_CODE_NO_SLAVE_HARDWARE      = 2,
+    FATAL_ERROR_CODE_INVALID_SLAVE_HARDWARE = 3,
 
-static String fatalErrorListStr[] = { "   LCD FAILED   ", " NO SLAVE HARDW ", "INVALID SLAVE HW" };
+    FATAL_ERROR_CODE_MAX
+};
+
+static String fatalErrorListStr[FATAL_ERROR_CODE_MAX - 1]
+        = { "   LCD FAILED   ", " NO SLAVE HARDW ", "INVALID SLAVE HW" };
 
 static inline void errorHandler(uint8_t fatalErrorCode) {
     Serial.println("FATAL ERROR. code : " + String(fatalErrorCode));
     // When no lcd is connected, blink the led on pin 16
-    if (fatalErrorCode > FATAL_ERROR_CODE_LCD_INIT_FAILED) {
+    if ((fatalErrorCode > FATAL_ERROR_CODE_LCD_INIT_FAILED)
+        && (fatalErrorCode < FATAL_ERROR_CODE_MAX)) {
         String buffer = String("FATAL ERROR: ");
         if (fatalErrorCode < 10) {
             buffer += String("00");

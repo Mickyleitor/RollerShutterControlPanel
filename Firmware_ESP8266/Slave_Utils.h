@@ -6,6 +6,8 @@
 #include "error.h"
 #include "rscpProtocol/rscpProtocol.h"
 
+#define RSCP_TIMEOUT_MS                                                   (1000)
+
 void checkSlaveConnection() {
     struct RSCP_Reply_cpuquery cpureply;
     int8_t err = rscpRequestData(

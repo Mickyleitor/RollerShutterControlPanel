@@ -114,7 +114,7 @@ int initLCDFunction(int32_t timeout_ms) {
     return 0;
 }
 
-void actualizarHoraPantallaISR() {
+void actualizarHoraPantalla() {
     if (!ntp_time_is_initialized()) {
         return;
     }
@@ -312,7 +312,7 @@ void actualizarMenuPantalla(uint8_t _localMenu) {
                 lcdBuffer   += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
                 lcdBuffer   += String("  RSSI: ");
                 String rssi  = String(ESP8266Utils_get_STA_RSSI());
-                for (int i = 0; i < 4 - rssi.length(); i++) {
+                for (unsigned int i = 0; i < (4 - rssi.length()); i++) {
                     lcdBuffer += String(" ");
                 }
                 lcdBuffer += rssi;

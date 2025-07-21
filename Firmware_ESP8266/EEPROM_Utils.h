@@ -44,7 +44,7 @@ void EEPROM_Write(struct Settings* data) {
     EEPROM.begin(EEPROM_SIZE);
     data->crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
     // store values in EEPROM
-    for (int index = 0; index < EEPROM_SIZE; index++) {
+    for (unsigned int index = 0; index < EEPROM_SIZE; index++) {
         if (((char*)data)[index] != EEPROM.read(index)) {
             EEPROM.write(index, ((char*)data)[index]);
         }
@@ -55,7 +55,7 @@ void EEPROM_Write(struct Settings* data) {
 
 void EEPROM_Read(struct Settings* data) {
     EEPROM.begin(EEPROM_SIZE);
-    for (int index = 0; index < EEPROM_SIZE; index++) {
+    for (unsigned int index = 0; index < EEPROM_SIZE; index++) {
         ((char*)data)[index] = EEPROM.read(index);
     }
     EEPROM.end();

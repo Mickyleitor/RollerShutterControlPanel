@@ -19,11 +19,9 @@
 #include "lcd.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-enum SystemState _SystemState  = SYSTEM_STATE_ENTERING_IDLE;
-uint8_t _seleccionMenu         = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
-uint8_t _seleccionMenuAnterior = SELECCION_MENU_PERSIANA_TO_INDEX(SELECCION_MENU_PERSIANA_CENTRAL);
-struct ShutterParameters ShutterData[3];
-Ticker TimeOutTask, SystemFunctionTask;
+enum SystemState _SystemState = SYSTEM_STATE_ENTERING_IDLE;
+uint8_t _seleccionMenu        = DEFAULT_SELECTION_MENU;
+struct ShutterParameters ShutterData[NUMBER_OF_SHUTTERS];
 
 void systemStateGoToIdle(void) { _SystemState = SYSTEM_STATE_ENTERING_IDLE; }
 
@@ -37,7 +35,6 @@ void setup() {
         errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);
     }
 
-    // sendLcdBuffer("                ", "                ");
     sendLcdBuffer("    INICIANDO   PANEL DE CONTROL");
     initButtonsFunction();
     checkSlaveConnection();
@@ -52,38 +49,48 @@ void setup() {
         Serial.println("STA connected");
         ESP8266Utils_update_WeatherData(&settings);
     }
-    SystemFunctionTask.detach();
-    SystemFunctionTask.attach(SYSTEM_MANAGER_SECONDS, SystemFunctionManagerISR);
 }
 
 void loop() {
+    static unsigned long lastScreenUpdate = 0;
+    unsigned long currentMillis           = millis();
     switch (_SystemState) {
         case SYSTEM_STATE_ENTERING_IDLE: {
             apagarBrilloPantalla();
+            // If the menu is not a shutter and we are entering idle state,
+            // return to the default shutter menu when we wake up again.
+            if (_seleccionMenu >= SELECCION_MENU_INFO) {
+                _seleccionMenu = DEFAULT_SELECTION_MENU;
+            }
             if (ntp_time_is_initialized()) {
-                actualizarHoraPantallaISR();
+                actualizarHoraPantalla();
             } else {
                 actualizarMenuPantalla(_seleccionMenu);
             }
-            TimeOutTask.detach();
-            TimeOutTask.attach(UPDATE_SCREEN_SECONDS, actualizarHoraPantallaISR);
-            if (_seleccionMenu > SELECCION_MENU_NONE) {
-                _seleccionMenuAnterior = _seleccionMenu;
-            }
-            _seleccionMenu = SELECCION_MENU_NONE;
-            _SystemState   = SYSTEM_STATE_IDLING;
+            _SystemState = SYSTEM_STATE_IDLING;
             break;
         }
         case SYSTEM_STATE_IDLING: {
             if (buttonPressed() != BUTTON_STATUS_NONE) {
                 _SystemState = SYSTEM_STATE_WAKEUP;
+            } else {
+                unsigned long elapsedTime = (currentMillis > lastScreenUpdate)
+                                                  ? (currentMillis - lastScreenUpdate)
+                                                  : (lastScreenUpdate - currentMillis);
+                if (elapsedTime >= (UPDATE_SCREEN_ON_IDLE_INTERVAL_SECONDS * 1000)) {
+                    lastScreenUpdate = currentMillis;
+                    if (ntp_time_is_initialized()) {
+                        actualizarHoraPantalla();
+                    } else {
+                        actualizarMenuPantalla(_seleccionMenu);
+                    }
+                }
             }
             break;
         }
         case SYSTEM_STATE_WAKEUP: {
             encenderBrilloPantalla();
-            _seleccionMenu = _seleccionMenuAnterior;
-            _SystemState   = SYSTEM_STATE_MENU;
+            _SystemState = SYSTEM_STATE_MENU;
             break;
         }
         case SYSTEM_STATE_MENU: {

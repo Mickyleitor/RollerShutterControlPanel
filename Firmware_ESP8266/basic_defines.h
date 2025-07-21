@@ -7,11 +7,7 @@
 #define TZ_Europe_Madrid                                              (2 * 3600)
 #endif
 #define MYTZ TZ_Europe_Madrid
-#define UPDATE_SCREEN_SECONDS                                               (60) // Refresh screen every minute
-#define SHUTTER_DURATION_SECONDS                                            (27)
-#define SYSTEM_MANAGER_SECONDS                                          (60 * 5) // Check tasks every 5 minutes
-
-#define RSCP_TIMEOUT_MS                                                   (1000)
+#define UPDATE_SCREEN_ON_IDLE_INTERVAL_SECONDS                              (60)
 
 #define DEFAULT_STA_SSID                                             "YOUR_SSID"
 #define DEFAULT_STA_PASSWORD                                     "YOUR_PASSWORD"
@@ -50,12 +46,17 @@ enum seleccionMenu {
     SELECCION_MENU_PERSIANA_IZQUIERDA,
     SELECCION_MENU_PERSIANA_CENTRAL,
     SELECCION_MENU_PERSIANA_DERECHA,
+
+    // Starting from here, if there is a button timeout when some menu below is displayed,
+    // it will return to the default shutter menu when we wake up again.
     SELECCION_MENU_INFO,
     SELECCION_MENU_INFO_WIFI_STATUS,
 };
 
 // This macro is used to convert the enum to the index of the array
-#define SELECCION_MENU_PERSIANA_TO_INDEX(x) ((x - SELECCION_MENU_NONE) - 1)
+#define SELECCION_MENU_PERSIANA_TO_INDEX(x)      ((x - SELECCION_MENU_NONE) - 1)
+
+#define DEFAULT_SELECTION_MENU                 (SELECCION_MENU_PERSIANA_CENTRAL)
 
 enum ButtonStatus {
     BUTTON_STATUS_NONE,
@@ -70,6 +71,8 @@ enum ShutterStatus {
     SHUTTER_STATUS_MOVING_UP,
     SHUTTER_STATUS_MOVING_DOWN,
 };
+
+#define NUMBER_OF_SHUTTERS                                                   (3)
 
 struct ShutterParameters {
     enum ShutterStatus status;

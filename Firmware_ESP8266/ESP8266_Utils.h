@@ -13,7 +13,7 @@
 extern struct Settings settings;
 
 struct WeatherData {
-    unsigned long timezoneshift = MYTZ;
+    unsigned long timezoneshift = 0;
     double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
     bool initializedNTPtime     = false;
 } MyWeather;
@@ -76,7 +76,7 @@ bool ESP8266Utils_is_STA_online() {
         return false;
     }
     static bool isOnline;
-    static uint32_t timeout_ms;
+    static uint32_t timeout_ms = 0;
     if ((millis() - timeout_ms) > HTTP_SERVER_PING_INTERVAL_MS) {
         timeout_ms = millis();
         isOnline   = true;

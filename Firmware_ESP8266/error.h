@@ -28,7 +28,7 @@ static inline void errorHandler(uint8_t fatalErrorCode) {
         }
         buffer += String(fatalErrorCode);
         buffer += String(fatalErrorListStr[fatalErrorCode - 1]);
-        sendLcdBuffer(buffer);
+        pantalla_sendLcdBuffer(buffer);
         WiFi.mode(WIFI_OFF);
         WiFi.forceSleepBegin();
         while (true) {

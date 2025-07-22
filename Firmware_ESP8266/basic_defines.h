@@ -3,12 +3,6 @@
 #define SLAVE_I2C_ADDRESS                                                 (0x08)
 #define LCD_I2C_ADDRESS                                                   (0x3F)
 
-#ifndef TZ_Europe_Madrid
-#define TZ_Europe_Madrid                                              (2 * 3600)
-#endif
-#define MYTZ TZ_Europe_Madrid
-#define UPDATE_SCREEN_ON_IDLE_INTERVAL_SECONDS                              (60)
-
 #define DEFAULT_STA_SSID                                             "YOUR_SSID"
 #define DEFAULT_STA_PASSWORD                                     "YOUR_PASSWORD"
 #define DEFAULT_AP_SSID_AND_PASSWORD                             "ESP8266Config"
@@ -42,7 +36,7 @@ enum SystemState {
 };
 
 enum seleccionMenu {
-    SELECCION_MENU_NONE,
+    SELECCION_MENU_RELOJ,
     SELECCION_MENU_PERSIANA_IZQUIERDA,
     SELECCION_MENU_PERSIANA_CENTRAL,
     SELECCION_MENU_PERSIANA_DERECHA,
@@ -51,11 +45,14 @@ enum seleccionMenu {
     // it will return to the default shutter menu when we wake up again.
     SELECCION_MENU_INFO,
     SELECCION_MENU_INFO_WIFI_STATUS,
+
+    SELECCION_MENU_MAX
 };
 
 // This macro is used to convert the enum to the index of the array
-#define SELECCION_MENU_PERSIANA_TO_INDEX(x)      ((x - SELECCION_MENU_NONE) - 1)
+#define SELECCION_MENU_PERSIANA_TO_INDEX(x)     ((x - SELECCION_MENU_RELOJ) - 1)
 
+// Default selection menu. This can't be the SELECCION_MENU_RELOJ
 #define DEFAULT_SELECTION_MENU                 (SELECCION_MENU_PERSIANA_CENTRAL)
 
 enum ButtonStatus {

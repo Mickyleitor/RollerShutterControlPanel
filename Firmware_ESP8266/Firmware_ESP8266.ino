@@ -31,11 +31,14 @@ void setup() {
     Serial.println("Master inicializado");
     EEPROM_Begin(&settings);
 
-    if (initLCDFunction(10000) < 0) {
+    if (!pantalla_iniciar(10000)) {
         errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);
     }
-
-    sendLcdBuffer("    INICIANDO   PANEL DE CONTROL");
+    pantalla_encenderBrillo();
+    pantalla_sendLcdBuffer("    INICIANDO   PANEL DE CONTROL");
+    // We wait a bit just in case we just powered on the whole
+    // device, sometimes the power is still not enough at this point.
+    delay(1000);
     initButtonsFunction();
     checkSlaveConnection();
     if (!ESP8266Utils_Connect_STA(
@@ -52,21 +55,15 @@ void setup() {
 }
 
 void loop() {
-    static unsigned long lastScreenUpdate = 0;
-    unsigned long currentMillis           = millis();
     switch (_SystemState) {
         case SYSTEM_STATE_ENTERING_IDLE: {
-            apagarBrilloPantalla();
-            // If the menu is not a shutter and we are entering idle state,
-            // return to the default shutter menu when we wake up again.
+            pantalla_apagarBrillo();
+            // On entering idle, if menu is beyond info,
+            // reset to default when we wake up again.
             if (_seleccionMenu >= SELECCION_MENU_INFO) {
                 _seleccionMenu = DEFAULT_SELECTION_MENU;
             }
-            if (ntp_time_is_initialized()) {
-                actualizarHoraPantalla();
-            } else {
-                actualizarMenuPantalla(_seleccionMenu);
-            }
+            pantalla_actualizar(true, _seleccionMenu);
             _SystemState = SYSTEM_STATE_IDLING;
             break;
         }
@@ -74,29 +71,18 @@ void loop() {
             if (buttonPressed() != BUTTON_STATUS_NONE) {
                 _SystemState = SYSTEM_STATE_WAKEUP;
             } else {
-                unsigned long elapsedTime = (currentMillis > lastScreenUpdate)
-                                                  ? (currentMillis - lastScreenUpdate)
-                                                  : (lastScreenUpdate - currentMillis);
-                if (elapsedTime >= (UPDATE_SCREEN_ON_IDLE_INTERVAL_SECONDS * 1000)) {
-                    lastScreenUpdate = currentMillis;
-                    if (ntp_time_is_initialized()) {
-                        actualizarHoraPantalla();
-                    } else {
-                        actualizarMenuPantalla(_seleccionMenu);
-                    }
-                }
+                pantalla_actualizar(true, _seleccionMenu);
             }
             break;
         }
-        case SYSTEM_STATE_WAKEUP: {
-            encenderBrilloPantalla();
+        case SYSTEM_STATE_WAKEUP:
+            pantalla_encenderBrillo();
             _SystemState = SYSTEM_STATE_MENU;
             break;
-        }
         case SYSTEM_STATE_MENU: {
             uint8_t button = buttonPressed();
-            handleButtonFromMenu(&_seleccionMenu, button);
-            actualizarMenuPantalla(_seleccionMenu);
+            pantalla_handleButtonInMenu(&_seleccionMenu, button);
+            pantalla_actualizar(false, _seleccionMenu);
             break;
         }
     }

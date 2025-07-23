@@ -35,6 +35,8 @@ enum SystemState {
     SYSTEM_STATE_MENU,
 };
 
+typedef uint8_t SystemState_t;
+
 enum seleccionMenu {
     SELECCION_MENU_RELOJ,
     SELECCION_MENU_PERSIANA_IZQUIERDA,
@@ -44,12 +46,13 @@ enum seleccionMenu {
     // Starting from here, if there is a button timeout when some menu below is displayed,
     // it will return to the default shutter menu when we wake up again.
     SELECCION_MENU_CONFIG,
-    SELECCION_MENU_CONFIG_WIFI,
-    SELECCION_MENU_CONFIG_WIFI_SSID,
-    SELECCION_MENU_CONFIG_WIFI_PASSWORD,
+    SELECCION_MENU_CONFIG_FECHA_HORA,
+    SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE,
 
     SELECCION_MENU_MAX
 };
+
+typedef uint8_t seleccionMenu_t;
 
 // This macro is used to convert the enum to the index of the array
 #define SELECCION_MENU_PERSIANA_TO_INDEX(x)     ((x - SELECCION_MENU_RELOJ) - 1)

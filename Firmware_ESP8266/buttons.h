@@ -102,3 +102,17 @@ static inline int buttonPressed(void) {
     _currentButton  = BUTTON_STATUS_NONE;
     return buttonPress;
 }
+
+static inline uint8_t buttonHolding(void) {
+    uint8_t buttonState = BUTTON_STATUS_NONE;
+    if (digitalRead(BUTTON_LEFT_PIN_NR) == LOW) {
+        buttonState = BUTTON_STATUS_LEFT;
+    } else if (digitalRead(BUTTON_DOWN_PIN_NR) == LOW) {
+        buttonState = BUTTON_STATUS_DOWN;
+    } else if (digitalRead(BUTTON_UP_PIN_NR) == LOW) {
+        buttonState = BUTTON_STATUS_UP;
+    } else if (digitalRead(BUTTON_RIGHT_PIN_NR) == LOW) {
+        buttonState = BUTTON_STATUS_RIGHT;
+    }
+    return buttonState;
+}

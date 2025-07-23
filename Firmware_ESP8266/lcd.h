@@ -7,13 +7,12 @@
 #include "ShutterManager.h"
 #include "basic_defines.h"
 
-extern enum SystemState _SystemState;
-extern uint8_t _seleccionMenu;
 extern struct ShutterParameters ShutterData[];
 extern struct Settings settings;
 extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
+static time_t adjustedTime = 0;
 
 #define LCD_TOTAL_WIDTH                                                     (16)
 #define LCD_TOTAL_HEIGHT                                                     (2)
@@ -27,7 +26,9 @@ LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 #define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
 #define LCD_TRANSITION_SPEED_MS                                           (5000)
-#define LCD_SLIDE_SPEED_MS                                                 (500)
+#define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
+#define LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS                           (200)
+#define LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS                      (1500)
 
 #define LCD_CLOCK_UPDATE_INTERVAL_MS                                     (60000)
 
@@ -105,7 +106,10 @@ bool pantalla_iniciar(int32_t timeout_ms) {
     return true;
 }
 
-void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
+void pantalla_handleButtonInMenu(
+        uint8_t* currentMenu,
+        uint8_t currentButtonPressed,
+        uint8_t currentButtonHolding) {
     uint8_t newMenu = *currentMenu;
     switch (newMenu) {
         case SELECCION_MENU_RELOJ:
@@ -116,7 +120,7 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
             // fall through
         case SELECCION_MENU_PERSIANA_DERECHA: {
             uint8_t _localShutterIndex = (SELECCION_MENU_PERSIANA_TO_INDEX(newMenu));
-            switch (currentButton) {
+            switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
                     newMenu--;
                     // Sanitize menu transition to left
@@ -149,7 +153,7 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
             break;
         }
         case SELECCION_MENU_CONFIG: {
-            switch (currentButton) {
+            switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
                     newMenu = SELECCION_MENU_PERSIANA_DERECHA;
                     break;
@@ -157,27 +161,79 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
                     newMenu = SELECCION_MENU_PERSIANA_IZQUIERDA;
                     break;
                 case BUTTON_STATUS_DOWN:
-                    newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
             }
             break;
         }
-        case SELECCION_MENU_CONFIG_WIFI: {
-            switch (currentButton) {
+        case SELECCION_MENU_CONFIG_FECHA_HORA: {
+            switch (currentButtonPressed) {
                 case BUTTON_STATUS_UP:
                     newMenu = SELECCION_MENU_CONFIG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
+                    adjustedTime = time(NULL) + MyWeather.timezoneshift;
+                    newMenu      = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
             }
             break;
         }
-        case SELECCION_MENU_CONFIG_WIFI_SSID: {
-            switch (currentButton) {
+        case SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE: {
+            switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
-                    newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
+                case BUTTON_STATUS_RIGHT:
+                    // Save the adjusted time
+                    struct timeval newTime;
+                    newTime.tv_sec  = adjustedTime;
+                    newTime.tv_usec = 0;
+                    settimeofday(&newTime, NULL);
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
+                    break;
+                default: {
+                    static unsigned long lastClockUpdateMs   = 0;
+                    static unsigned long lastButtonHoldingMs = 0;
+                    static unsigned long currentAdjustedTime = 60; // start at 1 min
+
+                    unsigned long now = millis();
+                    if (now - lastClockUpdateMs > LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS) {
+                        lastClockUpdateMs = now;
+
+                        if (currentButtonHolding == BUTTON_STATUS_UP
+                            || currentButtonHolding == BUTTON_STATUS_DOWN) {
+                            // if just transitioned to holding, reset timer
+                            if (lastButtonHoldingMs == 0) {
+                                lastButtonHoldingMs = now;
+                            }
+
+                            // decide step level
+                            unsigned long holdMs = now - lastButtonHoldingMs;
+                            unsigned level
+                                    = min(4UL,
+                                          holdMs / LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS);
+
+                            // map to increments
+                            static const unsigned long incs[5]
+                                    = { 60UL, 3600UL, 86400UL, 2592000UL, 31536000UL };
+                            currentAdjustedTime = incs[level];
+
+                            // apply adjustment
+                            if (currentButtonHolding == BUTTON_STATUS_UP) {
+                                adjustedTime += currentAdjustedTime;
+                            } else {
+                                adjustedTime -= currentAdjustedTime;
+                            }
+                        } else {
+                            // button released or other key pressed → reset
+                            lastButtonHoldingMs = 0;
+                            currentAdjustedTime = 60;
+                        }
+                    }
+                    if (adjustedTime < 0) {
+                        adjustedTime = 0;
+                    }
+                } break;
             }
             break;
         }
@@ -293,9 +349,59 @@ void pantalla_actualizarMenuConfig(String* lcdBuffer) {
     *lcdBuffer += String("    >");
 }
 
-void pantalla_actualizarMenuConfigWifi(String* lcdBuffer) {
-    *lcdBuffer += String("  CONFIG. WIFI  ");
-    *lcdBuffer += String("      ");
+void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
+    *lcdBuffer += String("  CONFIG. HORA  ");
+    *lcdBuffer += String("     ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("    ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("  OK>");
+}
+
+void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
+    // Show the adjusted time
+    // format: 00:00 16/10/2023
+    struct tm* timeinfo;
+    static unsigned long lastClockFlashMs = 0;
+    static bool clockStatus               = false;
+
+    timeinfo = localtime(&adjustedTime);
+
+    if ((timeinfo->tm_hour) < 10) {
+        *lcdBuffer += String('0');
+    }
+    *lcdBuffer += String(timeinfo->tm_hour);
+    if ((millis() - lastClockFlashMs) > LCD_SLIDE_OR_FLASH_SPEED_MS) {
+        lastClockFlashMs = millis();
+        clockStatus      = !clockStatus;
+    }
+
+    if (clockStatus) {
+        *lcdBuffer += String(":");
+    } else {
+        *lcdBuffer += String(" ");
+    }
+
+    if ((timeinfo->tm_min) < 10) {
+        *lcdBuffer += String('0');
+    }
+    *lcdBuffer += String(timeinfo->tm_min);
+    *lcdBuffer += String(" ");
+
+    if ((timeinfo->tm_mday) < 10) {
+        *lcdBuffer += String('0');
+    }
+    *lcdBuffer += String(timeinfo->tm_mday);
+    *lcdBuffer += String("/");
+
+    if ((timeinfo->tm_mon + 1) < 10) {
+        *lcdBuffer += String('0');
+    }
+    *lcdBuffer += String(timeinfo->tm_mon + 1);
+    *lcdBuffer += String("/");
+
+    *lcdBuffer += String((timeinfo->tm_year) + 1900);
+    *lcdBuffer += String("<     ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += String("  ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
@@ -320,10 +426,11 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
         case SELECCION_MENU_CONFIG:
             pantalla_actualizarMenuConfig(&lcdBuffer);
             break;
-        case SELECCION_MENU_CONFIG_WIFI:
-            pantalla_actualizarMenuConfigWifi(&lcdBuffer);
+        case SELECCION_MENU_CONFIG_FECHA_HORA:
+            pantalla_actualizarMenuConfigFechaHora(&lcdBuffer);
             break;
-        case SELECCION_MENU_CONFIG_WIFI_SSID:
+        case SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE:
+            pantalla_actualizarMenuConfigFechaHoraAjuste(&lcdBuffer);
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

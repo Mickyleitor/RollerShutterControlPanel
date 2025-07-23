@@ -19,11 +19,15 @@
 #include "lcd.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-enum SystemState _SystemState = SYSTEM_STATE_ENTERING_IDLE;
-uint8_t _seleccionMenu        = DEFAULT_SELECTION_MENU;
+static SystemState_t _SystemState     = SYSTEM_STATE_ENTERING_IDLE;
+static seleccionMenu_t _seleccionMenu = DEFAULT_SELECTION_MENU;
 struct ShutterParameters ShutterData[NUMBER_OF_SHUTTERS];
 
-void systemStateGoToIdle(void) { _SystemState = SYSTEM_STATE_ENTERING_IDLE; }
+void systemStateGoToIdle(void) {
+    if (_seleccionMenu <= SELECCION_MENU_CONFIG) {
+        _SystemState = SYSTEM_STATE_ENTERING_IDLE;
+    }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -82,8 +86,7 @@ void loop() {
             _SystemState = SYSTEM_STATE_MENU;
             break;
         case SYSTEM_STATE_MENU: {
-            uint8_t button = buttonPressed();
-            pantalla_handleButtonInMenu(&_seleccionMenu, button);
+            pantalla_handleButtonInMenu(&_seleccionMenu, buttonPressed(), buttonHolding());
             pantalla_actualizar(false, _seleccionMenu);
             break;
         }

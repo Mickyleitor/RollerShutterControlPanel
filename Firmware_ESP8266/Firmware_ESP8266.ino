@@ -60,7 +60,7 @@ void loop() {
             pantalla_apagarBrillo();
             // On entering idle, if menu is beyond info,
             // reset to default when we wake up again.
-            if (_seleccionMenu >= SELECCION_MENU_INFO) {
+            if (_seleccionMenu >= SELECCION_MENU_CONFIG) {
                 _seleccionMenu = DEFAULT_SELECTION_MENU;
             }
             pantalla_actualizar(true, _seleccionMenu);

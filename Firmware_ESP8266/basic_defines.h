@@ -43,8 +43,10 @@ enum seleccionMenu {
 
     // Starting from here, if there is a button timeout when some menu below is displayed,
     // it will return to the default shutter menu when we wake up again.
-    SELECCION_MENU_INFO,
-    SELECCION_MENU_INFO_WIFI_STATUS,
+    SELECCION_MENU_CONFIG,
+    SELECCION_MENU_CONFIG_WIFI,
+    SELECCION_MENU_CONFIG_WIFI_SSID,
+    SELECCION_MENU_CONFIG_WIFI_PASSWORD,
 
     SELECCION_MENU_MAX
 };

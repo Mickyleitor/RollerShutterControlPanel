@@ -103,8 +103,8 @@ bool pantalla_iniciar(int32_t timeout_ms) {
 }
 
 void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
-    uint8_t _newMenu = *currentMenu;
-    switch (_newMenu) {
+    uint8_t newMenu = *currentMenu;
+    switch (newMenu) {
         case SELECCION_MENU_RELOJ:
             break;
         case SELECCION_MENU_PERSIANA_IZQUIERDA:
@@ -112,20 +112,20 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
         case SELECCION_MENU_PERSIANA_CENTRAL:
             // fall through
         case SELECCION_MENU_PERSIANA_DERECHA: {
-            uint8_t _localShutterIndex = (SELECCION_MENU_PERSIANA_TO_INDEX(_newMenu));
+            uint8_t _localShutterIndex = (SELECCION_MENU_PERSIANA_TO_INDEX(newMenu));
             switch (currentButton) {
                 case BUTTON_STATUS_LEFT:
-                    _newMenu--;
+                    newMenu--;
                     // Sanitize menu transition to left
-                    if (_newMenu < SELECCION_MENU_PERSIANA_IZQUIERDA) {
-                        _newMenu = SELECCION_MENU_INFO;
+                    if (newMenu < SELECCION_MENU_PERSIANA_IZQUIERDA) {
+                        newMenu = SELECCION_MENU_CONFIG;
                     }
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    _newMenu++;
+                    newMenu++;
                     // Sanitize menu transition to right
-                    if (_newMenu > SELECCION_MENU_PERSIANA_DERECHA) {
-                        _newMenu = SELECCION_MENU_INFO;
+                    if (newMenu > SELECCION_MENU_PERSIANA_DERECHA) {
+                        newMenu = SELECCION_MENU_CONFIG;
                     }
                     break;
                 case BUTTON_STATUS_UP:
@@ -145,30 +145,42 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
             }
             break;
         }
-        case SELECCION_MENU_INFO: {
+        case SELECCION_MENU_CONFIG: {
             switch (currentButton) {
                 case BUTTON_STATUS_LEFT:
-                    _newMenu = SELECCION_MENU_PERSIANA_DERECHA;
+                    newMenu = SELECCION_MENU_PERSIANA_DERECHA;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    _newMenu = SELECCION_MENU_PERSIANA_IZQUIERDA;
+                    newMenu = SELECCION_MENU_PERSIANA_IZQUIERDA;
                     break;
                 case BUTTON_STATUS_DOWN:
-                    _newMenu = SELECCION_MENU_INFO_WIFI_STATUS;
+                    newMenu = SELECCION_MENU_CONFIG_WIFI;
                     break;
             }
             break;
         }
-        case SELECCION_MENU_INFO_WIFI_STATUS: {
+        case SELECCION_MENU_CONFIG_WIFI: {
+            switch (currentButton) {
+                case BUTTON_STATUS_UP:
+                    newMenu = SELECCION_MENU_CONFIG;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    _selectedWifiSSIDindex = 0;
+                    newMenu                = SELECCION_MENU_CONFIG_WIFI_SSID;
+                    break;
+            }
+            break;
+        }
+        case SELECCION_MENU_CONFIG_WIFI_SSID: {
             switch (currentButton) {
                 case BUTTON_STATUS_LEFT:
-                    _newMenu = SELECCION_MENU_INFO;
+                    newMenu = SELECCION_MENU_CONFIG_WIFI;
                     break;
             }
             break;
         }
     }
-    *currentMenu = _newMenu;
+    *currentMenu = newMenu;
 }
 
 void pantalla_actualizarReloj(String* lcdBuffer) {
@@ -270,8 +282,8 @@ void pantalla_actualizarMenuShutter(String* lcdBuffer, uint8_t currentShutterInd
     *lcdBuffer += String("    >");
 }
 
-void pantalla_actualizarMenuInfo(String* lcdBuffer) {
-    *lcdBuffer += String("  WIFI  STATUS  ");
+void pantalla_actualizarMenuConfig(String* lcdBuffer) {
+    *lcdBuffer += String(" MENU DE CONFIG ");
     *lcdBuffer += String("<    ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += String(" OK ");
@@ -279,24 +291,13 @@ void pantalla_actualizarMenuInfo(String* lcdBuffer) {
     *lcdBuffer += String("    >");
 }
 
-void pantalla_actualizarMenuInfoWifi(String* lcdBuffer) {
-    *lcdBuffer += String(" WIFI ");
-    if (ESP8266Utils_is_STA_connected()) {
-        *lcdBuffer  += String("(STA): ");
-        *lcdBuffer  += ESP8266Utils_is_STA_online() ? String("ON ") : String("OFF");
-        *lcdBuffer  += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-        *lcdBuffer  += String("  RSSI: ");
-        String rssi  = String(ESP8266Utils_get_STA_RSSI());
-        for (unsigned int i = 0; i < (4 - rssi.length()); i++) {
-            *lcdBuffer += String(" ");
-        }
-        *lcdBuffer += rssi;
-        *lcdBuffer += String("   ");
-    } else {
-        *lcdBuffer += String(": OFFLINE ");
-        *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW_CAN;
-        *lcdBuffer += String("               ");
-    }
+void pantalla_actualizarMenuConfigWifi(String* lcdBuffer) {
+    *lcdBuffer += String("  CONFIG. WIFI  ");
+    *lcdBuffer += String("      ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("  ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("   OK>");
 }
 
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
@@ -314,8 +315,11 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             pantalla_actualizarMenuShutter(&lcdBuffer, currentShutterIndex);
             break;
         }
-        case SELECCION_MENU_INFO:
-            pantalla_actualizarMenuInfo(&lcdBuffer);
+        case SELECCION_MENU_CONFIG:
+            pantalla_actualizarMenuConfig(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI:
+            pantalla_actualizarMenuConfigWifi(&lcdBuffer);
             break;
         case SELECCION_MENU_INFO_WIFI_STATUS:
             pantalla_actualizarMenuInfoWifi(&lcdBuffer);

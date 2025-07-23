@@ -41,6 +41,7 @@ void setup() {
     delay(1000);
     initButtonsFunction();
     checkSlaveConnection();
+    /*
     if (!ESP8266Utils_Connect_STA(
                 settings.wifiSettings.ssid_sta,
                 settings.wifiSettings.password_sta,
@@ -52,6 +53,7 @@ void setup() {
         Serial.println("STA connected");
         ESP8266Utils_update_WeatherData(&settings);
     }
+    */
 }
 
 void loop() {

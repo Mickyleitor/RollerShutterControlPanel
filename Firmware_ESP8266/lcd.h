@@ -15,6 +15,9 @@ extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 
+#define LCD_TOTAL_WIDTH                                                     (16)
+#define LCD_TOTAL_HEIGHT                                                     (2)
+
 #define LCD_SPECIAL_CHAR_BASE                                         (char)(10)
 #define LCD_SPECIAL_CHAR_LEFT_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 0)
 #define LCD_SPECIAL_CHAR_UP_ARROW              (char)(LCD_SPECIAL_CHAR_BASE + 1)
@@ -165,8 +168,7 @@ void pantalla_handleButtonInMenu(uint8_t* currentMenu, uint8_t currentButton) {
                     newMenu = SELECCION_MENU_CONFIG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    _selectedWifiSSIDindex = 0;
-                    newMenu                = SELECCION_MENU_CONFIG_WIFI_SSID;
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
                     break;
             }
             break;
@@ -321,8 +323,7 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
         case SELECCION_MENU_CONFIG_WIFI:
             pantalla_actualizarMenuConfigWifi(&lcdBuffer);
             break;
-        case SELECCION_MENU_INFO_WIFI_STATUS:
-            pantalla_actualizarMenuInfoWifi(&lcdBuffer);
+        case SELECCION_MENU_CONFIG_WIFI_SSID:
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

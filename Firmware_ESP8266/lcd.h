@@ -29,7 +29,8 @@ static time_t adjustedTime = 0;
 #define LCD_TRANSITION_SPEED_MS                                           (5000)
 #define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
 #define LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS                           (200)
-#define LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS                      (1500)
+#define LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS                      (2000)
+#define LCD_CONFIG_BUTTON_KEEP_LEVEL_UPDATE_TIMEOUT_MS                    (2000)
 
 #define LCD_CLOCK_UPDATE_INTERVAL_MS                                     (60000)
 
@@ -190,42 +191,49 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
                 default: {
-                    static unsigned long lastClockUpdateMs   = 0;
-                    static unsigned long lastButtonHoldingMs = 0;
-                    static unsigned long currentAdjustedTime = 60; // start at 1 min
+                    // UP or DOWN will increase or decrease the adjustement level
+                    // If holding UP or DOWN for more than 2 seconds, increase the time by 1 minute,
+                    // 1 hour, 1 day, 30 days or 1 year. If no button is pressed, we keep the
+                    // adjustement level until 2 seconds after the last button press, wich will
+                    // restart the adjustment level to 0.
+                    static unsigned long lastClockUpdateMs         = 0;
+                    static unsigned long lastButtonHoldingMs       = 0;
+                    static unsigned long lastButtonPressedMs       = 0;
+                    static unsigned long currentAdjustedLevelIndex = 0;
+                    static const unsigned long incs[5]
+                            = { 60UL, 3600UL, 86400UL, 2592000UL, 31536000UL };
 
                     unsigned long now = millis();
+
                     if (now - lastClockUpdateMs > LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS) {
                         lastClockUpdateMs = now;
 
                         if (currentButtonHolding == BUTTON_STATUS_UP
                             || currentButtonHolding == BUTTON_STATUS_DOWN) {
-                            // if just transitioned to holding, reset timer
-                            if (lastButtonHoldingMs == 0) {
-                                lastButtonHoldingMs = now;
-                            }
+                            lastButtonPressedMs = now;
 
                             // decide step level
                             unsigned long holdMs = now - lastButtonHoldingMs;
-                            unsigned level
+                            currentAdjustedLevelIndex
                                     = min(4UL,
                                           holdMs / LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS);
 
-                            // map to increments
-                            static const unsigned long incs[5]
-                                    = { 60UL, 3600UL, 86400UL, 2592000UL, 31536000UL };
-                            currentAdjustedTime = incs[level];
-
                             // apply adjustment
                             if (currentButtonHolding == BUTTON_STATUS_UP) {
-                                adjustedTime += currentAdjustedTime;
+                                adjustedTime += incs[currentAdjustedLevelIndex];
                             } else {
-                                adjustedTime -= currentAdjustedTime;
+                                adjustedTime -= incs[currentAdjustedLevelIndex];
                             }
                         } else {
-                            // button released or other key pressed → reset
-                            lastButtonHoldingMs = 0;
-                            currentAdjustedTime = 60;
+                            if ((now - lastButtonPressedMs)
+                                > LCD_CONFIG_BUTTON_KEEP_LEVEL_UPDATE_TIMEOUT_MS) {
+                                lastButtonHoldingMs = now;
+                            } else {
+                                lastButtonHoldingMs
+                                        = now
+                                        - ((currentAdjustedLevelIndex
+                                            * LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS));
+                            }
                         }
                     }
                     if (adjustedTime < 0) {

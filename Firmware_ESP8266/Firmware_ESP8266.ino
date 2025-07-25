@@ -7,8 +7,6 @@
 // - NTPClient by Fabrice Weinberg 3.2.0 : https://github.com/arduino-libraries/NTPClient
 // - LiquidCrystal_PCF8574 by mathertel 2.2.0  : https://github.com/mathertel/LiquidCrystal_PCF8574
 
-#include <Ticker.h>
-
 #include "EEPROM_Utils.h"
 #include "ESP8266_Utils.h"
 #include "ShutterManager.h"
@@ -95,4 +93,7 @@ void loop() {
         }
     }
     rtc_handler();
+    buzzer_handler();
+    shutterHandler();
+    yield(); // Allow other tasks to run
 }

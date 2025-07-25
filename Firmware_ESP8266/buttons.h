@@ -14,6 +14,7 @@
 #include <Ticker.h>
 
 #include "basic_defines.h"
+#include "buzzer.h"
 
 //---[ Macros ]-----------------------------------------------------------------
 
@@ -97,6 +98,7 @@ static inline int buttonPressed(void) {
     if (_currentButton != BUTTON_STATUS_NONE) {
         ButtonsTimeOutTask.detach();
         ButtonsTimeOutTask.attach(BUTTONS_TIMEOUT_SECONDS, onButtonTimeout);
+        buzzer_sound_button();
     }
     int buttonPress = _currentButton;
     _currentButton  = BUTTON_STATUS_NONE;

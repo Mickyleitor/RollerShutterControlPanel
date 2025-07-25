@@ -165,6 +165,9 @@ void pantalla_handleButtonInMenu(
                 case BUTTON_STATUS_DOWN:
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
+                case BUTTON_STATUS_UP:
+                    buzzer_sound_error();
+                    break;
             }
             break;
         }
@@ -177,6 +180,10 @@ void pantalla_handleButtonInMenu(
                     adjustedTime = time(NULL);
                     newMenu      = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
+                case BUTTON_STATUS_LEFT:
+                case BUTTON_STATUS_DOWN:
+                    buzzer_sound_error();
+                    break;
             }
             break;
         }
@@ -187,6 +194,7 @@ void pantalla_handleButtonInMenu(
                     break;
                 case BUTTON_STATUS_RIGHT:
                     // Save the adjusted time
+                    buzzer_sound_accept();
                     rtc_set(adjustedTime);
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
@@ -447,7 +455,6 @@ void pantalla_actualizar(bool showClock, uint8_t wantedMenu) {
 
     // 1) explicit clock request: always show if NTP is ready
     if ((wantedMenu == SELECCION_MENU_RELOJ) && isNtpReady) {
-        Serial.println("Forcing clock update on LCD");
         pantalla_actualizarMenu(SELECCION_MENU_RELOJ);
         return;
     }

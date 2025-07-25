@@ -65,7 +65,6 @@ void EEPROM_Check(struct Settings* data) {
     // This is the very first time the device is powered on
     uint16_t crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
     if (crc16 != data->crc16) {
-        Serial.println("Corrupted data in EEPROM, writing default values");
         strcpy(data->wifiSettings.hostname, DEFAULT_HOSTNAME);
         strcpy(data->wifiSettings.ssid_sta, DEFAULT_STA_SSID);
         strcpy(data->wifiSettings.password_sta, DEFAULT_STA_PASSWORD);
@@ -81,5 +80,4 @@ void EEPROM_Check(struct Settings* data) {
 void EEPROM_Begin(struct Settings* data) {
     EEPROM_Read(data); // Comment this line to reset the EEPROM
     EEPROM_Check(data);
-    Serial.println("EEPROM size : " + String(EEPROM_SIZE));
 }

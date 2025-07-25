@@ -15,28 +15,7 @@ extern struct Settings settings;
 struct WeatherData {
     unsigned long timezoneshift = 0;
     double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
-    bool initializedNTPtime     = false;
 } MyWeather;
-
-void ntp_time_is_set_cb() {
-    MyWeather.initializedNTPtime = true;
-    Serial.println("\nNTP time initialized");
-}
-
-void ntp_time_uninit() {
-    MyWeather.initializedNTPtime = false;
-    Serial.println("\nNTP time uninitialized");
-}
-
-void ntp_time_init() {
-    // We want UTC time.
-    int dst = 0;
-    settimeofday_cb(ntp_time_is_set_cb);
-    ntp_time_uninit();
-    configTime(0, dst * 0, "pool.ntp.org", "time.nist.gov", "time.windows.com");
-}
-
-bool ntp_time_is_initialized() { return MyWeather.initializedNTPtime; }
 
 bool ESP8266Utils_Connect_STA(
         const char* ssid,
@@ -63,8 +42,6 @@ bool ESP8266Utils_Connect_STA(
     Serial.println(ssid);
     Serial.print("IP address:\t");
     Serial.println(WiFi.localIP());
-
-    ntp_time_init();
 
     return true;
 }

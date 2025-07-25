@@ -6,6 +6,7 @@
 #include "ESP8266_Utils.h"
 #include "ShutterManager.h"
 #include "basic_defines.h"
+#include "rtcTime.h"
 
 extern struct ShutterParameters ShutterData[];
 extern struct Settings settings;
@@ -172,7 +173,7 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedTime = time(NULL) + MyWeather.timezoneshift;
+                    adjustedTime = time(NULL);
                     newMenu      = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
             }
@@ -185,10 +186,7 @@ void pantalla_handleButtonInMenu(
                     break;
                 case BUTTON_STATUS_RIGHT:
                     // Save the adjusted time
-                    struct timeval newTime;
-                    newTime.tv_sec  = adjustedTime;
-                    newTime.tv_usec = 0;
-                    settimeofday(&newTime, NULL);
+                    rtc_set(adjustedTime);
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
                 default: {
@@ -437,10 +435,11 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
 }
 
 void pantalla_actualizar(bool showClock, uint8_t wantedMenu) {
-    bool isNtpReady = ntp_time_is_initialized();
+    bool isNtpReady = rtc_on_sync();
 
     // 1) explicit clock request: always show if NTP is ready
     if ((wantedMenu == SELECCION_MENU_RELOJ) && isNtpReady) {
+        Serial.println("Forcing clock update on LCD");
         pantalla_actualizarMenu(SELECCION_MENU_RELOJ);
         return;
     }

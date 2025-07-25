@@ -18,6 +18,7 @@
 #include "error.h"
 #include "lcd.h"
 #include "rscpProtocol/rscpProtocol.h"
+#include "rtcTime.h"
 
 static SystemState_t _SystemState     = SYSTEM_STATE_ENTERING_IDLE;
 static seleccionMenu_t _seleccionMenu = DEFAULT_SELECTION_MENU;
@@ -33,7 +34,9 @@ void setup() {
     Serial.begin(115200);
     Serial.println();
     Serial.println("Master inicializado");
+
     EEPROM_Begin(&settings);
+    rtc_init();
 
     if (!pantalla_iniciar(10000)) {
         errorHandler(FATAL_ERROR_CODE_LCD_INIT_FAILED);
@@ -42,7 +45,7 @@ void setup() {
     pantalla_sendLcdBuffer("    INICIANDO   PANEL DE CONTROL");
     // We wait a bit just in case we just powered on the whole
     // device, sometimes the power is still not enough at this point.
-    delay(1000);
+    delay(2000);
     initButtonsFunction();
     checkSlaveConnection();
     /*
@@ -69,7 +72,7 @@ void loop() {
             if (_seleccionMenu >= SELECCION_MENU_CONFIG) {
                 _seleccionMenu = DEFAULT_SELECTION_MENU;
             }
-            pantalla_actualizar(true, _seleccionMenu);
+            pantalla_actualizar(true, SELECCION_MENU_RELOJ);
             _SystemState = SYSTEM_STATE_IDLING;
             break;
         }
@@ -91,4 +94,5 @@ void loop() {
             break;
         }
     }
+    rtc_handler();
 }

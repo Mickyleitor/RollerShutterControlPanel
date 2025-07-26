@@ -13,7 +13,10 @@ extern struct Settings settings;
 extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
-static time_t adjustedTime = 0;
+static time_t adjustedTime           = 0;
+static uint32_t previousBuzzerVolume = 0;
+static bool previousBuzzerEnabled    = false;
+static bool buttonIsReleased         = false;
 
 #define LCD_TOTAL_WIDTH                                                     (16)
 #define LCD_TOTAL_HEIGHT                                                     (2)
@@ -180,8 +183,10 @@ void pantalla_handleButtonInMenu(
                     adjustedTime = time(NULL);
                     newMenu      = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
-                case BUTTON_STATUS_LEFT:
                 case BUTTON_STATUS_DOWN:
+                    newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
+                    break;
+                case BUTTON_STATUS_LEFT:
                     buzzer_sound_error();
                     break;
             }
@@ -196,7 +201,7 @@ void pantalla_handleButtonInMenu(
                     // Save the adjusted time
                     buzzer_sound_accept();
                     rtc_set(adjustedTime);
-                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
+                    newMenu = SELECCION_MENU_CONFIG;
                     break;
                 default: {
                     // UP or DOWN will increase or decrease the adjustement level
@@ -251,6 +256,66 @@ void pantalla_handleButtonInMenu(
             }
             break;
         }
+        case SELECCION_MENU_CONFIG_VOLUMEN: {
+            buttonIsReleased = true;
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_UP:
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    previousBuzzerVolume  = buzzer_get_volume();
+                    previousBuzzerEnabled = buzzer_is_enabled();
+                    buttonIsReleased      = false;
+                    newMenu               = SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_LEFT:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        }
+        case SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE:
+            if (!buttonIsReleased) {
+                if (currentButtonHolding != BUTTON_STATUS_NONE) {
+                    break; // We are waiting for the button to be released
+                }
+                buttonIsReleased = true;
+            }
+            switch (currentButtonHolding) { // Note that we use holding here
+                case BUTTON_STATUS_UP:
+                    if (buzzer_get_volume() < buzzer_get_volume_max()) {
+                        buzzer_set_volume(buzzer_get_volume() + 100);
+                        buzzer_enable();
+                    } else {
+                        buzzer_set_volume(buzzer_get_volume_max());
+                        buzzer_enable();
+                    }
+                    break;
+                case BUTTON_STATUS_DOWN:
+                    if (buzzer_get_volume() > buzzer_get_volume_min()) {
+                        buzzer_set_volume(buzzer_get_volume() - 100);
+                    } else {
+                        buzzer_set_volume(buzzer_get_volume_min());
+                        buzzer_disable();
+                    }
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    buzzer_sound_accept();
+                    buzzer_store_settings();
+                    newMenu = SELECCION_MENU_CONFIG;
+                    break;
+                case BUTTON_STATUS_LEFT:
+                    buzzer_set_volume(previousBuzzerVolume);
+                    if (previousBuzzerEnabled) {
+                        buzzer_enable();
+                    } else {
+                        buzzer_disable();
+                    }
+                    newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
+                    break;
+            }
+            break;
     }
     *currentMenu = newMenu;
 }
@@ -365,11 +430,11 @@ void pantalla_actualizarMenuConfig(String* lcdBuffer) {
 
 void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
     *lcdBuffer += String("  CONFIG. HORA  ");
-    *lcdBuffer += String("     ");
+    *lcdBuffer += String("      ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("    ");
-    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("  OK>");
+    *lcdBuffer += String("  ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("   OK>");
 }
 
 void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
@@ -422,6 +487,37 @@ void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
     *lcdBuffer += String("   OK>");
 }
 
+void pantalla_actualizarMenuConfigVolumen(String* lcdBuffer) {
+    *lcdBuffer += String("CONFIG.  VOLUMEN");
+    *lcdBuffer += String("     ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("    ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("  OK>");
+}
+
+void pantalla_actualizarMenuConfigVolumenAjuste(String* lcdBuffer) {
+    *lcdBuffer += String("VOLUMEN:  ");
+    // If disabled, show a message
+    if (!buzzer_is_enabled()) {
+        *lcdBuffer += String(" NO");
+    } else {
+        uint32_t volumePercentage = (buzzer_get_volume() - buzzer_get_volume_min()) * 100
+                                  / (buzzer_get_volume_max() - buzzer_get_volume_min());
+        *lcdBuffer += String(volumePercentage);
+        *lcdBuffer += String(" %");
+    }
+    // Add spaces to fill the line.
+    while (lcdBuffer->length() < 16) {
+        *lcdBuffer += String(" ");
+    }
+    *lcdBuffer += String("     ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("    ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("  OK>");
+}
+
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
     String lcdBuffer = "";
     switch (selectedMenu) {
@@ -445,6 +541,12 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE:
             pantalla_actualizarMenuConfigFechaHoraAjuste(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_VOLUMEN:
+            pantalla_actualizarMenuConfigVolumen(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE:
+            pantalla_actualizarMenuConfigVolumenAjuste(&lcdBuffer);
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

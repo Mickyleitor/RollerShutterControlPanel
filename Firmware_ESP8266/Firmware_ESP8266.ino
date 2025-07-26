@@ -46,6 +46,7 @@ void setup() {
     delay(2000);
     initButtonsFunction();
     checkSlaveConnection();
+    buzzer_init();
     /*
     if (!ESP8266Utils_Connect_STA(
                 settings.wifiSettings.ssid_sta,

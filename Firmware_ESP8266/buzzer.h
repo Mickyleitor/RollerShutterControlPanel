@@ -2,7 +2,11 @@
 
 #include <stdint.h>
 
+#include "basic_defines.h"
 #include "rscpProtocol/rscpProtocol.h"
+
+#define BUZZER_VOLUME_MIN  (2600)
+#define BUZZER_VOLUME_MAX  (5500)
 
 enum BuzzerPending {
     BUZZER_PENDING_NONE  = 0,
@@ -16,6 +20,7 @@ struct buzzerStatus_t {
     BuzzerPending_t pending;
     struct RSCP_Arg_buzzer_action rscpAction;
     uint32_t general_volume; // Volume in millivolts
+    bool isEnabled;          // True if buzzer is enabled
     union {
         uint32_t beepDurationMs; // Duration in milliseconds for a single beep
         struct {
@@ -27,7 +32,8 @@ struct buzzerStatus_t {
 } __attribute__((packed));
 
 static buzzerStatus_t buzzerStatus = {
-    .general_volume = 500, // Default volume in millivolts
+    .general_volume = DEFAULT_BUZZER_VOLUME,
+    .isEnabled      = true,
 };
 
 void buzzer_schedule_beep_once(uint32_t durationMs) {
@@ -56,6 +62,9 @@ void buzzer_beep_once(buzzerStatus_t* status, uint32_t durationMs) {
 }
 
 void buzzer_handler() {
+    if (!buzzerStatus.isEnabled) {
+        return; // Buzzer is disabled, do nothing
+    }
     switch (buzzerStatus.pending) {
         case BUZZER_PENDING_BEEP:
             buzzerStatus.pending = BUZZER_PENDING_NONE;
@@ -91,3 +100,28 @@ void buzzer_sound_error() { buzzer_schedule_burst(50, 30, 2); }
 
 // Warning sound for events like shutter limits reached
 void buzzer_sound_warning() { buzzer_schedule_burst(50, 100, 3); }
+
+void buzzer_set_volume(uint32_t volume) { buzzerStatus.general_volume = volume; }
+
+uint32_t buzzer_get_volume() { return buzzerStatus.general_volume; }
+
+uint32_t buzzer_get_volume_min() { return BUZZER_VOLUME_MIN; }
+
+uint32_t buzzer_get_volume_max() { return BUZZER_VOLUME_MAX; }
+
+void buzzer_enable() { buzzerStatus.isEnabled = true; }
+
+void buzzer_disable() { buzzerStatus.isEnabled = false; }
+
+bool buzzer_is_enabled() { return buzzerStatus.isEnabled; }
+
+void buzzer_init() {
+    buzzerStatus.isEnabled      = settings.buzzerSettings.isEnabled;
+    buzzerStatus.general_volume = settings.buzzerSettings.general_volume;
+}
+
+void buzzer_store_settings() {
+    settings.buzzerSettings.isEnabled      = buzzerStatus.isEnabled;
+    settings.buzzerSettings.general_volume = buzzerStatus.general_volume;
+    EEPROM_Write(&settings);
+}

@@ -3,6 +3,7 @@
 #define SLAVE_I2C_ADDRESS                                                 (0x08)
 #define LCD_I2C_ADDRESS                                                   (0x3F)
 
+#define DEFAULT_BUZZER_VOLUME                                             (4000)
 #define DEFAULT_STA_SSID                                             "YOUR_SSID"
 #define DEFAULT_STA_PASSWORD                                     "YOUR_PASSWORD"
 #define DEFAULT_AP_SSID_AND_PASSWORD                             "ESP8266Config"
@@ -48,6 +49,8 @@ enum seleccionMenu {
     SELECCION_MENU_CONFIG,
     SELECCION_MENU_CONFIG_FECHA_HORA,
     SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE,
+    SELECCION_MENU_CONFIG_VOLUMEN,
+    SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE,
 
     SELECCION_MENU_MAX
 };

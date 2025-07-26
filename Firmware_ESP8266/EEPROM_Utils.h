@@ -18,9 +18,15 @@ struct __attribute__((__packed__)) OpenWeatherMapSettings {
     double lon;
 };
 
+struct __attribute__((__packed__)) BuzzerSettings {
+    uint32_t general_volume; // Volume
+    bool isEnabled;          // True if buzzer is enabled
+};
+
 struct __attribute__((__packed__)) Settings {
     struct WifiSettings wifiSettings;
     struct OpenWeatherMapSettings openWeatherMapSettings;
+    struct BuzzerSettings buzzerSettings;
     uint16_t crc16;
 } settings;
 
@@ -65,14 +71,17 @@ void EEPROM_Check(struct Settings* data) {
     // This is the very first time the device is powered on
     uint16_t crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
     if (crc16 != data->crc16) {
+        memset(data, 0, sizeof(struct Settings));
         strcpy(data->wifiSettings.hostname, DEFAULT_HOSTNAME);
         strcpy(data->wifiSettings.ssid_sta, DEFAULT_STA_SSID);
         strcpy(data->wifiSettings.password_sta, DEFAULT_STA_PASSWORD);
         strcpy(data->wifiSettings.ssid_ap, DEFAULT_AP_SSID_AND_PASSWORD);
         strcpy(data->wifiSettings.password_ap, DEFAULT_AP_SSID_AND_PASSWORD);
         strcpy(data->openWeatherMapSettings.appid, DEFAULT_OPENWEATHERMAP_APPID);
-        data->openWeatherMapSettings.lat = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
-        data->openWeatherMapSettings.lon = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
+        data->openWeatherMapSettings.lat    = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
+        data->openWeatherMapSettings.lon    = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
+        data->buzzerSettings.general_volume = DEFAULT_BUZZER_VOLUME;
+        data->buzzerSettings.isEnabled      = true;
         EEPROM_Write(data);
     }
 }

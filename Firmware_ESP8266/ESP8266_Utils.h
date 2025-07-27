@@ -13,8 +13,8 @@
 extern struct Settings settings;
 
 struct WeatherData {
-    unsigned long timezoneshift = 0;
-    double TemperatureDegree    = TEMPERATURE_DEGREE_INVALID;
+    long timezoneshift       = 0;
+    double TemperatureDegree = TEMPERATURE_DEGREE_INVALID;
 } MyWeather;
 
 bool ESP8266Utils_Connect_STA(
@@ -128,7 +128,7 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
         Serial.println("No Temperature JSON object found");
     }
     if (client.find("\"timezone\":")) {
-        unsigned long timezoneshift = strtoul(client.readStringUntil(',').c_str(), NULL, 10);
+        long timezoneshift = strtol(client.readStringUntil(',').c_str(), NULL, 10);
         Serial.print("Timezone shift: ");
         Serial.println(timezoneshift);
         MyWeather.timezoneshift = timezoneshift;

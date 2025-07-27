@@ -32,6 +32,7 @@
 
 struct rtcTime_t {
     time_t myTime;
+    long timezoneShift;
     uint32_t magicWord;
 };
 static_assert(sizeof(rtcTime_t) % 4 == 0, "rtcTime_t must be aligned to 4 bytes");
@@ -82,8 +83,9 @@ void rtc_handler(void) {
     } else if (rtc_is_stored() && rtc_should_store()) {
         // If the system clock is set, we store the current time into no-init RAM.
         // This is done periodically to ensure that we have a recent timestamp.
-        rtcTime_data.myTime    = time(NULL);
-        rtcTime_data.magicWord = RTC_USER_MEMORY_MAGIC_WORD;
+        rtcTime_data.myTime        = time(NULL);
+        rtcTime_data.timezoneShift = MyWeather.timezoneshift;
+        rtcTime_data.magicWord     = RTC_USER_MEMORY_MAGIC_WORD;
         ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtcTime_data, sizeof(rtcTime_data));
 
         lastRtcStoreMillis = millis();
@@ -91,14 +93,17 @@ void rtc_handler(void) {
 }
 
 /// Set system time and persist into non-init RAM.
-void rtc_set(time_t newTime) {
+void rtc_set(time_t newTime, long timezoneShift) {
     struct timeval tv;
     tv.tv_sec  = newTime;
     tv.tv_usec = 0;
     settimeofday(&tv, NULL);
 
-    rtcTime_data.myTime    = newTime;
-    rtcTime_data.magicWord = RTC_USER_MEMORY_MAGIC_WORD;
+    MyWeather.timezoneshift = timezoneShift;
+
+    rtcTime_data.myTime        = newTime;
+    rtcTime_data.timezoneShift = timezoneShift;
+    rtcTime_data.magicWord     = RTC_USER_MEMORY_MAGIC_WORD;
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtcTime_data, sizeof(rtcTime_data));
 }
 
@@ -113,6 +118,7 @@ void rtc_init() {
     if (rtc_is_stored()) {
         struct timeval tv = { .tv_sec = rtcTime_data.myTime, .tv_usec = 0 };
         settimeofday(&tv, NULL);
+        MyWeather.timezoneshift = rtcTime_data.timezoneShift;
     }
     // Note: EEPROM/flash fallback intentionally removed (see module header).
 }

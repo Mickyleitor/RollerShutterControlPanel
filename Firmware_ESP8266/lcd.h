@@ -14,6 +14,7 @@ extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 static time_t adjustedTime           = 0;
+static long adjustedTimeZone         = 0;
 static uint32_t previousBuzzerVolume = 0;
 static bool previousBuzzerEnabled    = false;
 static bool buttonIsReleased         = false;
@@ -198,10 +199,8 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    // Save the adjusted time
-                    buzzer_sound_accept();
-                    rtc_set(adjustedTime);
-                    newMenu = SELECCION_MENU_CONFIG;
+                    adjustedTimeZone = MyWeather.timezoneshift;
+                    newMenu          = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
                     break;
                 default: {
                     // UP or DOWN will increase or decrease the adjustement level
@@ -256,6 +255,31 @@ void pantalla_handleButtonInMenu(
             }
             break;
         }
+        case SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE: {
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    buzzer_sound_accept();
+                    rtc_set(adjustedTime, adjustedTimeZone);
+                    newMenu = SELECCION_MENU_CONFIG;
+                    break;
+                case BUTTON_STATUS_UP:
+                    adjustedTimeZone += 3600;       // Increase by 1 hour
+                    if (adjustedTimeZone > 43200) { // 12 hours in seconds
+                        adjustedTimeZone = 43200;
+                    }
+                    break;
+                case BUTTON_STATUS_DOWN:
+                    adjustedTimeZone -= 3600;        // Decrease by 1 hour
+                    if (adjustedTimeZone < -43200) { // -12 hours in seconds
+                        adjustedTimeZone = -43200;
+                    }
+                    break;
+            }
+            break;
+        }
         case SELECCION_MENU_CONFIG_VOLUMEN: {
             buttonIsReleased = true;
             switch (currentButtonPressed) {
@@ -300,19 +324,23 @@ void pantalla_handleButtonInMenu(
                         buzzer_disable();
                     }
                     break;
-                case BUTTON_STATUS_RIGHT:
-                    buzzer_sound_accept();
-                    buzzer_store_settings();
-                    newMenu = SELECCION_MENU_CONFIG;
-                    break;
-                case BUTTON_STATUS_LEFT:
-                    buzzer_set_volume(previousBuzzerVolume);
-                    if (previousBuzzerEnabled) {
-                        buzzer_enable();
-                    } else {
-                        buzzer_disable();
+                default:
+                    switch (currentButtonPressed) {
+                        case BUTTON_STATUS_RIGHT:
+                            buzzer_sound_accept();
+                            buzzer_store_settings();
+                            newMenu = SELECCION_MENU_CONFIG;
+                            break;
+                        case BUTTON_STATUS_LEFT:
+                            buzzer_set_volume(previousBuzzerVolume);
+                            if (previousBuzzerEnabled) {
+                                buzzer_enable();
+                            } else {
+                                buzzer_disable();
+                            }
+                            newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
+                            break;
                     }
-                    newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
                     break;
             }
             break;
@@ -430,11 +458,10 @@ void pantalla_actualizarMenuConfig(String* lcdBuffer) {
 
 void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
     *lcdBuffer += String("  CONFIG. HORA  ");
-    *lcdBuffer += String("      ");
+    *lcdBuffer += String("       ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("  ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-    *lcdBuffer += String("   OK>");
+    *lcdBuffer += String("      >");
 }
 
 void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
@@ -480,20 +507,32 @@ void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
     *lcdBuffer += String("/");
 
     *lcdBuffer += String((timeinfo->tm_year) + 1900);
-    *lcdBuffer += String("<     ");
+    *lcdBuffer += String("<      ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-    *lcdBuffer += String("  ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("   OK>");
+    *lcdBuffer += String("      >");
+}
+
+void pantalla_actualizarMenuConfigZonaHorariaAjuste(String* lcdBuffer) {
+    *lcdBuffer += String("ZONA UTC: ");
+    *lcdBuffer += String(adjustedTimeZone / 3600);
+    *lcdBuffer += String(" h");
+    // Add spaces to fill the line.
+    while (lcdBuffer->length() < 16) {
+        *lcdBuffer += String(" ");
+    }
+    *lcdBuffer += String("<      ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("    OK>");
 }
 
 void pantalla_actualizarMenuConfigVolumen(String* lcdBuffer) {
     *lcdBuffer += String("CONFIG.  VOLUMEN");
-    *lcdBuffer += String("     ");
+    *lcdBuffer += String("       ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("    ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("  OK>");
+    *lcdBuffer += String("      >");
 }
 
 void pantalla_actualizarMenuConfigVolumenAjuste(String* lcdBuffer) {
@@ -511,11 +550,10 @@ void pantalla_actualizarMenuConfigVolumenAjuste(String* lcdBuffer) {
     while (lcdBuffer->length() < 16) {
         *lcdBuffer += String(" ");
     }
-    *lcdBuffer += String("     ");
+    *lcdBuffer += String("       ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("    ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-    *lcdBuffer += String("  OK>");
+    *lcdBuffer += String("    OK>");
 }
 
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
@@ -541,6 +579,9 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE:
             pantalla_actualizarMenuConfigFechaHoraAjuste(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE:
+            pantalla_actualizarMenuConfigZonaHorariaAjuste(&lcdBuffer);
             break;
         case SELECCION_MENU_CONFIG_VOLUMEN:
             pantalla_actualizarMenuConfigVolumen(&lcdBuffer);

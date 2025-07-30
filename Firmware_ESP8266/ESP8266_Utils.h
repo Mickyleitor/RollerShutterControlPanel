@@ -4,6 +4,7 @@
 
 #include "EEPROM_Utils.h"
 #include "basic_defines.h"
+#include "persistentVars.h"
 
 #define HTTP_SERVER_PING_ADDRESS                                       "1.1.1.1"
 #define HTTP_SERVER_PING_INTERVAL_MS                                     (10000)
@@ -13,7 +14,6 @@
 extern struct Settings settings;
 
 struct WeatherData {
-    long timezoneshift       = 0;
     double TemperatureDegree = TEMPERATURE_DEGREE_INVALID;
 } MyWeather;
 
@@ -131,7 +131,8 @@ bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
         long timezoneshift = strtol(client.readStringUntil(',').c_str(), NULL, 10);
         Serial.print("Timezone shift: ");
         Serial.println(timezoneshift);
-        MyWeather.timezoneshift = timezoneshift;
+        struct rtcTime_t rtcTime = { .myTime = time(NULL), .timezoneShift = timezoneshift };
+        persistentVars_store_rtcTime(&rtcTime);
     } else {
         Serial.println("No timezoneshift JSON object found");
     }

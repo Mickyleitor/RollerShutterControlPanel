@@ -81,7 +81,7 @@ void EEPROM_Check(struct Settings* data) {
         data->openWeatherMapSettings.lat    = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
         data->openWeatherMapSettings.lon    = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
         data->buzzerSettings.general_volume = DEFAULT_BUZZER_VOLUME;
-        data->buzzerSettings.isEnabled      = true;
+        data->buzzerSettings.isEnabled      = false;
         EEPROM_Write(data);
     }
 }

@@ -6,6 +6,7 @@
 #include "ESP8266_Utils.h"
 #include "ShutterManager.h"
 #include "basic_defines.h"
+#include "persistentVars.h"
 #include "rtcTime.h"
 
 extern struct ShutterParameters ShutterData[];
@@ -199,7 +200,7 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedTimeZone = MyWeather.timezoneshift;
+                    adjustedTimeZone = persistentVars_get_rtcTime().timezoneShift;
                     newMenu          = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
                     break;
                 default: {
@@ -352,7 +353,7 @@ void pantalla_actualizarReloj(String* lcdBuffer) {
     *lcdBuffer = "   ";
     time_t now;
     struct tm* timeinfo;
-    now      = time(&now) + MyWeather.timezoneshift;
+    now      = time(&now) + persistentVars_get_rtcTime().timezoneShift;
     timeinfo = localtime(&now);
 
     if ((timeinfo->tm_hour) < 10) {

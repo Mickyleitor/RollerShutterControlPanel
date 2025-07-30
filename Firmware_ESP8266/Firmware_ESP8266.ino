@@ -15,6 +15,7 @@
 #include "buttons.h"
 #include "error.h"
 #include "lcd.h"
+#include "persistentVars.h"
 #include "rscpProtocol/rscpProtocol.h"
 #include "rtcTime.h"
 
@@ -34,6 +35,7 @@ void setup() {
     Serial.println("Master inicializado");
 
     EEPROM_Begin(&settings);
+    persistentVars_init();
     rtc_init();
 
     if (!pantalla_iniciar(10000)) {

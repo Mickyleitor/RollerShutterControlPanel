@@ -269,6 +269,8 @@ void pantalla_handleButtonInMenu(
                     newMenu               = SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE;
                     break;
                 case BUTTON_STATUS_DOWN:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG;
+                    break;
                 case BUTTON_STATUS_LEFT:
                     buzzer_sound_error();
                     break;
@@ -317,6 +319,32 @@ void pantalla_handleButtonInMenu(
                             newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
                             break;
                     }
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_UP:
+                    newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_LEFT:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG;
+                    break;
+                case BUTTON_STATUS_UP:
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_RIGHT:
+                    buzzer_sound_error();
                     break;
             }
             break;
@@ -500,7 +528,7 @@ void pantalla_actualizarMenuConfigVolumen(String* lcdBuffer) {
     *lcdBuffer += String("CONFIG.  VOLUMEN");
     *lcdBuffer += String("       ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += String("      >");
 }
 
@@ -523,6 +551,31 @@ void pantalla_actualizarMenuConfigVolumenAjuste(String* lcdBuffer) {
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += String("    OK>");
+}
+
+void pantalla_actualizarMenuConfigDebug(String* lcdBuffer) {
+    *lcdBuffer += String("   DEPURACION   ");
+    *lcdBuffer += String("       ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("      >");
+}
+
+void pantalla_actualizarMenuConfigDebugSoftRstCount(String* lcdBuffer) {
+    *lcdBuffer += String("REINICIOS: ");
+
+    // If the count is greater than 9999, show "9999+".
+    uint32_t softResetCount = persistentVars_get_softResetCount();
+    if (softResetCount > 9999) {
+        *lcdBuffer += String("9999+");
+    } else {
+        *lcdBuffer += String(softResetCount);
+    }
+    // Add spaces to fill the line.
+    while (lcdBuffer->length() < 16) {
+        *lcdBuffer += String(" ");
+    }
+    *lcdBuffer += String("<               ");
 }
 
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
@@ -557,6 +610,12 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE:
             pantalla_actualizarMenuConfigVolumenAjuste(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG:
+            pantalla_actualizarMenuConfigDebug(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT:
+            pantalla_actualizarMenuConfigDebugSoftRstCount(&lcdBuffer);
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

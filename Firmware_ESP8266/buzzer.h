@@ -123,5 +123,5 @@ void buzzer_init() {
 void buzzer_store_settings() {
     settings.buzzerSettings.isEnabled      = buzzerStatus.isEnabled;
     settings.buzzerSettings.general_volume = buzzerStatus.general_volume;
-    EEPROM_Write(&settings);
+    EEPROM_Schedule_Write(100);
 }

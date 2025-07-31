@@ -98,5 +98,5 @@ void loop() {
     rtc_handler();
     buzzer_handler();
     shutterHandler();
-    yield(); // Allow other tasks to run
+    EEPROM_Handler();
 }

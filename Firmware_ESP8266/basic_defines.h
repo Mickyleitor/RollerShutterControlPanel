@@ -27,8 +27,6 @@
     String(appid) + \
     "&units=metric&lang=es HTTP/1.0"
 
-#define EEPROM_SIZE                                    (sizeof(struct Settings))
-
 enum SystemState {
     SYSTEM_STATE_ENTERING_IDLE,
     SYSTEM_STATE_IDLING,

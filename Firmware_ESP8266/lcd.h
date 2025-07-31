@@ -453,11 +453,10 @@ void pantalla_actualizarMenuShutter(String* lcdBuffer, uint8_t currentShutterInd
 
 void pantalla_actualizarMenuConfig(String* lcdBuffer) {
     *lcdBuffer += String(" MENU DE CONFIG ");
-    *lcdBuffer += String("<    ");
+    *lcdBuffer += String("<      ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-    *lcdBuffer += String(" OK ");
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
-    *lcdBuffer += String("    >");
+    *lcdBuffer += String("      >");
 }
 
 void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
@@ -547,7 +546,7 @@ void pantalla_actualizarMenuConfigVolumenAjuste(String* lcdBuffer) {
     while (lcdBuffer->length() < 16) {
         *lcdBuffer += String(" ");
     }
-    *lcdBuffer += String("       ");
+    *lcdBuffer += String("<      ");
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += String("    OK>");

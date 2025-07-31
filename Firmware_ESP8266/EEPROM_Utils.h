@@ -1,10 +1,14 @@
 #pragma once
 
+#include <Arduino.h>
 #include <EEPROM.h>
 
 #include "basic_defines.h"
 
-struct __attribute__((__packed__)) WifiSettings {
+static uint32_t EEPROM_Scheduled_Write_Delay = 0;
+static bool EEPROM_Scheduled_Write_Enabled   = false;
+
+struct WifiSettings {
     char ssid_sta[64];
     char password_sta[64];
     char ssid_ap[64];
@@ -12,23 +16,25 @@ struct __attribute__((__packed__)) WifiSettings {
     char hostname[64];
 };
 
-struct __attribute__((__packed__)) OpenWeatherMapSettings {
+struct OpenWeatherMapSettings {
     char appid[64];
     double lat;
     double lon;
 };
 
-struct __attribute__((__packed__)) BuzzerSettings {
+struct BuzzerSettings {
     uint32_t general_volume; // Volume
     bool isEnabled;          // True if buzzer is enabled
 };
 
-struct __attribute__((__packed__)) Settings {
+struct Settings {
     struct WifiSettings wifiSettings;
     struct OpenWeatherMapSettings openWeatherMapSettings;
     struct BuzzerSettings buzzerSettings;
     uint16_t crc16;
 } settings;
+
+static_assert(sizeof(Settings) % 4 == 0, "Settings must be aligned to 4 bytes");
 
 uint16_t CRC16(const uint8_t* data, uint16_t size) {
     uint16_t crc = 0xFFFF;
@@ -46,47 +52,110 @@ uint16_t CRC16(const uint8_t* data, uint16_t size) {
     return crc;
 }
 
-void EEPROM_Write(struct Settings* data) {
-    EEPROM.begin(EEPROM_SIZE);
-    data->crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
-    // store values in EEPROM
-    for (unsigned int index = 0; index < EEPROM_SIZE; index++) {
-        if (((char*)data)[index] != EEPROM.read(index)) {
-            EEPROM.write(index, ((char*)data)[index]);
-        }
+void EEPROM_Schedule_Write(unsigned long delayMs) {
+    EEPROM_Scheduled_Write_Delay   = delayMs + millis();
+    EEPROM_Scheduled_Write_Enabled = true;
+}
+
+void EEPROM_Write(Settings* data) {
+    if (!data) {
+        return;
     }
+    noInterrupts();
+    EEPROM.begin(sizeof(Settings));
+
+    Settings copy = *data;
+    copy.crc16    = 0;
+
+    static uint8_t buffer[sizeof(Settings)];
+    memcpy(buffer, &copy, sizeof(Settings));
+    copy.crc16 = CRC16(buffer, sizeof(Settings) - sizeof(copy.crc16));
+    memcpy(buffer, &copy, sizeof(Settings));
+
+    for (size_t i = 0; i < sizeof(Settings); ++i) {
+        if (EEPROM.read(i) != buffer[i]) {
+            EEPROM.write(i, buffer[i]);
+        }
+        delayMicroseconds(1); // Allow other tasks to run
+    }
+
     EEPROM.commit();
     EEPROM.end();
+    interrupts();
 }
 
-void EEPROM_Read(struct Settings* data) {
-    EEPROM.begin(EEPROM_SIZE);
-    for (unsigned int index = 0; index < EEPROM_SIZE; index++) {
-        ((char*)data)[index] = EEPROM.read(index);
+void EEPROM_Handler() {
+    if (!EEPROM_Scheduled_Write_Enabled) {
+        return;
+    }
+    if (millis() < EEPROM_Scheduled_Write_Delay) {
+        return;
+    }
+    EEPROM_Scheduled_Write_Enabled = false;
+
+    EEPROM_Write(&settings);
+}
+
+bool EEPROM_Read(Settings* out) {
+    if (!out) {
+        return false;
+    }
+
+    EEPROM.begin(sizeof(Settings));
+
+    static uint8_t buffer[sizeof(Settings)];
+    for (size_t i = 0; i < sizeof(Settings); ++i) {
+        buffer[i] = EEPROM.read(i);
+        yield();
     }
     EEPROM.end();
-}
 
-void EEPROM_Check(struct Settings* data) {
-    // This is the very first time the device is powered on
-    uint16_t crc16 = CRC16((uint8_t*)data, EEPROM_SIZE - 2);
-    if (crc16 != data->crc16) {
-        memset(data, 0, sizeof(struct Settings));
-        strcpy(data->wifiSettings.hostname, DEFAULT_HOSTNAME);
-        strcpy(data->wifiSettings.ssid_sta, DEFAULT_STA_SSID);
-        strcpy(data->wifiSettings.password_sta, DEFAULT_STA_PASSWORD);
-        strcpy(data->wifiSettings.ssid_ap, DEFAULT_AP_SSID_AND_PASSWORD);
-        strcpy(data->wifiSettings.password_ap, DEFAULT_AP_SSID_AND_PASSWORD);
-        strcpy(data->openWeatherMapSettings.appid, DEFAULT_OPENWEATHERMAP_APPID);
-        data->openWeatherMapSettings.lat    = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
-        data->openWeatherMapSettings.lon    = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
-        data->buzzerSettings.general_volume = DEFAULT_BUZZER_VOLUME;
-        data->buzzerSettings.isEnabled      = false;
-        EEPROM_Write(data);
+    Settings copy;
+    memcpy(&copy, buffer, sizeof(Settings));
+
+    uint16_t stored_crc = copy.crc16;
+    copy.crc16          = 0;
+
+    memcpy(buffer, &copy, sizeof(Settings));
+    uint16_t calc_crc = CRC16(buffer, sizeof(Settings) - sizeof(copy.crc16));
+
+    if (stored_crc != calc_crc) {
+        Serial.println(
+                "EEPROM data CRC mismatch. Expected: " + String(stored_crc)
+                + ", Calculated: " + String(calc_crc));
+        return false;
     }
+
+    *out = copy;
+    return true;
 }
 
-void EEPROM_Begin(struct Settings* data) {
-    EEPROM_Read(data); // Comment this line to reset the EEPROM
-    EEPROM_Check(data);
+void EEPROM_Write_Default(Settings* data) {
+    if (data == nullptr) {
+        return;
+    }
+
+    Settings defaultSettings = { 0 };
+    strcpy(defaultSettings.wifiSettings.hostname, DEFAULT_HOSTNAME);
+    strcpy(defaultSettings.wifiSettings.ssid_sta, DEFAULT_STA_SSID);
+    strcpy(defaultSettings.wifiSettings.password_sta, DEFAULT_STA_PASSWORD);
+    strcpy(defaultSettings.wifiSettings.ssid_ap, DEFAULT_AP_SSID_AND_PASSWORD);
+    strcpy(defaultSettings.wifiSettings.password_ap, DEFAULT_AP_SSID_AND_PASSWORD);
+    strcpy(defaultSettings.openWeatherMapSettings.appid, DEFAULT_OPENWEATHERMAP_APPID);
+    defaultSettings.openWeatherMapSettings.lat    = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
+    defaultSettings.openWeatherMapSettings.lon    = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
+    defaultSettings.buzzerSettings.general_volume = DEFAULT_BUZZER_VOLUME;
+    defaultSettings.buzzerSettings.isEnabled      = false;
+    EEPROM_Write(&defaultSettings);
+    *data = defaultSettings;
+}
+
+void EEPROM_Begin(Settings* data) {
+    if (data == nullptr) {
+        return;
+    }
+    if (!EEPROM_Read(data)) {
+        Serial.println("EEPROM data not valid, writing default settings.");
+        EEPROM_Write_Default(data);
+    }
 }

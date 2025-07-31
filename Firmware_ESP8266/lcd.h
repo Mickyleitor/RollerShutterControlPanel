@@ -34,9 +34,6 @@ static bool buttonIsReleased                   = false;
 
 #define LCD_TRANSITION_SPEED_MS                                           (5000)
 #define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
-#define LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS                           (200)
-#define LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS                      (2000)
-#define LCD_CONFIG_BUTTON_KEEP_LEVEL_UPDATE_TIMEOUT_MS                    (2000)
 
 #define LCD_CLOCK_UPDATE_INTERVAL_MS                                     (60000)
 
@@ -197,65 +194,43 @@ void pantalla_handleButtonInMenu(
             break;
         }
         case SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE: {
+            static const unsigned long incs[5] = {
+                3600UL,    // hours
+                60UL,      // minutes
+                86400UL,   // days
+                2592000UL, // months (~30d)
+                31536000UL // years (~365d)
+            };
+            static const unsigned long incsCount = sizeof(incs) / sizeof(incs[0]);
+
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
-                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
+                    if (currentAdjustedLevelIndex) {
+                        currentAdjustedLevelIndex--;
+                    } else {
+                        newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
+                    }
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedTimeZone = persistentVars_get_rtcTime().timezoneShift;
-                    newMenu          = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
+                    if (currentAdjustedLevelIndex < (incsCount - 1)) {
+                        currentAdjustedLevelIndex++;
+                    } else {
+                        adjustedTimeZone = persistentVars_get_rtcTime().timezoneShift;
+                        newMenu          = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
+                    }
                     break;
-                default: {
-                    // UP or DOWN will increase or decrease the adjustement level
-                    // If holding UP or DOWN for more than 2 seconds, increase the time by 1 minute,
-                    // 1 hour, 1 day, 30 days or 1 year. If no button is pressed, we keep the
-                    // adjustement level until 2 seconds after the last button press, wich will
-                    // restart the adjustment level to 0.
-                    static unsigned long lastClockUpdateMs   = 0;
-                    static unsigned long lastButtonHoldingMs = 0;
-                    static unsigned long lastButtonPressedMs = 0;
-                    static const unsigned long incs[5]
-                            = { 60UL, 3600UL, 86400UL, 2592000UL, 31536000UL };
-
-                    unsigned long now = millis();
-
-                    if (now - lastClockUpdateMs > LCD_CONFIG_FECHA_HORA_UPDATE_INTERVAL_MS) {
-                        lastClockUpdateMs = now;
-
-                        if (currentButtonHolding == BUTTON_STATUS_UP
-                            || currentButtonHolding == BUTTON_STATUS_DOWN) {
-                            lastButtonPressedMs = now;
-
-                            // decide step level
-                            unsigned long holdMs = now - lastButtonHoldingMs;
-                            currentAdjustedLevelIndex
-                                    = min(4UL,
-                                          holdMs / LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS);
-
-                            // apply adjustment
-                            if (currentButtonHolding == BUTTON_STATUS_UP) {
-                                adjustedTime += incs[currentAdjustedLevelIndex];
-                            } else {
-                                adjustedTime -= incs[currentAdjustedLevelIndex];
-                            }
-                        } else {
-                            if ((now - lastButtonPressedMs)
-                                > LCD_CONFIG_BUTTON_KEEP_LEVEL_UPDATE_TIMEOUT_MS) {
-                                currentAdjustedLevelIndex = 0;
-                                lastButtonHoldingMs       = now;
-                            } else {
-                                lastButtonHoldingMs
-                                        = now
-                                        - ((currentAdjustedLevelIndex
-                                            * LCD_CONFIG_BUTTON_HOLDING_UPDATE_INTERVAL_MS));
-                            }
-                        }
-                    }
-                    if (adjustedTime < 0) {
-                        adjustedTime = 0;
-                    }
-                } break;
+                case BUTTON_STATUS_UP:
+                    adjustedTime += incs[currentAdjustedLevelIndex];
+                    break;
+                case BUTTON_STATUS_DOWN:
+                    adjustedTime -= incs[currentAdjustedLevelIndex];
+                    break;
             }
+
+            if (adjustedTime < 0) {
+                adjustedTime = 0;
+            }
+
             break;
         }
         case SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE: {
@@ -469,82 +444,45 @@ void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
 }
 
 void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
-    // Show the adjusted time
-    // format: 00:00 16/10/2023
-    struct tm* timeinfo;
-    static unsigned long lastClockFlashMs = 0;
-    static bool flashStatus               = false;
-    if ((millis() - lastClockFlashMs) > LCD_SLIDE_OR_FLASH_SPEED_MS) {
-        lastClockFlashMs = millis();
-        flashStatus      = !flashStatus;
+    struct tm* timeinfo = localtime(&adjustedTime);
+
+    static unsigned long lastFlashMs = 0;
+    static bool flashOn              = false;
+
+    if ((millis() - lastFlashMs) > LCD_SLIDE_OR_FLASH_SPEED_MS) {
+        lastFlashMs = millis();
+        flashOn     = !flashOn;
     }
 
-    timeinfo = localtime(&adjustedTime);
-
-    bool shouldShowInfo = (currentAdjustedLevelIndex != 1) || flashStatus;
-
-    if (shouldShowInfo) {
-        if (timeinfo->tm_hour < 10) {
-            *lcdBuffer += '0';
+    auto printField = [&](int value, unsigned long index, int width) {
+        bool visible = (currentAdjustedLevelIndex != index) || flashOn;
+        if (visible) {
+            if (value < 10 && width >= 2) {
+                *lcdBuffer += '0';
+            }
+            *lcdBuffer += String(value);
+        } else {
+            for (int i = 0; i < width; ++i) {
+                *lcdBuffer += ' ';
+            }
         }
-        *lcdBuffer += String(timeinfo->tm_hour);
-    } else {
-        *lcdBuffer += "  ";
-    }
+    };
 
-    *lcdBuffer += String(":");
+    // Format: hh:mm dd/mm/yyyy
+    printField(timeinfo->tm_hour, 0, 2);
+    *lcdBuffer += ':';
+    printField(timeinfo->tm_min, 1, 2);
+    *lcdBuffer += ' ';
+    printField(timeinfo->tm_mday, 2, 2);
+    *lcdBuffer += '/';
+    printField(timeinfo->tm_mon + 1, 3, 2);
+    *lcdBuffer += '/';
+    printField(timeinfo->tm_year + 1900, 4, 4);
 
-    shouldShowInfo = (currentAdjustedLevelIndex != 0) || flashStatus;
-
-    if (shouldShowInfo) {
-        if (timeinfo->tm_min < 10) {
-            *lcdBuffer += '0';
-        }
-        *lcdBuffer += String(timeinfo->tm_min);
-    } else {
-        *lcdBuffer += "  ";
-    }
-
-    *lcdBuffer += String(" ");
-
-    shouldShowInfo = (currentAdjustedLevelIndex != 2) || flashStatus;
-
-    if (shouldShowInfo) {
-        if ((timeinfo->tm_mday) < 10) {
-            *lcdBuffer += String('0');
-        }
-        *lcdBuffer += String(timeinfo->tm_mday);
-    } else {
-        *lcdBuffer += "  ";
-    }
-
-    *lcdBuffer += String("/");
-
-    shouldShowInfo = (currentAdjustedLevelIndex != 3) || flashStatus;
-
-    if (shouldShowInfo) {
-        if ((timeinfo->tm_mon + 1) < 10) {
-            *lcdBuffer += String('0');
-        }
-        *lcdBuffer += String(timeinfo->tm_mon + 1);
-    } else {
-        *lcdBuffer += "  ";
-    }
-
-    *lcdBuffer += String("/");
-
-    shouldShowInfo = (currentAdjustedLevelIndex != 4) || flashStatus;
-
-    if (shouldShowInfo) {
-        *lcdBuffer += String((timeinfo->tm_year) + 1900);
-    } else {
-        *lcdBuffer += "    ";
-    }
-
-    *lcdBuffer += String("<      ");
+    *lcdBuffer += "<      ";
     *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
     *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
-    *lcdBuffer += String("      >");
+    *lcdBuffer += "      >";
 }
 
 void pantalla_actualizarMenuConfigZonaHorariaAjuste(String* lcdBuffer) {

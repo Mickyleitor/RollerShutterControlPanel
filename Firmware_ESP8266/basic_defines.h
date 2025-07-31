@@ -78,9 +78,11 @@ enum ShutterStatus {
     SHUTTER_STATUS_MOVING_DOWN,
 };
 
+typedef uint8_t ShutterStatus_t;
+
 #define NUMBER_OF_SHUTTERS                                                   (3)
 
 struct ShutterParameters {
-    enum ShutterStatus status;
+    ShutterStatus_t status;
     unsigned long lastUpdate;
 };

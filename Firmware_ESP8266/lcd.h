@@ -9,8 +9,6 @@
 #include "persistentVars.h"
 #include "rtcTime.h"
 
-extern struct ShutterParameters ShutterData[];
-extern struct Settings settings;
 extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
@@ -21,9 +19,6 @@ static unsigned long currentAdjustedLevelIndex = 0;
 static bool previousBuzzerEnabled              = false;
 static bool buttonIsReleased                   = false;
 
-#define LCD_TOTAL_WIDTH                                                     (16)
-#define LCD_TOTAL_HEIGHT                                                     (2)
-
 #define LCD_SPECIAL_CHAR_BASE                                         (char)(10)
 #define LCD_SPECIAL_CHAR_LEFT_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 0)
 #define LCD_SPECIAL_CHAR_UP_ARROW              (char)(LCD_SPECIAL_CHAR_BASE + 1)
@@ -32,7 +27,6 @@ static bool buttonIsReleased                   = false;
 #define LCD_SPECIAL_CHAR_STOP_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 4)
 #define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
-#define LCD_TRANSITION_SPEED_MS                                           (5000)
 #define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
 
 #define LCD_CLOCK_UPDATE_INTERVAL_MS                                     (60000)
@@ -124,7 +118,8 @@ void pantalla_handleButtonInMenu(
         case SELECCION_MENU_PERSIANA_CENTRAL:
             // fall through
         case SELECCION_MENU_PERSIANA_DERECHA: {
-            uint8_t _localShutterIndex = (SELECCION_MENU_PERSIANA_TO_INDEX(newMenu));
+            uint8_t _localShutterIndex     = (SELECCION_MENU_PERSIANA_TO_INDEX(newMenu));
+            ShutterStatus_t _shutterStatus = shutterGetStatus(_localShutterIndex);
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
                     newMenu--;
@@ -141,17 +136,19 @@ void pantalla_handleButtonInMenu(
                     }
                     break;
                 case BUTTON_STATUS_UP:
-                    if (ShutterData[_localShutterIndex].status == SHUTTER_STATUS_MOVING_UP) {
-                        PararPersiana(_localShutterIndex);
+                    if ((_shutterStatus == SHUTTER_STATUS_MOVING_UP)
+                        || _shutterStatus == SHUTTER_STATUS_MOVING_DOWN) {
+                        shutterPararPersiana(_localShutterIndex);
                     } else {
-                        subirPersiana(_localShutterIndex);
+                        shutterSubirPersiana(_localShutterIndex);
                     }
                     break;
                 case BUTTON_STATUS_DOWN:
-                    if (ShutterData[_localShutterIndex].status == SHUTTER_STATUS_MOVING_DOWN) {
-                        PararPersiana(_localShutterIndex);
+                    if ((_shutterStatus == SHUTTER_STATUS_MOVING_DOWN)
+                        || _shutterStatus == SHUTTER_STATUS_MOVING_UP) {
+                        shutterPararPersiana(_localShutterIndex);
                     } else {
-                        bajarPersiana(_localShutterIndex);
+                        shutterBajarPersiana(_localShutterIndex);
                     }
                     break;
             }
@@ -409,7 +406,7 @@ void pantalla_actualizarMenuShutter(String* lcdBuffer, uint8_t currentShutterInd
     *lcdBuffer += namePersiana[currentShutterIndex];
     *lcdBuffer += String("<    ");
 
-    if (ShutterData[currentShutterIndex].status == SHUTTER_STATUS_MOVING_UP) {
+    if (shutterGetStatus(currentShutterIndex) == SHUTTER_STATUS_MOVING_UP) {
         *lcdBuffer += LCD_SPECIAL_CHAR_STOP_ARROW;
     } else {
         *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
@@ -417,7 +414,7 @@ void pantalla_actualizarMenuShutter(String* lcdBuffer, uint8_t currentShutterInd
 
     *lcdBuffer += String("    ");
 
-    if (ShutterData[currentShutterIndex].status == SHUTTER_STATUS_MOVING_DOWN) {
+    if (shutterGetStatus(currentShutterIndex) == SHUTTER_STATUS_MOVING_DOWN) {
         *lcdBuffer += LCD_SPECIAL_CHAR_STOP_ARROW;
     } else {
         *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;

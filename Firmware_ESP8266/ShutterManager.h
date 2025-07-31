@@ -29,43 +29,51 @@ void shutterHandler() {
     }
 }
 
-void subirPersiana(int persiana) {
-    if (persiana < 0 || persiana >= NUMBER_OF_SHUTTERS) {
-        Serial.println("Invalid shutter index: " + String(persiana));
+ShutterStatus_t shutterGetStatus(int shutterIndex) {
+    if (shutterIndex < 0 || shutterIndex >= NUMBER_OF_SHUTTERS) {
+        Serial.println("Invalid shutter index: " + String(shutterIndex));
+        return SHUTTER_STATUS_STOPPED;
+    }
+    return ShutterData[shutterIndex].status;
+}
+
+void shutterSubirPersiana(int shutterIndex) {
+    if (shutterIndex < 0 || shutterIndex >= NUMBER_OF_SHUTTERS) {
+        Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[persiana].lastUpdate = millis();
-    ShutterData[persiana].status     = SHUTTER_STATUS_MOVING_UP;
+    ShutterData[shutterIndex].lastUpdate = millis();
+    ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_UP;
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_UP;
-    arg.shutter = persiana;
+    arg.shutter = shutterIndex;
     arg.retries = 3;
     (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
 }
 
-void bajarPersiana(int persiana) {
-    if (persiana < 0 || persiana >= NUMBER_OF_SHUTTERS) {
-        Serial.println("Invalid shutter index: " + String(persiana));
+void shutterBajarPersiana(int shutterIndex) {
+    if (shutterIndex < 0 || shutterIndex >= NUMBER_OF_SHUTTERS) {
+        Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[persiana].lastUpdate = millis();
-    ShutterData[persiana].status     = SHUTTER_STATUS_MOVING_DOWN;
+    ShutterData[shutterIndex].lastUpdate = millis();
+    ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_DOWN;
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_DOWN;
-    arg.shutter = persiana;
+    arg.shutter = shutterIndex;
     arg.retries = 3;
     (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
 }
 
-void PararPersiana(int persiana) {
-    if (persiana < 0 || persiana >= NUMBER_OF_SHUTTERS) {
-        Serial.println("Invalid shutter index: " + String(persiana));
+void shutterPararPersiana(int shutterIndex) {
+    if (shutterIndex < 0 || shutterIndex >= NUMBER_OF_SHUTTERS) {
+        Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[persiana].status = SHUTTER_STATUS_STOPPED;
+    ShutterData[shutterIndex].status = SHUTTER_STATUS_STOPPED;
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_STOP;
-    arg.shutter = persiana;
+    arg.shutter = shutterIndex;
     arg.retries = 3;
     (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
 }

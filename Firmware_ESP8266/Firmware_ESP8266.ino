@@ -21,7 +21,6 @@
 
 static SystemState_t _SystemState     = SYSTEM_STATE_ENTERING_IDLE;
 static seleccionMenu_t _seleccionMenu = DEFAULT_SELECTION_MENU;
-struct ShutterParameters ShutterData[NUMBER_OF_SHUTTERS];
 
 void systemStateGoToIdle(void) {
     if (_seleccionMenu <= SELECCION_MENU_CONFIG) {
@@ -32,7 +31,7 @@ void systemStateGoToIdle(void) {
 void setup() {
     Serial.begin(115200);
     Serial.println();
-    Serial.println("Master inicializado");
+    Serial.println("ESP8266 Roller Shutter Control Panel");
 
     EEPROM_Begin(&settings);
     persistentVars_init();
@@ -49,19 +48,6 @@ void setup() {
     initButtonsFunction();
     checkSlaveConnection();
     buzzer_init();
-    /*
-    if (!ESP8266Utils_Connect_STA(
-                settings.wifiSettings.ssid_sta,
-                settings.wifiSettings.password_sta,
-                settings.wifiSettings.hostname,
-                WIFI_CONNECTION_TIMEOUT)) {
-        Serial.print("Error connecting to SSID: ");
-        Serial.println(settings.wifiSettings.ssid_sta);
-    } else {
-        Serial.println("STA connected");
-        ESP8266Utils_update_WeatherData(&settings);
-    }
-    */
 }
 
 void loop() {

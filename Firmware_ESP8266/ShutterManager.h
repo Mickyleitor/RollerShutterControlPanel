@@ -1,14 +1,12 @@
 #pragma once
 
-#include "EEPROM_Utils.h"
 #include "basic_defines.h"
 #include "buzzer.h"
 #include "rscpProtocol/rscpProtocol.h"
 
 #define SHUTTER_MAX_DURATION_SECONDS                                        (27)
-#define SHUTTER_CHECK_LIMITS_INTERVAL_SECONDS                                (5)
 
-extern struct ShutterParameters ShutterData[];
+struct ShutterParameters ShutterData[NUMBER_OF_SHUTTERS];
 
 void shutterHandler() {
     // This function is called periodically to check the status of the shutters

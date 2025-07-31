@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Wire.h>
-
-#include "basic_defines.h"
 #include "error.h"
 #include "moduleConfigs/rscpProtocolConfig.h"
 #include "rscpProtocol/rscpProtocol.h"

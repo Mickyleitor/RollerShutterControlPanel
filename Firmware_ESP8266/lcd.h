@@ -6,6 +6,7 @@
 #include "ESP8266_Utils.h"
 #include "ShutterManager.h"
 #include "basic_defines.h"
+#include "buttons.h"
 #include "persistentVars.h"
 #include "rtcTime.h"
 
@@ -18,6 +19,8 @@ static uint32_t previousBuzzerVolume           = 0;
 static unsigned long currentAdjustedLevelIndex = 0;
 static bool previousBuzzerEnabled              = false;
 static bool buttonIsReleased                   = false;
+static String adjustedPassword                 = "";
+static unsigned long buttonHoldingTimeMs       = 0;
 
 #define LCD_SPECIAL_CHAR_BASE                                         (char)(10)
 #define LCD_SPECIAL_CHAR_LEFT_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 0)
@@ -28,6 +31,7 @@ static bool buttonIsReleased                   = false;
 #define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
 
 #define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
+#define LCD_HOLDING_TIME_CONFIRM_MS                                       (2000)
 
 #define LCD_CLOCK_UPDATE_INTERVAL_MS                                     (60000)
 
@@ -331,6 +335,8 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT;
                     break;
                 case BUTTON_STATUS_DOWN:
+                    newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    break;
                 case BUTTON_STATUS_LEFT:
                     buzzer_sound_error();
                     break;
@@ -346,6 +352,63 @@ void pantalla_handleButtonInMenu(
                 case BUTTON_STATUS_RIGHT:
                     buzzer_sound_error();
                     break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_WIFI:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_UP:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    adjustedPassword = "";
+                    newMenu          = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_LEFT:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_PASSWORD:
+            static uint8_t previousButtonHolding = BUTTON_STATUS_NONE;
+
+            if ((previousButtonHolding != currentButtonHolding)
+                && (currentButtonHolding != BUTTON_STATUS_NONE)) {
+                buttonHoldingTimeMs   = millis();
+                previousButtonHolding = currentButtonHolding;
+            } else if (
+                    (previousButtonHolding != currentButtonHolding)
+                    && (currentButtonHolding == BUTTON_STATUS_NONE)) {
+                if ((millis() - buttonHoldingTimeMs) >= LCD_HOLDING_TIME_CONFIRM_MS) {
+                    if (previousButtonHolding == BUTTON_STATUS_DOWN) {
+                        buzzer_sound_accept();
+                        newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    }
+                } else {
+                    switch (previousButtonHolding) {
+                        case BUTTON_STATUS_LEFT:
+                            if (adjustedPassword.length() == 0) {
+                                newMenu = SELECCION_MENU_CONFIG_WIFI;
+                            } else {
+                                adjustedPassword.remove(adjustedPassword.length() - 1);
+                            }
+                            break;
+                        case BUTTON_STATUS_UP:
+                            if (adjustedPassword[adjustedPassword.length() - 1] < '~') {
+                                adjustedPassword[adjustedPassword.length() - 1]++;
+                            }
+                            break;
+                        case BUTTON_STATUS_DOWN:
+                            if (adjustedPassword[adjustedPassword.length() - 1] > '!') {
+                                adjustedPassword[adjustedPassword.length() - 1]--;
+                            }
+                            break;
+                        case BUTTON_STATUS_RIGHT:
+                            adjustedPassword += 'a';
+                            break;
+                    }
+                }
+                previousButtonHolding = currentButtonHolding;
             }
             break;
     }
@@ -577,6 +640,78 @@ void pantalla_actualizarMenuConfigDebugSoftRstCount(String* lcdBuffer) {
     *lcdBuffer += String("<               ");
 }
 
+void pantalla_actualizarMenuConfigWifi(String* lcdBuffer) {
+    *lcdBuffer += String(" CONFIG DE WIFI ");
+    *lcdBuffer += String("       ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += String("      >");
+}
+
+void pantalla_actualizarMenuConfigWifiPassword(String* lcdBuffer) {
+    *lcdBuffer += String("PWD: ");
+
+    // If password is larger than 11 characters, truncate it from the
+    // left to right, keeping the last 11 characters.
+    String truncatedPassword = adjustedPassword;
+    if (adjustedPassword.length() > 11) {
+        truncatedPassword = truncatedPassword.substring(truncatedPassword.length() - 11);
+    }
+    *lcdBuffer += truncatedPassword;
+
+    while (lcdBuffer->length() < 16) {
+        *lcdBuffer += String(" ");
+    }
+
+    const String texts[] = {
+        "<      ^^      >", // 0% holding time
+        "<     -^^-     >", // 16% holding time
+        "<    --^^--    >", // 33% holding time
+        "<   ---^^---   >", // 50% holding time
+        "<  ----^^----  >", // 66% holding time
+        "< -----^^----- >", // 83% holding time
+        "<------^^------>"  // 100% holding time
+    };
+    const unsigned long textsCount = sizeof(texts) / sizeof(texts[0]);
+
+    unsigned long textIndex         = 0;
+    const unsigned long holdingTime = millis() - buttonHoldingTimeMs;
+    if (buttonHolding() == BUTTON_STATUS_DOWN) {
+        textIndex = (holdingTime * textsCount) / LCD_HOLDING_TIME_CONFIRM_MS;
+        if (textIndex > textsCount - 1) {
+            textIndex = textsCount - 1; // Limit to the last text
+        }
+    } else {
+        textIndex = 0;
+    }
+
+    static unsigned long lastFlashMs = 0;
+    static bool flashOn              = false;
+
+    if ((millis() - lastFlashMs) > (LCD_SLIDE_OR_FLASH_SPEED_MS / 4)) {
+        lastFlashMs = millis();
+        flashOn     = !flashOn;
+    }
+
+    for (unsigned long i = 0; i < 16; i++) {
+        if ((i != 7) && (i != 8)) {
+            *lcdBuffer += texts[textIndex][i];
+        } else {
+            if (textIndex != textsCount - 1) {
+                if (i == 7) {
+                    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+                } else {
+                    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+                }
+            } else if (flashOn) {
+                *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+            } else {
+                *lcdBuffer += ' ';
+            }
+        }
+    }
+}
+
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
     String lcdBuffer = "";
     switch (selectedMenu) {
@@ -615,6 +750,12 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT:
             pantalla_actualizarMenuConfigDebugSoftRstCount(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI:
+            pantalla_actualizarMenuConfigWifi(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_PASSWORD:
+            pantalla_actualizarMenuConfigWifiPassword(&lcdBuffer);
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

@@ -85,4 +85,5 @@ void loop() {
     buzzer_handler();
     shutterHandler();
     EEPROM_Handler();
+    Wifi_handler();
 }

@@ -19,6 +19,7 @@ static uint32_t previousBuzzerVolume           = 0;
 static unsigned long currentAdjustedLevelIndex = 0;
 static bool previousBuzzerEnabled              = false;
 static bool buttonIsReleased                   = false;
+static String adjustedSSID                     = "";
 static String adjustedPassword                 = "";
 static unsigned long buttonHoldingTimeMs       = 0;
 
@@ -28,7 +29,11 @@ static unsigned long buttonHoldingTimeMs       = 0;
 #define LCD_SPECIAL_CHAR_DOWN_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 2)
 #define LCD_SPECIAL_CHAR_RIGHT_ARROW           (char)(LCD_SPECIAL_CHAR_BASE + 3)
 #define LCD_SPECIAL_CHAR_STOP_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 4)
-#define LCD_SPECIAL_CHAR_UP_ARROW_CAN          (char)(LCD_SPECIAL_CHAR_BASE + 5)
+#define LCD_SPECIAL_CHAR_CONNECTED_SYMBOL      (char)(LCD_SPECIAL_CHAR_BASE + 5)
+#define LCD_SPECIAL_CHAR_WARNING_SYMBOL        (char)(LCD_SPECIAL_CHAR_BASE + 6)
+// Keep this in sync with the number of custom characters defined above.
+// Maximum is 8, but we use only 7.
+#define LCD_SPECIAL_CHAR_TOTAL_CHARS                                         (7)
 
 #define LCD_SLIDE_OR_FLASH_SPEED_MS                                        (500)
 #define LCD_HOLDING_TIME_CONFIRM_MS                                       (2000)
@@ -44,13 +49,15 @@ void _sendLcdBuffer(String line1, String line2) {
     _lcd.clear();
     for (int i = 0; i < 16; i++) {
         _lcd.setCursor(i, 0);
-        if ((line1[i] >= LCD_SPECIAL_CHAR_BASE) && (line1[i] < LCD_SPECIAL_CHAR_BASE + 6)) {
+        if ((line1[i] >= LCD_SPECIAL_CHAR_BASE)
+            && (line1[i] < LCD_SPECIAL_CHAR_BASE + LCD_SPECIAL_CHAR_TOTAL_CHARS)) {
             _lcd.write(line1[i] - LCD_SPECIAL_CHAR_BASE);
         } else {
             _lcd.print(line1[i]);
         }
         _lcd.setCursor(i, 1);
-        if ((line2[i] >= LCD_SPECIAL_CHAR_BASE) && (line2[i] < LCD_SPECIAL_CHAR_BASE + 6)) {
+        if ((line2[i] >= LCD_SPECIAL_CHAR_BASE)
+            && (line2[i] < LCD_SPECIAL_CHAR_BASE + LCD_SPECIAL_CHAR_TOTAL_CHARS)) {
             _lcd.write(line2[i] - LCD_SPECIAL_CHAR_BASE);
         } else {
             _lcd.print(line2[i]);
@@ -90,20 +97,23 @@ bool pantalla_iniciar(int32_t timeout_ms) {
     }
 
     _lcd.begin(16, 2);
-    uint8_t customArrayChar[6][8] = {
-        /* Flecha izquierda */ { 0x00, 0x07, 0x0E, 0x1C, 0x1C, 0x0E, 0x07, 0x00 },
-        /* Flecha arriba    */
+    uint8_t customArrayChar[LCD_SPECIAL_CHAR_TOTAL_CHARS][8] = {
+        // LCD_SPECIAL_CHAR_LEFT_ARROW
+        { 0x00, 0x07, 0x0E, 0x1C, 0x1C, 0x0E, 0x07, 0x00 },
+        // LCD_SPECIAL_CHAR_UP_ARROW
         { 0x00, 0x04, 0x0E, 0x1F, 0x1B, 0x11, 0x00, 0x00 },
-        /* Flecha abajo     */
+        // LCD_SPECIAL_CHAR_DOWN_ARROW
         { 0x00, 0x00, 0x11, 0x1B, 0x1F, 0x0E, 0x04, 0x00 },
-        /* Flecha derecha   */
+        // LCD_SPECIAL_CHAR_RIGHT_ARROW
         { 0x00, 0x1C, 0x0E, 0x07, 0x07, 0x0E, 0x1C, 0x00 },
-        /* Flecha STOP      */
+        // LCD_SPECIAL_CHAR_STOP_ARROW
         { 0x00, 0x0E, 0x1B, 0x11, 0x11, 0x1B, 0x0E, 0x00 },
-        /* Flecha arribacan */
-        { 0x04, 0x0E, 0x1F, 0x15, 0x04, 0x04, 0x07, 0x00 }
+        // LCD_SPECIAL_CHAR_CONNECTED_SYMBOL
+        { 0x04, 0x0E, 0x1B, 0x1B, 0x0E, 0x04, 0x04, 0x00 },
+        // LCD_SPECIAL_CHAR_WARNING_SYMBOL
+        { 0x0E, 0x11, 0x15, 0x15, 0x11, 0x15, 0x11, 0x0E }
     };
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < LCD_SPECIAL_CHAR_TOTAL_CHARS; i++) {
         _lcd.createChar(i, customArrayChar[i]);
     }
     return true;
@@ -360,8 +370,8 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_DEBUG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedPassword = "";
-                    newMenu          = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
+                    ESP8266Utils_clearWifiNetworksList();
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
                     break;
                 case BUTTON_STATUS_DOWN:
                 case BUTTON_STATUS_LEFT:
@@ -369,26 +379,71 @@ void pantalla_handleButtonInMenu(
                     break;
             }
             break;
-        case SELECCION_MENU_CONFIG_WIFI_PASSWORD:
+        case SELECCION_MENU_CONFIG_WIFI_SSID: {
+            // In this menu, an async wifi scan is performed. And we start to do RSSI avg on each
+            // SSID. We display the SSID in a list sorted by RSSI, first the strongest.
+            // Do as much as possible RSSI avg, so we can display the list ASAP, since it's cleared
+            // each time we enter this menu.
+            ESP8266Utils_startWifiScanIfNeeded();
+            ESP8266Utils_checkScanResults();
+            static int previousCurrentIndex = 1;
+            int countNetworks               = ESP8266Utils_getTrackedNetworkCount();
+            int currentIndex                = ESP8266Utils_getIndexBySsid(adjustedSSID);
+            if ((currentIndex < 0) && (countNetworks > 0) && (previousCurrentIndex > 0)) {
+                currentIndex = previousCurrentIndex - 1;
+            } else if (currentIndex < 0) {
+                currentIndex = 0;
+            }
+            previousCurrentIndex = currentIndex;
+
+            ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_UP:
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                    }
+                    ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    adjustedPassword = "";
+                    newMenu          = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                    if (currentIndex < (countNetworks - 1)) {
+                        currentIndex++;
+                    }
+                    ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+                    break;
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    break;
+            }
+            break;
+        }
+        case SELECCION_MENU_CONFIG_WIFI_PASSWORD: {
             static uint8_t previousButtonHolding = BUTTON_STATUS_NONE;
+
+            unsigned long now = millis();
 
             if ((previousButtonHolding != currentButtonHolding)
                 && (currentButtonHolding != BUTTON_STATUS_NONE)) {
-                buttonHoldingTimeMs   = millis();
+                buttonHoldingTimeMs   = now;
                 previousButtonHolding = currentButtonHolding;
             } else if (
                     (previousButtonHolding != currentButtonHolding)
                     && (currentButtonHolding == BUTTON_STATUS_NONE)) {
-                if ((millis() - buttonHoldingTimeMs) >= LCD_HOLDING_TIME_CONFIRM_MS) {
+                if ((now - buttonHoldingTimeMs) >= LCD_HOLDING_TIME_CONFIRM_MS) {
                     if (previousButtonHolding == BUTTON_STATUS_DOWN) {
                         buzzer_sound_accept();
-                        newMenu = SELECCION_MENU_CONFIG_WIFI;
+                        newMenu = SELECCION_MENU_CONFIG_WIFI_RESULTADO;
+                        ESP8266Utils_connectToWifi(adjustedSSID, adjustedPassword);
                     }
                 } else {
                     switch (previousButtonHolding) {
                         case BUTTON_STATUS_LEFT:
                             if (adjustedPassword.length() == 0) {
-                                newMenu = SELECCION_MENU_CONFIG_WIFI;
+                                newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
                             } else {
                                 adjustedPassword.remove(adjustedPassword.length() - 1);
                             }
@@ -404,13 +459,49 @@ void pantalla_handleButtonInMenu(
                             }
                             break;
                         case BUTTON_STATUS_RIGHT:
-                            adjustedPassword += 'a';
+                            adjustedPassword += 'A';
                             break;
                     }
                 }
                 previousButtonHolding = currentButtonHolding;
             }
             break;
+        }
+        case SELECCION_MENU_CONFIG_WIFI_RESULTADO: {
+            static bool wifiCredentialStored = false;
+            if (ESP8266Utils_isWifiConnected()) {
+                if (!wifiCredentialStored) {
+                    wifiCredentialStored = true;
+                    memcpy(settings.wifiSettings.ssid_sta,
+                           adjustedSSID.c_str(),
+                           sizeof(settings.wifiSettings.ssid_sta));
+                    memcpy(settings.wifiSettings.password_sta,
+                           adjustedPassword.c_str(),
+                           sizeof(settings.wifiSettings.password_sta));
+                    EEPROM_Schedule_Write(100);
+                }
+            } else {
+                wifiCredentialStored = false;
+            }
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_RIGHT:
+                    if (ESP8266Utils_isWifiConnected()) {
+                        buzzer_sound_accept();
+                        newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    } else {
+                        buzzer_sound_error();
+                    }
+                    break;
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_UP:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        }
     }
     *currentMenu = newMenu;
 }
@@ -712,6 +803,90 @@ void pantalla_actualizarMenuConfigWifiPassword(String* lcdBuffer) {
     }
 }
 
+void pantalla_actualizarMenuConfigWifiSsid(String* lcdBuffer) {
+    *lcdBuffer += String("SSID:");
+
+    String mySSID         = adjustedSSID;
+    int adjustedSSIDindex = ESP8266Utils_getIndexBySsid(adjustedSSID);
+    if (adjustedSSIDindex < 0) {
+        mySSID = "No hay redes";
+    }
+
+    static unsigned long lastScrollTime = 0;
+    static unsigned int scrollOffset    = 0;
+
+    // Espacio visible para SSID
+    const int visibleChars = 11;
+
+    // Añadir separación al final para el efecto loop
+    String scrollingSSID = mySSID + "   "; // espacio entre loops
+
+    // Actualizar desplazamiento cada 200ms
+    if (millis() - lastScrollTime >= LCD_SLIDE_OR_FLASH_SPEED_MS) {
+        lastScrollTime = millis();
+        scrollOffset++;
+        if (scrollOffset >= scrollingSSID.length()) {
+            scrollOffset = 0;
+        }
+    }
+
+    // Construir ventana deslizante
+    String scrolled;
+    for (int i = 0; i < visibleChars; ++i) {
+        int charIndex  = (scrollOffset + i) % scrollingSSID.length();
+        scrolled      += scrollingSSID.charAt(charIndex);
+    }
+
+    *lcdBuffer += scrolled;
+
+    // Asegurar longitud mínima de 16
+    while (lcdBuffer->length() < 16) {
+        *lcdBuffer += " ";
+    }
+
+    // Agregar navegación
+    *lcdBuffer += String("<     ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    adjustedSSIDindex++;
+    if (adjustedSSIDindex == 0) {
+        *lcdBuffer += String("  ");
+    } else if (adjustedSSIDindex < 10) {
+        *lcdBuffer += String("0");
+        *lcdBuffer += String(adjustedSSIDindex);
+    } else {
+        *lcdBuffer += String(adjustedSSIDindex);
+    }
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("     >");
+}
+
+void pantalla_actualizarMenuConfigWifiResultado(String* lcdBuffer) {
+    int porcentaje = ESP8266Utils_getWifiConnectionPercentage();
+    if (porcentaje > 100) {
+        porcentaje = 100; // Limit to 100%
+    }
+    if (ESP8266Utils_isWifiConnected()) {
+        *lcdBuffer += String("WIFI: CONECTADO ");
+        *lcdBuffer += String("<            OK>");
+    } else {
+        int porcentaje = ESP8266Utils_getWifiConnectionPercentage();
+        if (porcentaje == 100) {
+            *lcdBuffer += String("WIFI:  FALLIDO  ");
+        } else {
+            *lcdBuffer += String("WIFI:  ESPERE   ");
+        }
+        *lcdBuffer += String("< [");
+        for (int i = 0; i < 10; i++) {
+            if (i < (porcentaje / 10)) {
+                *lcdBuffer += String("=");
+            } else {
+                *lcdBuffer += String(" ");
+            }
+        }
+        *lcdBuffer += String("]  ");
+    }
+}
+
 void pantalla_actualizarMenu(uint8_t selectedMenu) {
     String lcdBuffer = "";
     switch (selectedMenu) {
@@ -754,8 +929,14 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
         case SELECCION_MENU_CONFIG_WIFI:
             pantalla_actualizarMenuConfigWifi(&lcdBuffer);
             break;
+        case SELECCION_MENU_CONFIG_WIFI_SSID:
+            pantalla_actualizarMenuConfigWifiSsid(&lcdBuffer);
+            break;
         case SELECCION_MENU_CONFIG_WIFI_PASSWORD:
             pantalla_actualizarMenuConfigWifiPassword(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_RESULTADO:
+            pantalla_actualizarMenuConfigWifiResultado(&lcdBuffer);
             break;
     }
     pantalla_sendLcdBuffer(lcdBuffer);

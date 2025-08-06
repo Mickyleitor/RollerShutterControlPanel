@@ -13,15 +13,33 @@
 extern struct WeatherData MyWeather;
 
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
-static time_t adjustedTime                     = 0;
-static long adjustedTimeZone                   = 0;
-static uint32_t previousBuzzerVolume           = 0;
-static unsigned long currentAdjustedLevelIndex = 0;
-static bool previousBuzzerEnabled              = false;
-static bool buttonIsReleased                   = false;
-static String adjustedSSID                     = "";
-static String adjustedPassword                 = "";
-static unsigned long buttonHoldingTimeMs       = 0;
+static bool buttonIsReleased             = false;
+static unsigned long buttonHoldingTimeMs = 0;
+
+struct WifiConfig {
+    String ssid;
+    String password;
+    bool enabled;
+};
+
+struct VolumeConfig {
+    uint32_t previousVolume;
+    bool previousBuzzerEnabled;
+};
+
+struct TimezoneConfig {
+    time_t time;
+    unsigned long whichIncrementIndex;
+    long timezoneShift;
+};
+
+struct PendingConfig {
+    struct WifiConfig wifi;
+    struct VolumeConfig volume;
+    struct TimezoneConfig timezone;
+};
+
+static PendingConfig pendingConfig;
 
 #define LCD_SPECIAL_CHAR_BASE                                         (char)(10)
 #define LCD_SPECIAL_CHAR_LEFT_ARROW            (char)(LCD_SPECIAL_CHAR_BASE + 0)
@@ -191,9 +209,9 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedTime              = time(NULL);
-                    currentAdjustedLevelIndex = 0;
-                    newMenu                   = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
+                    pendingConfig.timezone.time                = time(NULL);
+                    pendingConfig.timezone.whichIncrementIndex = 0;
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
                 case BUTTON_STATUS_DOWN:
                     newMenu = SELECCION_MENU_CONFIG_VOLUMEN;
@@ -216,30 +234,31 @@ void pantalla_handleButtonInMenu(
 
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
-                    if (currentAdjustedLevelIndex) {
-                        currentAdjustedLevelIndex--;
+                    if (pendingConfig.timezone.whichIncrementIndex) {
+                        pendingConfig.timezone.whichIncrementIndex--;
                     } else {
                         newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     }
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    if (currentAdjustedLevelIndex < (incsCount - 1)) {
-                        currentAdjustedLevelIndex++;
+                    if (pendingConfig.timezone.whichIncrementIndex < (incsCount - 1)) {
+                        pendingConfig.timezone.whichIncrementIndex++;
                     } else {
-                        adjustedTimeZone = persistentVars_get_rtcTime().timezoneShift;
-                        newMenu          = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
+                        pendingConfig.timezone.timezoneShift
+                                = persistentVars_get_rtcTime().timezoneShift;
+                        newMenu = SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE;
                     }
                     break;
                 case BUTTON_STATUS_UP:
-                    adjustedTime += incs[currentAdjustedLevelIndex];
+                    pendingConfig.timezone.time += incs[pendingConfig.timezone.whichIncrementIndex];
                     break;
                 case BUTTON_STATUS_DOWN:
-                    adjustedTime -= incs[currentAdjustedLevelIndex];
+                    pendingConfig.timezone.time -= incs[pendingConfig.timezone.whichIncrementIndex];
                     break;
             }
 
-            if (adjustedTime < 0) {
-                adjustedTime = 0;
+            if (pendingConfig.timezone.time < 0) {
+                pendingConfig.timezone.time = 0;
             }
 
             break;
@@ -247,24 +266,24 @@ void pantalla_handleButtonInMenu(
         case SELECCION_MENU_CONFIG_ZONA_HORARIA_AJUSTE: {
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_LEFT:
-                    currentAdjustedLevelIndex = 0;
-                    newMenu                   = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
+                    pendingConfig.timezone.whichIncrementIndex = 0;
+                    newMenu = SELECCION_MENU_CONFIG_FECHA_HORA_AJUSTE;
                     break;
                 case BUTTON_STATUS_RIGHT:
                     buzzer_sound_accept();
-                    rtc_set(adjustedTime, adjustedTimeZone);
+                    rtc_set(pendingConfig.timezone.time, pendingConfig.timezone.timezoneShift);
                     newMenu = SELECCION_MENU_CONFIG;
                     break;
                 case BUTTON_STATUS_UP:
-                    adjustedTimeZone += 3600;       // Increase by 1 hour
-                    if (adjustedTimeZone > 43200) { // 12 hours in seconds
-                        adjustedTimeZone = 43200;
+                    pendingConfig.timezone.timezoneShift += 3600;       // Increase by 1 hour
+                    if (pendingConfig.timezone.timezoneShift > 43200) { // 12 hours in seconds
+                        pendingConfig.timezone.timezoneShift = 43200;
                     }
                     break;
                 case BUTTON_STATUS_DOWN:
-                    adjustedTimeZone -= 3600;        // Decrease by 1 hour
-                    if (adjustedTimeZone < -43200) { // -12 hours in seconds
-                        adjustedTimeZone = -43200;
+                    pendingConfig.timezone.timezoneShift -= 3600;        // Decrease by 1 hour
+                    if (pendingConfig.timezone.timezoneShift < -43200) { // -12 hours in seconds
+                        pendingConfig.timezone.timezoneShift = -43200;
                     }
                     break;
             }
@@ -277,10 +296,10 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_FECHA_HORA;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    previousBuzzerVolume  = buzzer_get_volume();
-                    previousBuzzerEnabled = buzzer_is_enabled();
-                    buttonIsReleased      = false;
-                    newMenu               = SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE;
+                    pendingConfig.volume.previousVolume        = buzzer_get_volume();
+                    pendingConfig.volume.previousBuzzerEnabled = buzzer_is_enabled();
+                    buttonIsReleased                           = false;
+                    newMenu = SELECCION_MENU_CONFIG_VOLUMEN_AJUSTE;
                     break;
                 case BUTTON_STATUS_DOWN:
                     newMenu = SELECCION_MENU_CONFIG_DEBUG;
@@ -324,8 +343,8 @@ void pantalla_handleButtonInMenu(
                             newMenu = SELECCION_MENU_CONFIG;
                             break;
                         case BUTTON_STATUS_LEFT:
-                            buzzer_set_volume(previousBuzzerVolume);
-                            if (previousBuzzerEnabled) {
+                            buzzer_set_volume(pendingConfig.volume.previousVolume);
+                            if (pendingConfig.volume.previousBuzzerEnabled) {
                                 buzzer_enable();
                             } else {
                                 buzzer_disable();
@@ -371,10 +390,24 @@ void pantalla_handleButtonInMenu(
                     break;
                 case BUTTON_STATUS_RIGHT:
                     ESP8266Utils_clearWifiNetworksList();
-                    newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_HABILITAR;
                     break;
                 case BUTTON_STATUS_DOWN:
                 case BUTTON_STATUS_LEFT:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_HABILITAR:
+            switch (currentButtonPressed) {
+                case SELECCION_MENU_CONFIG_WIFI:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_UP:
                     buzzer_sound_error();
                     break;
             }
@@ -389,7 +422,7 @@ void pantalla_handleButtonInMenu(
             static int previousCurrentIndex = 1; // Start at 1 so in the first iteration we can
                                                  // select the first network.
             int countNetworks               = ESP8266Utils_getTrackedNetworkCount();
-            int currentIndex                = ESP8266Utils_getIndexBySsid(adjustedSSID);
+            int currentIndex                = ESP8266Utils_getIndexBySsid(pendingConfig.wifi.ssid);
             if ((currentIndex < 0) && (countNetworks > 0) && (previousCurrentIndex > 0)) {
                 currentIndex = previousCurrentIndex - 1;
             } else if (currentIndex < 0) {
@@ -397,24 +430,24 @@ void pantalla_handleButtonInMenu(
             }
             previousCurrentIndex = currentIndex;
 
-            ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+            ESP8266Utils_getSsidAtIndex(currentIndex, pendingConfig.wifi.ssid);
 
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_UP:
                     if (currentIndex > 0) {
                         currentIndex--;
                     }
-                    ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+                    ESP8266Utils_getSsidAtIndex(currentIndex, pendingConfig.wifi.ssid);
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    adjustedPassword = "";
-                    newMenu          = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
+                    pendingConfig.wifi.password = "";
+                    newMenu                     = SELECCION_MENU_CONFIG_WIFI_PASSWORD;
                     break;
                 case BUTTON_STATUS_DOWN:
                     if (currentIndex < (countNetworks - 1)) {
                         currentIndex++;
                     }
-                    ESP8266Utils_getSsidAtIndex(currentIndex, adjustedSSID);
+                    ESP8266Utils_getSsidAtIndex(currentIndex, pendingConfig.wifi.ssid);
                     break;
                 case BUTTON_STATUS_LEFT:
                     newMenu = SELECCION_MENU_CONFIG_WIFI;
@@ -438,29 +471,38 @@ void pantalla_handleButtonInMenu(
                     if (previousButtonHolding == BUTTON_STATUS_DOWN) {
                         buzzer_sound_accept();
                         newMenu = SELECCION_MENU_CONFIG_WIFI_RESULTADO;
-                        ESP8266Utils_connectToWifi(adjustedSSID, adjustedPassword);
+                        ESP8266Utils_connectToWifi(
+                                pendingConfig.wifi.ssid,
+                                pendingConfig.wifi.password);
                     }
                 } else {
                     switch (previousButtonHolding) {
                         case BUTTON_STATUS_LEFT:
-                            if (adjustedPassword.length() == 0) {
+                            if (pendingConfig.wifi.password.length() == 0) {
                                 newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
                             } else {
-                                adjustedPassword.remove(adjustedPassword.length() - 1);
+                                pendingConfig.wifi.password.remove(
+                                        pendingConfig.wifi.password.length() - 1);
                             }
                             break;
                         case BUTTON_STATUS_UP:
-                            if (adjustedPassword[adjustedPassword.length() - 1] < '~') {
-                                adjustedPassword[adjustedPassword.length() - 1]++;
+                            if (pendingConfig.wifi
+                                        .password[pendingConfig.wifi.password.length() - 1]
+                                < '~') {
+                                pendingConfig.wifi
+                                        .password[pendingConfig.wifi.password.length() - 1]++;
                             }
                             break;
                         case BUTTON_STATUS_DOWN:
-                            if (adjustedPassword[adjustedPassword.length() - 1] > '!') {
-                                adjustedPassword[adjustedPassword.length() - 1]--;
+                            if (pendingConfig.wifi
+                                        .password[pendingConfig.wifi.password.length() - 1]
+                                > '!') {
+                                pendingConfig.wifi
+                                        .password[pendingConfig.wifi.password.length() - 1]--;
                             }
                             break;
                         case BUTTON_STATUS_RIGHT:
-                            adjustedPassword += 'A';
+                            pendingConfig.wifi.password += 'A';
                             break;
                     }
                 }
@@ -474,10 +516,10 @@ void pantalla_handleButtonInMenu(
                 if (!wifiCredentialStored) {
                     wifiCredentialStored = true;
                     memcpy(settings.wifiSettings.ssid_sta,
-                           adjustedSSID.c_str(),
+                           pendingConfig.wifi.ssid.c_str(),
                            sizeof(settings.wifiSettings.ssid_sta));
                     memcpy(settings.wifiSettings.password_sta,
-                           adjustedPassword.c_str(),
+                           pendingConfig.wifi.password.c_str(),
                            sizeof(settings.wifiSettings.password_sta));
                     EEPROM_Schedule_Write(100);
                 }
@@ -623,7 +665,7 @@ void pantalla_actualizarMenuConfigFechaHora(String* lcdBuffer) {
 }
 
 void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
-    struct tm* timeinfo = localtime(&adjustedTime);
+    struct tm* timeinfo = localtime(&pendingConfig.timezone.time);
 
     static unsigned long lastFlashMs = 0;
     static bool flashOn              = false;
@@ -634,7 +676,7 @@ void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
     }
 
     auto printField = [&](int value, unsigned long index, int width) {
-        bool visible = (currentAdjustedLevelIndex != index) || flashOn;
+        bool visible = (pendingConfig.timezone.whichIncrementIndex != index) || flashOn;
         if (visible) {
             if (value < 10 && width >= 2) {
                 *lcdBuffer += '0';
@@ -666,7 +708,7 @@ void pantalla_actualizarMenuConfigFechaHoraAjuste(String* lcdBuffer) {
 
 void pantalla_actualizarMenuConfigZonaHorariaAjuste(String* lcdBuffer) {
     *lcdBuffer += String("ZONA UTC: ");
-    *lcdBuffer += String(adjustedTimeZone / 3600);
+    *lcdBuffer += String(pendingConfig.timezone.timezoneShift / 3600);
     *lcdBuffer += String(" h");
     // Add spaces to fill the line.
     while (lcdBuffer->length() < 16) {
@@ -745,8 +787,8 @@ void pantalla_actualizarMenuConfigWifiPassword(String* lcdBuffer) {
 
     // If password is larger than 11 characters, truncate it from the
     // left to right, keeping the last 11 characters.
-    String truncatedPassword = adjustedPassword;
-    if (adjustedPassword.length() > 11) {
+    String truncatedPassword = pendingConfig.wifi.password;
+    if (truncatedPassword.length() > 11) {
         truncatedPassword = truncatedPassword.substring(truncatedPassword.length() - 11);
     }
     *lcdBuffer += truncatedPassword;
@@ -807,8 +849,8 @@ void pantalla_actualizarMenuConfigWifiPassword(String* lcdBuffer) {
 void pantalla_actualizarMenuConfigWifiSsid(String* lcdBuffer) {
     *lcdBuffer += String("SSID:");
 
-    String mySSID         = adjustedSSID;
-    int adjustedSSIDindex = ESP8266Utils_getIndexBySsid(adjustedSSID);
+    String mySSID         = pendingConfig.wifi.ssid;
+    int adjustedSSIDindex = ESP8266Utils_getIndexBySsid(pendingConfig.wifi.ssid);
     if (adjustedSSIDindex < 0) {
         mySSID = "No hay redes";
     }

@@ -5,8 +5,9 @@
 
 #include "basic_defines.h"
 
-static uint32_t EEPROM_Scheduled_Write_Delay = 0;
-static bool EEPROM_Scheduled_Write_Enabled   = false;
+static unsigned long EEPROM_Scheduled_Write_At    = 0;
+static unsigned long EEPROM_Scheduled_Write_Delay = 0;
+static bool EEPROM_Scheduled_Write_Enabled        = false;
 
 struct WifiSettings {
     char ssid_sta[64];
@@ -53,7 +54,8 @@ uint16_t CRC16(const uint8_t* data, uint16_t size) {
 }
 
 void EEPROM_Schedule_Write(unsigned long delayMs) {
-    EEPROM_Scheduled_Write_Delay   = delayMs + millis();
+    EEPROM_Scheduled_Write_At      = millis();
+    EEPROM_Scheduled_Write_Delay   = delayMs;
     EEPROM_Scheduled_Write_Enabled = true;
 }
 
@@ -85,15 +87,12 @@ void EEPROM_Write(Settings* data) {
 }
 
 void EEPROM_Handler() {
-    if (!EEPROM_Scheduled_Write_Enabled) {
-        return;
+    if (EEPROM_Scheduled_Write_Enabled) {
+        if ((millis() - EEPROM_Scheduled_Write_At) >= EEPROM_Scheduled_Write_Delay) {
+            EEPROM_Scheduled_Write_Enabled = false;
+            EEPROM_Write(&settings);
+        }
     }
-    if (millis() < EEPROM_Scheduled_Write_Delay) {
-        return;
-    }
-    EEPROM_Scheduled_Write_Enabled = false;
-
-    EEPROM_Write(&settings);
 }
 
 bool EEPROM_Read(Settings* out) {

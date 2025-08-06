@@ -10,6 +10,9 @@
 #define HTTP_SERVER_PING_INTERVAL_MS                                     (10000)
 
 #define WIFI_CONNECTION_TIMEOUT_MS                                       (10000)
+#define WIFI_SCAN_NOT_SEEN_MAX_COUNT                                         (5)
+#define WIFI_SCAN_MINIMUM_RSSI_FOR_TRACKING                                (-80)
+#define WIFI_SCAN_MAX_TRACKED_NETWORKS_COUNT                                (10)
 
 #define TEMPERATURE_DEGREE_INVALID                                       (65535)
 
@@ -43,7 +46,7 @@ struct WifiNetworkInfo {
           seenInThisScan(true) {}
 };
 
-std::vector<WifiNetworkInfo> wifiNetworks;
+static std::vector<WifiNetworkInfo> wifiNetworks;
 static bool wifiScanInProgress            = false;
 static unsigned long lastConnectAttemptMs = 0;
 
@@ -191,7 +194,7 @@ void cleanNetworksNotSeen() {
             it->notSeenCount = 0;
         }
 
-        if (it->notSeenCount >= 5) {
+        if (it->notSeenCount >= WIFI_SCAN_NOT_SEEN_MAX_COUNT) {
             it = wifiNetworks.erase(it);
         } else {
             ++it;
@@ -217,7 +220,7 @@ void updateOrInsertNetwork(
     }
 
     // Filtro para evitar agregar redes volátiles de 1 sola muestra
-    if (rssi < -80) {
+    if (rssi < WIFI_SCAN_MINIMUM_RSSI_FOR_TRACKING) {
         // Si la red es débil y no estaba antes, ignorarla
         return;
     }
@@ -271,8 +274,8 @@ void ESP8266Utils_checkScanResults() {
 
         std::sort(wifiNetworks.begin(), wifiNetworks.end(), compareByRssiDesc);
 
-        if (wifiNetworks.size() > 10) {
-            wifiNetworks.resize(10);
+        if (wifiNetworks.size() > WIFI_SCAN_MAX_TRACKED_NETWORKS_COUNT) {
+            wifiNetworks.resize(WIFI_SCAN_MAX_TRACKED_NETWORKS_COUNT);
         }
 
         Serial.println("Lista de redes ordenada por RSSI promedio:");

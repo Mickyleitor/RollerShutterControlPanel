@@ -386,7 +386,8 @@ void pantalla_handleButtonInMenu(
             // each time we enter this menu.
             ESP8266Utils_startWifiScanIfNeeded();
             ESP8266Utils_checkScanResults();
-            static int previousCurrentIndex = 1;
+            static int previousCurrentIndex = 1; // Start at 1 so in the first iteration we can
+                                                 // select the first network.
             int countNetworks               = ESP8266Utils_getTrackedNetworkCount();
             int currentIndex                = ESP8266Utils_getIndexBySsid(adjustedSSID);
             if ((currentIndex < 0) && (countNetworks > 0) && (previousCurrentIndex > 0)) {
@@ -869,7 +870,6 @@ void pantalla_actualizarMenuConfigWifiResultado(String* lcdBuffer) {
         *lcdBuffer += String("WIFI: CONECTADO ");
         *lcdBuffer += String("<            OK>");
     } else {
-        int porcentaje = ESP8266Utils_getWifiConnectionPercentage();
         if (porcentaje == 100) {
             *lcdBuffer += String("WIFI:  FALLIDO  ");
         } else {

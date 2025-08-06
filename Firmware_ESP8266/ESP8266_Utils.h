@@ -288,8 +288,6 @@ void ESP8266Utils_checkScanResults() {
                     net.channel,
                     net.encryption.c_str());
         }
-
-        WiFi.reconnect();
     }
 }
 

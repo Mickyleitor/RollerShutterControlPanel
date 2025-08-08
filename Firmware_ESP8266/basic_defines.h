@@ -3,22 +3,20 @@
 #define SLAVE_I2C_ADDRESS                                                 (0x08)
 #define LCD_I2C_ADDRESS                                                   (0x3F)
 
+#define DEFAULT_BUZZER_ENABLED                                            false
 #define DEFAULT_BUZZER_VOLUME                                             (4000)
 #define DEFAULT_STA_SSID                                             "YOUR_SSID"
 #define DEFAULT_STA_PASSWORD                                     "YOUR_PASSWORD"
-#define DEFAULT_AP_SSID_AND_PASSWORD                             "ESP8266Config"
-#define DEFAULT_HOSTNAME                                         "esp8266config"
+#define DEFAULT_WIFI_ENABLED                                              false
+#define DEFAULT_WIFI_OTA_ENABLED                                          false
 
 #define OPENWEATHERMAP_HOST                             "api.openweathermap.org"
 #define OPENWEATHERMAP_PORT                                                 (80)
-#define DEFAULT_OPENWEATHERMAP_APPID                              "YOUR_API_KEY"
+#define DEFAULT_OPENWEATHERMAP_APPID                                          ""
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LAT                                  (0)
 #define DEFAULT_OPENWEATHERMAP_LOCATION_LON                                  (0)
 
-#define HTTP_SERVER_REQUEST_TIMEOUT                                       (2000)
-#define WIFI_CONNECTION_TIMEOUT                                          (10000)
-
-#define DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(appid, lat, long) \
+#define OPENWEATHERMAP_HTTP_REQUEST(appid, lat, long) \
     "GET /data/2.5/weather?lat=" + \
     String(lat) + \
     "&lon=" + \
@@ -54,6 +52,7 @@ enum seleccionMenu {
     SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT,
     SELECCION_MENU_CONFIG_WIFI,
     SELECCION_MENU_CONFIG_WIFI_HABILITAR,
+    SELECCION_MENU_CONFIG_WIFI_OTA_HABILITAR,
     SELECCION_MENU_CONFIG_WIFI_SSID,
     SELECCION_MENU_CONFIG_WIFI_PASSWORD,
     SELECCION_MENU_CONFIG_WIFI_RESULTADO,

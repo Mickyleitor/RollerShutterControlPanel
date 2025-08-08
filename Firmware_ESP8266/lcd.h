@@ -82,6 +82,36 @@ void _sendLcdBuffer(String line1, String line2) {
     }
 }
 
+String _getScrollingText(String text, unsigned int visibleChars) {
+    static unsigned long lastScrollTime = 0;
+    static unsigned int scrollOffset    = 0;
+
+    // Añadir separación al final para el efecto loop
+    String scrollingSSID = text + String("   "); // espacio entre loops
+
+    // Actualizar desplazamiento cada 200ms
+    if (millis() - lastScrollTime >= LCD_SLIDE_OR_FLASH_SPEED_MS) {
+        lastScrollTime = millis();
+        scrollOffset++;
+        if (scrollOffset >= scrollingSSID.length()) {
+            scrollOffset = 0;
+        }
+    }
+
+    // Construir ventana deslizante
+    String scrolled;
+    for (unsigned int i = 0; i < visibleChars; ++i) {
+        int charIndex  = (scrollOffset + i) % scrollingSSID.length();
+        scrolled      += scrollingSSID.charAt(charIndex);
+    }
+
+    while (scrolled.length() < visibleChars) {
+        scrolled += " ";
+    }
+
+    return scrolled;
+}
+
 bool pantalla_sendLcdBuffer(String newBuffer) {
     static String bufferAnterior;
     if ((bufferAnterior != newBuffer) && (newBuffer != "")) {
@@ -375,9 +405,37 @@ void pantalla_handleButtonInMenu(
                 case BUTTON_STATUS_LEFT:
                     newMenu = SELECCION_MENU_CONFIG_DEBUG;
                     break;
+                case BUTTON_STATUS_RIGHT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG_WIFI_SSID;
+                    break;
                 case BUTTON_STATUS_UP:
                 case BUTTON_STATUS_DOWN:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_WIFI_SSID:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT;
+                    break;
                 case BUTTON_STATUS_RIGHT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG_WIFI_IP;
+                    break;
+                case BUTTON_STATUS_UP:
+                case BUTTON_STATUS_DOWN:
+                    buzzer_sound_error();
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_WIFI_IP:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_LEFT:
+                    newMenu = SELECCION_MENU_CONFIG_DEBUG_WIFI_SSID;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                case BUTTON_STATUS_UP:
+                case BUTTON_STATUS_DOWN:
                     buzzer_sound_error();
                     break;
             }
@@ -805,6 +863,23 @@ void pantalla_actualizarMenuConfigDebugSoftRstCount(String* lcdBuffer) {
     while (lcdBuffer->length() < 16) {
         *lcdBuffer += String(" ");
     }
+    *lcdBuffer += String("<              >");
+}
+
+void pantalla_actualizarMenuConfigDebugWifiSsid(String* lcdBuffer) {
+    *lcdBuffer  = String("WIFI: ");
+    *lcdBuffer += _getScrollingText(settings.wifiSettings.ssid_sta, 10);
+
+    if (ESP8266Utils_isWifiConnected()) {
+        *lcdBuffer += String("<  CONECTADO   >");
+    } else {
+        *lcdBuffer += String("< DESCONECTADO >");
+    }
+}
+
+void pantalla_actualizarMenuConfigDebugWifiIp(String* lcdBuffer) {
+    *lcdBuffer += String("IP: ");
+    *lcdBuffer += _getScrollingText(ESP8266Utils_getWifiIP(), 12);
     *lcdBuffer += String("<               ");
 }
 
@@ -912,38 +987,7 @@ void pantalla_actualizarMenuConfigWifiSsid(String* lcdBuffer) {
     if (adjustedSSIDindex < 0) {
         mySSID = "No hay redes";
     }
-
-    static unsigned long lastScrollTime = 0;
-    static unsigned int scrollOffset    = 0;
-
-    // Espacio visible para SSID
-    const int visibleChars = 11;
-
-    // Añadir separación al final para el efecto loop
-    String scrollingSSID = mySSID + "   "; // espacio entre loops
-
-    // Actualizar desplazamiento cada 200ms
-    if (millis() - lastScrollTime >= LCD_SLIDE_OR_FLASH_SPEED_MS) {
-        lastScrollTime = millis();
-        scrollOffset++;
-        if (scrollOffset >= scrollingSSID.length()) {
-            scrollOffset = 0;
-        }
-    }
-
-    // Construir ventana deslizante
-    String scrolled;
-    for (int i = 0; i < visibleChars; ++i) {
-        int charIndex  = (scrollOffset + i) % scrollingSSID.length();
-        scrolled      += scrollingSSID.charAt(charIndex);
-    }
-
-    *lcdBuffer += scrolled;
-
-    // Asegurar longitud mínima de 16
-    while (lcdBuffer->length() < 16) {
-        *lcdBuffer += " ";
-    }
+    *lcdBuffer += _getScrollingText(mySSID, 11);
 
     // Agregar navegación
     *lcdBuffer += String("<     ");
@@ -1025,6 +1069,12 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_DEBUG_SOFT_RST_COUNT:
             pantalla_actualizarMenuConfigDebugSoftRstCount(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_WIFI_SSID:
+            pantalla_actualizarMenuConfigDebugWifiSsid(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_DEBUG_WIFI_IP:
+            pantalla_actualizarMenuConfigDebugWifiIp(&lcdBuffer);
             break;
         case SELECCION_MENU_CONFIG_WIFI:
             pantalla_actualizarMenuConfigWifi(&lcdBuffer);

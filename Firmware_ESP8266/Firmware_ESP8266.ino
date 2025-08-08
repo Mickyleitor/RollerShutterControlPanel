@@ -89,7 +89,7 @@ void loop() {
 
     static Settings previousSettings;
     if (memcmp(&settings, &previousSettings, sizeof(Settings)) != 0) {
-        Serial.println("Cambio de configuración de settings detectado.");
+        Serial.println("Cambio de configuracion de settings detectado.");
         Serial.print("Habilitado: ");
         Serial.println(settings.wifiSettings.wifi_enabled ? "Si" : "No");
         Serial.print("OTA: ");

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
 
 #include "EEPROM_Utils.h"
 #include "basic_defines.h"
@@ -268,6 +271,13 @@ void ESP8266Utils_connectToWifi(const String& ssid, const String& password) {
 
 bool ESP8266Utils_isWifiConnected(void) { return WiFi.status() == WL_CONNECTED; }
 
+String ESP8266Utils_getWifiIP(void) {
+    if (WiFi.status() == WL_CONNECTED) {
+        return WiFi.localIP().toString();
+    }
+    return String("N/A");
+}
+
 int ESP8266Utils_getWifiConnectionPercentage(void) {
     if (lastConnectUpdateMs == 0) {
         return 0;
@@ -314,14 +324,17 @@ void Wifi_handler(bool inConfigMode) {
         return;
     }
 
-    bool wifiEnabled   = settings.wifiSettings.wifi_enabled;
-    bool wifiConnected = ESP8266Utils_isWifiConnected();
-    bool WifiTmo       = ESP8266Utils_getWifiConnectAttemptTmo() || backFromConfigMode;
-    bool WeatherTmo    = ESP8266Utils_getWifiWeatherAttemptTmo() || backFromConfigMode;
+    bool wifiEnabled    = settings.wifiSettings.wifi_enabled;
+    bool wifiOTAenabled = settings.wifiSettings.ota_enabled;
+    bool wifiConnected  = ESP8266Utils_isWifiConnected();
+    bool WifiTmo        = ESP8266Utils_getWifiConnectAttemptTmo() || backFromConfigMode;
+    bool WeatherTmo     = ESP8266Utils_getWifiWeatherAttemptTmo() || backFromConfigMode;
 
     // ===== WiFi auto connection handling =====
     if (wifiEnabled && wifiConnected && connectAttemptCount > 0) {
         Serial.println("Connected to WiFi");
+        Serial.print("IP: ");
+        Serial.println(WiFi.localIP());
         connectAttemptCount = 0;
         wifiError           = false;
     } else if ((wifiEnabled && !wifiConnected) && WifiTmo) {
@@ -338,6 +351,50 @@ void Wifi_handler(bool inConfigMode) {
         WiFi.disconnect();
         connectAttemptCount = 0;
         wifiError           = false;
+    }
+
+    // ===== OTA update handling =====
+    if (wifiEnabled && wifiConnected && wifiOTAenabled) {
+        static bool ArduinoOTAInitialized = false;
+        if (!ArduinoOTAInitialized) {
+            ArduinoOTAInitialized = true;
+
+            ArduinoOTA.setHostname("RollerShutterControlPanel");
+
+            ArduinoOTA.onStart([]() {
+                const char* type = (ArduinoOTA.getCommand() == U_FLASH)
+                                         ? "sketch"
+                                         : "filesystem"; // ESP8266: U_FLASH or U_FS
+                Serial.print(F("Start updating "));
+                Serial.println(type);
+            });
+
+            ArduinoOTA.onEnd([]() { Serial.println(F("\nEnd")); });
+
+            ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+                const unsigned int pct
+                        = total ? (progress * 100U) / total : 0U; // safer than progress/(total/100)
+                Serial.printf("Progress: %u%%\n", pct);
+            });
+
+            ArduinoOTA.onError([](ota_error_t error) {
+                Serial.printf("Error[%u]: ", error);
+                if (error == OTA_AUTH_ERROR) {
+                    Serial.println(F("Auth Failed"));
+                } else if (error == OTA_BEGIN_ERROR) {
+                    Serial.println(F("Begin Failed"));
+                } else if (error == OTA_CONNECT_ERROR) {
+                    Serial.println(F("Connect Failed"));
+                } else if (error == OTA_RECEIVE_ERROR) {
+                    Serial.println(F("Receive Failed"));
+                } else if (error == OTA_END_ERROR) {
+                    Serial.println(F("End Failed"));
+                }
+            });
+
+            ArduinoOTA.begin();
+        }
+        ArduinoOTA.handle();
     }
 
     // ===== Weather update handling =====

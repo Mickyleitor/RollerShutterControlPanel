@@ -10,8 +10,6 @@
 #include "persistentVars.h"
 #include "rtcTime.h"
 
-extern struct WeatherData MyWeather;
-
 LiquidCrystal_PCF8574 _lcd(LCD_I2C_ADDRESS);
 static bool buttonIsReleased             = false;
 static unsigned long buttonHoldingTimeMs = 0;
@@ -20,6 +18,7 @@ struct WifiConfig {
     String ssid;
     String password;
     bool enabled;
+    bool ota_enabled;
 };
 
 struct VolumeConfig {
@@ -389,8 +388,8 @@ void pantalla_handleButtonInMenu(
                     newMenu = SELECCION_MENU_CONFIG_DEBUG;
                     break;
                 case BUTTON_STATUS_RIGHT:
-                    ESP8266Utils_clearWifiNetworksList();
-                    newMenu = SELECCION_MENU_CONFIG_WIFI_HABILITAR;
+                    pendingConfig.wifi.enabled = settings.wifiSettings.wifi_enabled;
+                    newMenu                    = SELECCION_MENU_CONFIG_WIFI_HABILITAR;
                     break;
                 case BUTTON_STATUS_DOWN:
                 case BUTTON_STATUS_LEFT:
@@ -400,15 +399,39 @@ void pantalla_handleButtonInMenu(
             break;
         case SELECCION_MENU_CONFIG_WIFI_HABILITAR:
             switch (currentButtonPressed) {
-                case SELECCION_MENU_CONFIG_WIFI:
-                    newMenu = SELECCION_MENU_CONFIG_DEBUG;
+                case BUTTON_STATUS_LEFT:
+                    settings.wifiSettings.wifi_enabled = pendingConfig.wifi.enabled;
+                    EEPROM_Schedule_Write(0);
+                    newMenu = SELECCION_MENU_CONFIG_WIFI;
                     break;
                 case BUTTON_STATUS_RIGHT:
+                    pendingConfig.wifi.ota_enabled     = settings.wifiSettings.ota_enabled;
+                    settings.wifiSettings.wifi_enabled = pendingConfig.wifi.enabled;
+                    EEPROM_Schedule_Write(0);
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_OTA_HABILITAR;
+                    break;
+                case BUTTON_STATUS_DOWN:
+                case BUTTON_STATUS_UP:
+                    pendingConfig.wifi.enabled = !pendingConfig.wifi.enabled;
+                    break;
+            }
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_OTA_HABILITAR:
+            switch (currentButtonPressed) {
+                case BUTTON_STATUS_LEFT:
+                    settings.wifiSettings.ota_enabled = pendingConfig.wifi.ota_enabled;
+                    EEPROM_Schedule_Write(0);
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_HABILITAR;
+                    break;
+                case BUTTON_STATUS_RIGHT:
+                    settings.wifiSettings.ota_enabled = pendingConfig.wifi.ota_enabled;
+                    EEPROM_Schedule_Write(0);
+                    ESP8266Utils_clearWifiNetworksList();
                     newMenu = SELECCION_MENU_CONFIG_WIFI_SSID;
                     break;
                 case BUTTON_STATUS_DOWN:
                 case BUTTON_STATUS_UP:
-                    buzzer_sound_error();
+                    pendingConfig.wifi.ota_enabled = !pendingConfig.wifi.ota_enabled;
                     break;
             }
             break;
@@ -450,7 +473,7 @@ void pantalla_handleButtonInMenu(
                     ESP8266Utils_getSsidAtIndex(currentIndex, pendingConfig.wifi.ssid);
                     break;
                 case BUTTON_STATUS_LEFT:
-                    newMenu = SELECCION_MENU_CONFIG_WIFI;
+                    newMenu = SELECCION_MENU_CONFIG_WIFI_OTA_HABILITAR;
                     break;
             }
             break;
@@ -470,10 +493,10 @@ void pantalla_handleButtonInMenu(
                 if ((now - buttonHoldingTimeMs) >= LCD_HOLDING_TIME_CONFIRM_MS) {
                     if (previousButtonHolding == BUTTON_STATUS_DOWN) {
                         buzzer_sound_accept();
-                        newMenu = SELECCION_MENU_CONFIG_WIFI_RESULTADO;
                         ESP8266Utils_connectToWifi(
                                 pendingConfig.wifi.ssid,
                                 pendingConfig.wifi.password);
+                        newMenu = SELECCION_MENU_CONFIG_WIFI_RESULTADO;
                     }
                 } else {
                     switch (previousButtonHolding) {
@@ -511,25 +534,17 @@ void pantalla_handleButtonInMenu(
             break;
         }
         case SELECCION_MENU_CONFIG_WIFI_RESULTADO: {
-            static bool wifiCredentialStored = false;
-            if (ESP8266Utils_isWifiConnected()) {
-                if (!wifiCredentialStored) {
-                    wifiCredentialStored = true;
-                    memcpy(settings.wifiSettings.ssid_sta,
-                           pendingConfig.wifi.ssid.c_str(),
-                           sizeof(settings.wifiSettings.ssid_sta));
-                    memcpy(settings.wifiSettings.password_sta,
-                           pendingConfig.wifi.password.c_str(),
-                           sizeof(settings.wifiSettings.password_sta));
-                    EEPROM_Schedule_Write(100);
-                }
-            } else {
-                wifiCredentialStored = false;
-            }
             switch (currentButtonPressed) {
                 case BUTTON_STATUS_RIGHT:
                     if (ESP8266Utils_isWifiConnected()) {
                         buzzer_sound_accept();
+                        memcpy(settings.wifiSettings.ssid_sta,
+                               pendingConfig.wifi.ssid.c_str(),
+                               sizeof(settings.wifiSettings.ssid_sta));
+                        memcpy(settings.wifiSettings.password_sta,
+                               pendingConfig.wifi.password.c_str(),
+                               sizeof(settings.wifiSettings.password_sta));
+                        EEPROM_Schedule_Write(0);
                         newMenu = SELECCION_MENU_CONFIG_WIFI;
                     } else {
                         buzzer_sound_error();
@@ -550,7 +565,12 @@ void pantalla_handleButtonInMenu(
 }
 
 void pantalla_actualizarReloj(String* lcdBuffer) {
-    *lcdBuffer = "   ";
+    if (ESP8266Utils_isWifiConnected()) {
+        *lcdBuffer = LCD_SPECIAL_CHAR_CONNECTED_SYMBOL;
+    } else {
+        *lcdBuffer = " ";
+    }
+    *lcdBuffer += "  ";
     time_t now;
     struct tm* timeinfo;
     now      = time(&now) + persistentVars_get_rtcTime().timezoneShift;
@@ -568,17 +588,31 @@ void pantalla_actualizarReloj(String* lcdBuffer) {
     *lcdBuffer += String(timeinfo->tm_min);
     *lcdBuffer += String("   ");
 
-    uint8_t _localLength = String((int)MyWeather.TemperatureDegree).length();
-    // Limit degree to 2 digits
-    if (_localLength < 4) {
-        for (int i = 0; i < (3 - _localLength); i++) {
-            *lcdBuffer += String(" ");
-        }
-        *lcdBuffer += String((int)MyWeather.TemperatureDegree);
-        *lcdBuffer += (char)223;
-        *lcdBuffer += String("C");
+    if ((ESP8266Utils_get_errors() & WIFI_ERROR_WEATHER_UPDATE_FAILED_MASK)) {
+        *lcdBuffer += "    ";
+        *lcdBuffer += LCD_SPECIAL_CHAR_WARNING_SYMBOL;
     } else {
-        *lcdBuffer += String("     ");
+        double temp;
+        if (ESP8266Utils_get_TemperatureDegree(&temp)) {
+            int t = (int)temp;
+
+            if (t < 0) {
+                *lcdBuffer += " <0";
+            } else if (t > 50) {
+                *lcdBuffer += ">50";
+            } else {
+                *lcdBuffer += " ";
+                if (t < 10) {
+                    *lcdBuffer += " "; // leading space for single digit
+                }
+                *lcdBuffer += String(t);
+            }
+
+            *lcdBuffer += (char)223; // degree symbol
+            *lcdBuffer += "C";
+        } else {
+            *lcdBuffer += "     "; // blank when no data
+        }
     }
 
     if ((timeinfo->tm_mday) < 10) {
@@ -782,6 +816,30 @@ void pantalla_actualizarMenuConfigWifi(String* lcdBuffer) {
     *lcdBuffer += String("      >");
 }
 
+void pantalla_actualizarMenuConfigWifiHabilitar(String* lcdBuffer) {
+    if (pendingConfig.wifi.enabled) {
+        *lcdBuffer += String("   WIFI : SI    ");
+    } else {
+        *lcdBuffer += String("   WIFI : NO    ");
+    }
+    *lcdBuffer += String("<      ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("      >");
+}
+
+void pantalla_actualizarMenuConfigWifiOTAHabilitar(String* lcdBuffer) {
+    if (pendingConfig.wifi.ota_enabled) {
+        *lcdBuffer += String("  WIFI OTA: SI  ");
+    } else {
+        *lcdBuffer += String("  WIFI OTA: NO  ");
+    }
+    *lcdBuffer += String("<      ");
+    *lcdBuffer += LCD_SPECIAL_CHAR_UP_ARROW;
+    *lcdBuffer += LCD_SPECIAL_CHAR_DOWN_ARROW;
+    *lcdBuffer += String("      >");
+}
+
 void pantalla_actualizarMenuConfigWifiPassword(String* lcdBuffer) {
     *lcdBuffer += String("PWD: ");
 
@@ -970,6 +1028,12 @@ void pantalla_actualizarMenu(uint8_t selectedMenu) {
             break;
         case SELECCION_MENU_CONFIG_WIFI:
             pantalla_actualizarMenuConfigWifi(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_HABILITAR:
+            pantalla_actualizarMenuConfigWifiHabilitar(&lcdBuffer);
+            break;
+        case SELECCION_MENU_CONFIG_WIFI_OTA_HABILITAR:
+            pantalla_actualizarMenuConfigWifiOTAHabilitar(&lcdBuffer);
             break;
         case SELECCION_MENU_CONFIG_WIFI_SSID:
             pantalla_actualizarMenuConfigWifiSsid(&lcdBuffer);

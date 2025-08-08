@@ -85,5 +85,18 @@ void loop() {
     buzzer_handler();
     shutterHandler();
     EEPROM_Handler();
-    Wifi_handler();
+    Wifi_handler(_seleccionMenu > SELECCION_MENU_CONFIG);
+
+    static Settings previousSettings;
+    if (memcmp(&settings, &previousSettings, sizeof(Settings)) != 0) {
+        Serial.println("Cambio de configuración de settings detectado.");
+        Serial.print("Habilitado: ");
+        Serial.println(settings.wifiSettings.wifi_enabled ? "Si" : "No");
+        Serial.print("OTA: ");
+        Serial.println(settings.wifiSettings.ota_enabled ? "Si" : "No");
+        Serial.print("SSID: ");
+        Serial.println(settings.wifiSettings.ssid_sta);
+
+        memcpy(&previousSettings, &settings, sizeof(Settings));
+    }
 }

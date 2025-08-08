@@ -12,9 +12,8 @@ static bool EEPROM_Scheduled_Write_Enabled        = false;
 struct WifiSettings {
     char ssid_sta[64];
     char password_sta[64];
-    char ssid_ap[64];
-    char password_ap[64];
-    char hostname[64];
+    bool wifi_enabled;
+    bool ota_enabled;
 };
 
 struct OpenWeatherMapSettings {
@@ -135,16 +134,15 @@ void EEPROM_Write_Default(Settings* data) {
     }
 
     Settings defaultSettings = { 0 };
-    strcpy(defaultSettings.wifiSettings.hostname, DEFAULT_HOSTNAME);
     strcpy(defaultSettings.wifiSettings.ssid_sta, DEFAULT_STA_SSID);
     strcpy(defaultSettings.wifiSettings.password_sta, DEFAULT_STA_PASSWORD);
-    strcpy(defaultSettings.wifiSettings.ssid_ap, DEFAULT_AP_SSID_AND_PASSWORD);
-    strcpy(defaultSettings.wifiSettings.password_ap, DEFAULT_AP_SSID_AND_PASSWORD);
+    defaultSettings.wifiSettings.wifi_enabled = DEFAULT_WIFI_ENABLED;
+    defaultSettings.wifiSettings.ota_enabled  = DEFAULT_WIFI_OTA_ENABLED;
     strcpy(defaultSettings.openWeatherMapSettings.appid, DEFAULT_OPENWEATHERMAP_APPID);
     defaultSettings.openWeatherMapSettings.lat    = DEFAULT_OPENWEATHERMAP_LOCATION_LAT;
     defaultSettings.openWeatherMapSettings.lon    = DEFAULT_OPENWEATHERMAP_LOCATION_LON;
     defaultSettings.buzzerSettings.general_volume = DEFAULT_BUZZER_VOLUME;
-    defaultSettings.buzzerSettings.isEnabled      = false;
+    defaultSettings.buzzerSettings.isEnabled      = DEFAULT_BUZZER_ENABLED;
     EEPROM_Write(&defaultSettings);
     *data = defaultSettings;
 }

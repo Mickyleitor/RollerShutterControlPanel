@@ -31,9 +31,15 @@ struct rtcTime_t {
 
 static_assert(sizeof(rtcTime_t) % 4 == 0, "rtcTime_t must be aligned to 4 bytes");
 
+struct weatherData_t {
+    double TemperatureDegree; // Temperature in degrees Celsius
+    // Other weather data can be added here in the future
+};
+
 struct persistentVars_t {
     uint32_t softResetCount;
     struct rtcTime_t rtcTime;
+    struct weatherData_t weatherData;
     uint32_t magicWord;
 };
 
@@ -73,6 +79,21 @@ void persistentVars_store_rtcTime(const struct rtcTime_t* rtcTime) {
 }
 
 struct rtcTime_t persistentVars_get_rtcTime(void) { return persistentVars_data.rtcTime; }
+
+struct weatherData_t persistentVars_get_weatherData(void) {
+    return persistentVars_data.weatherData;
+}
+
+void persistentVars_store_weatherData(const struct weatherData_t* weatherData) {
+    if (weatherData == nullptr) {
+        return;
+    }
+
+    memcpy(&persistentVars_data.weatherData, weatherData, sizeof(struct weatherData_t));
+    persistentVars_data.magicWord = PERSISTENTVARS_USER_MEMORY_MAGIC_WORD;
+
+    ESP.rtcUserMemoryWrite(0, (uint32_t*)&persistentVars_data, sizeof(persistentVars_data));
+}
 
 // This function initializes the persistent variables by reading them from no-init RAM.
 void persistentVars_init(void) {

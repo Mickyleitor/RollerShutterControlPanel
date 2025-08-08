@@ -6,21 +6,29 @@
 #include "basic_defines.h"
 #include "persistentVars.h"
 
-#define HTTP_SERVER_PING_ADDRESS                                       "1.1.1.1"
-#define HTTP_SERVER_PING_INTERVAL_MS                                     (10000)
-
 #define WIFI_CONNECTION_TIMEOUT_MS                                       (10000)
+#define WIFI_CONNECTION_INTERVAL_MS                             (60 * 60 * 1000) // 60 min
+#define WIFI_CONNECTION_MAX_CONSECUTIVE_ATTEMPTS                             (5)
+
+#define WEATHER_UPDATE_INTERVAL_MS                              (30 * 60 * 1000) // 30 min
+#define WEATHER_UPDATE_MAX_CONSECUTIVE_ATTEMPTS                             (10)
+#define WEATHER_SERVER_REQUEST_TIMEOUT                                    (2000)
+
 #define WIFI_SCAN_NOT_SEEN_MAX_COUNT                                         (5)
 #define WIFI_SCAN_MINIMUM_RSSI_FOR_TRACKING                                (-80)
 #define WIFI_SCAN_MAX_TRACKED_NETWORKS_COUNT                                (10)
 
-#define TEMPERATURE_DEGREE_INVALID                                       (65535)
+#define TEMPERATURE_DEGREE_INVALID                                      (0xFFFF)
+
+enum WifiErrorType {
+    WIFI_ERROR_NONE                       = (0 << 0),
+    WIFI_ERROR_CONNECTION_FAILED_MASK     = (1 << 0),
+    WIFI_ERROR_WEATHER_UPDATE_FAILED_MASK = (1 << 1),
+};
+
+typedef uint8_t WifiErrorType_t;
 
 extern struct Settings settings;
-
-struct WeatherData {
-    double TemperatureDegree = TEMPERATURE_DEGREE_INVALID;
-} MyWeather;
 
 struct WifiNetworkInfo {
     String ssid;
@@ -47,132 +55,71 @@ struct WifiNetworkInfo {
 };
 
 static std::vector<WifiNetworkInfo> wifiNetworks;
-static bool wifiScanInProgress            = false;
-static unsigned long lastConnectAttemptMs = 0;
+static bool wifiScanInProgress           = false;
+static unsigned long lastConnectUpdateMs = WIFI_CONNECTION_TIMEOUT_MS;
+static unsigned long lastWeatherUpdateMs = WEATHER_UPDATE_INTERVAL_MS;
+static double TemperatureDegree          = TEMPERATURE_DEGREE_INVALID;
+static bool wifiError                    = false;
+static bool weatherError                 = false;
 
-bool ESP8266Utils_Connect_STA(
-        const char* ssid,
-        const char* password,
-        const char* hostname,
-        int32_t timeout_ms = 10000) {
-    Serial.println("");
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED && timeout_ms > 0) {
-        delay(100);
-        timeout_ms -= 100;
-        yield();
+bool ESP8266Utils_get_TemperatureDegree(double* temperature) {
+    if ((temperature == nullptr) || (TemperatureDegree == TEMPERATURE_DEGREE_INVALID)) {
+        return false; // Invalid temperature or null pointer
     }
-
-    if (timeout_ms <= 0) {
-        Serial.println("STA Failed");
-        return false;
-    }
-
-    Serial.println("");
-    Serial.print("Iniciado STA:\t");
-    Serial.println(ssid);
-    Serial.print("IP address:\t");
-    Serial.println(WiFi.localIP());
-
+    *temperature = TemperatureDegree;
     return true;
 }
 
-bool ESP8266Utils_is_STA_connected() { return WiFi.isConnected(); }
+bool ESP8266Utils_update_WeatherData(void) {
+    bool success = false;
 
-bool ESP8266Utils_is_STA_online() {
-    if (!ESP8266Utils_is_STA_connected()) {
-        return false;
-    }
-    static bool isOnline;
-    static uint32_t timeout_ms = 0;
-    if ((millis() - timeout_ms) > HTTP_SERVER_PING_INTERVAL_MS) {
-        timeout_ms = millis();
-        isOnline   = true;
+    Serial.println("Updating weather data...");
+
+    if (String(settings.openWeatherMapSettings.appid) == String("")) {
+        Serial.println("Empty Weather API key");
+    } else {
         WiFiClient client;
-        // Ping the server to see if it is online
-        client.setTimeout(HTTP_SERVER_REQUEST_TIMEOUT);
-        if (!client.connect(HTTP_SERVER_PING_ADDRESS, 80)) {
-            isOnline = false;
+        client.setTimeout(WEATHER_SERVER_REQUEST_TIMEOUT);
+
+        if (!client.connect(OPENWEATHERMAP_HOST, OPENWEATHERMAP_PORT)) {
+            Serial.println("Connection failed");
+        } else {
+            String HTTPrequest = OPENWEATHERMAP_HTTP_REQUEST(
+                    settings.openWeatherMapSettings.appid,
+                    settings.openWeatherMapSettings.lat,
+                    settings.openWeatherMapSettings.lon);
+            client.println(HTTPrequest);
+            client.println("Host: " + String(OPENWEATHERMAP_HOST));
+            client.println("Connection: close");
+
+            if (client.println() == 0) {
+                Serial.println("Failed to send request");
+            } else if (!client.find("\r\n\r\n")) {
+                Serial.println("Invalid response");
+            } else if (client.find("\"temp\":")) {
+                double NewTemp = client.readStringUntil(',').toDouble();
+                if (NewTemp > 273) {
+                    NewTemp -= 273.15;
+                }
+                Serial.print("Temperature: ");
+                Serial.println(NewTemp);
+                TemperatureDegree = NewTemp;
+
+                if (client.find("\"timezone\":")) {
+                    long timezoneshift = strtol(client.readStringUntil(',').c_str(), NULL, 10);
+                    Serial.print("Timezone shift: ");
+                    Serial.println(timezoneshift);
+                    struct rtcTime_t rtcTime
+                            = { .myTime = time(NULL), .timezoneShift = timezoneshift };
+                    persistentVars_store_rtcTime(&rtcTime);
+                    success = true;
+                }
+            }
         }
         client.stop();
     }
-    return isOnline;
-}
-
-int8_t ESP8266Utils_get_STA_RSSI() { return WiFi.RSSI(); }
-
-String ESP8266Utils_get_STA_SSID() { return WiFi.SSID(); }
-
-bool ESP8266Utils_update_WeatherData(struct Settings* myData) {
-    if (!ESP8266Utils_is_STA_online()) {
-        Serial.println("No internet connection");
-        return false;
-    }
-
-    String default_appid = DEFAULT_OPENWEATHERMAP_APPID;
-    if ((String(myData->openWeatherMapSettings.appid) == default_appid)
-        || (String(myData->openWeatherMapSettings.appid) == String(""))) {
-        Serial.println("Invalid Weather API key : " + String(myData->openWeatherMapSettings.appid));
-        return false;
-    }
-
-    WiFiClient client;
-    // Connect to HTTP server
-    client.setTimeout(HTTP_SERVER_REQUEST_TIMEOUT);
-    if (!client.connect(OPENWEATHERMAP_HOST, OPENWEATHERMAP_PORT)) {
-        Serial.println("Connection failed");
-        // Disconnect
-        client.stop();
-        return false;
-    }
-
-    // Send HTTP request
-    String HTTPrequest = DEFAULT_OPENWEATHERMAP_HTTP_REQUEST(
-            myData->openWeatherMapSettings.appid,
-            myData->openWeatherMapSettings.lat,
-            myData->openWeatherMapSettings.lon);
-    client.println(HTTPrequest);
-    client.println("Host: " + String(OPENWEATHERMAP_HOST));
-    client.println("Connection: close");
-    if (client.println() == 0) {
-        Serial.println("Failed to send request");
-        // Disconnect
-        client.stop();
-        return false;
-    }
-    // Skip HTTP headers
-    if (!client.find("\r\n\r\n")) {
-        Serial.println("Invalid response");
-        // Disconnect
-        client.stop();
-        return false;
-    }
-    if (client.find("\"temp\":")) {
-        double NewTemp = client.readStringUntil(',').toDouble();
-        if (NewTemp > 273) {
-            NewTemp -= 273.15;
-        }
-        Serial.print("Temperature: ");
-        Serial.println(NewTemp);
-        MyWeather.TemperatureDegree = NewTemp;
-    } else {
-        Serial.println("No Temperature JSON object found");
-    }
-    if (client.find("\"timezone\":")) {
-        long timezoneshift = strtol(client.readStringUntil(',').c_str(), NULL, 10);
-        Serial.print("Timezone shift: ");
-        Serial.println(timezoneshift);
-        struct rtcTime_t rtcTime = { .myTime = time(NULL), .timezoneShift = timezoneshift };
-        persistentVars_store_rtcTime(&rtcTime);
-    } else {
-        Serial.println("No timezoneshift JSON object found");
-    }
-
-    // Disconnect
-    client.stop();
-    return true;
+    lastWeatherUpdateMs = millis();
+    return success;
 }
 
 void ESP8266Utils_clearWifiNetworksList() {
@@ -316,17 +263,99 @@ int ESP8266Utils_getIndexBySsid(const String& targetSsid) {
 void ESP8266Utils_connectToWifi(const String& ssid, const String& password) {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid.c_str(), password.c_str());
-    lastConnectAttemptMs = millis();
+    lastConnectUpdateMs = millis();
 }
 
-bool ESP8266Utils_isWifiConnected() { return WiFi.status() == WL_CONNECTED; }
+bool ESP8266Utils_isWifiConnected(void) { return WiFi.status() == WL_CONNECTED; }
 
-int ESP8266Utils_getWifiConnectionPercentage() {
-    if (lastConnectAttemptMs == 0) {
+int ESP8266Utils_getWifiConnectionPercentage(void) {
+    if (lastConnectUpdateMs == 0) {
         return 0;
     }
-    unsigned long elapsed = millis() - lastConnectAttemptMs;
+    unsigned long elapsed = millis() - lastConnectUpdateMs;
     return (elapsed * 100) / WIFI_CONNECTION_TIMEOUT_MS;
 }
 
-void Wifi_handler() {}
+bool ESP8266Utils_getWifiConnectAttemptTmo(void) {
+    if (lastConnectUpdateMs == 0) {
+        return true; // No hay intento previo, se considera un timeout
+    }
+    return (millis() - lastConnectUpdateMs) >= WIFI_CONNECTION_INTERVAL_MS;
+}
+
+bool ESP8266Utils_getWifiWeatherAttemptTmo(void) {
+    if (lastWeatherUpdateMs == 0) {
+        return true; // No hay intento previo, se considera un timeout
+    }
+    return (millis() - lastWeatherUpdateMs) >= WEATHER_UPDATE_INTERVAL_MS;
+}
+
+WifiErrorType_t ESP8266Utils_get_errors(void) {
+    WifiErrorType_t error_bitmask = WIFI_ERROR_NONE;
+    if (wifiError) {
+        error_bitmask |= WIFI_ERROR_CONNECTION_FAILED_MASK;
+    }
+    if (weatherError) {
+        error_bitmask |= WIFI_ERROR_WEATHER_UPDATE_FAILED_MASK;
+    }
+    return error_bitmask;
+}
+
+void Wifi_handler(bool inConfigMode) {
+    // Persistent state between calls
+    static unsigned long connectAttemptCount = 0;
+    static unsigned long weatherUpdateCount  = 0;
+    static bool backFromConfigMode           = false; // This is to force immediate reconnection
+                                                      // attempts after leaving config mode
+    if (inConfigMode) {
+        connectAttemptCount = 0;
+        weatherUpdateCount  = 0;
+        backFromConfigMode  = true; // Force immediate actions after config mode
+        return;
+    }
+
+    bool wifiEnabled   = settings.wifiSettings.wifi_enabled;
+    bool wifiConnected = ESP8266Utils_isWifiConnected();
+    bool WifiTmo       = ESP8266Utils_getWifiConnectAttemptTmo() || backFromConfigMode;
+    bool WeatherTmo    = ESP8266Utils_getWifiWeatherAttemptTmo() || backFromConfigMode;
+
+    // ===== WiFi auto connection handling =====
+    if (wifiEnabled && wifiConnected && connectAttemptCount > 0) {
+        Serial.println("Connected to WiFi");
+        connectAttemptCount = 0;
+        wifiError           = false;
+    } else if ((wifiEnabled && !wifiConnected) && WifiTmo) {
+        if (++connectAttemptCount < WIFI_CONNECTION_MAX_CONSECUTIVE_ATTEMPTS) {
+            Serial.println("Attempt " + String(connectAttemptCount) + " to connect to WiFi...");
+            ESP8266Utils_connectToWifi(
+                    settings.wifiSettings.ssid_sta,
+                    settings.wifiSettings.password_sta);
+        } else {
+            wifiError = true;
+        }
+    } else if (!wifiEnabled && wifiConnected) {
+        Serial.println("Disconnecting WiFi...");
+        WiFi.disconnect();
+        connectAttemptCount = 0;
+        wifiError           = false;
+    }
+
+    // ===== Weather update handling =====
+    if (wifiEnabled && wifiConnected && WeatherTmo) {
+        if (ESP8266Utils_update_WeatherData()) {
+            weatherUpdateCount = 0;
+            weatherError       = false;
+        } else if (++weatherUpdateCount > WEATHER_UPDATE_MAX_CONSECUTIVE_ATTEMPTS) {
+            TemperatureDegree = TEMPERATURE_DEGREE_INVALID;
+            Serial.println("Attempt " + String(weatherUpdateCount) + " to update weather failed.");
+            weatherError = true;
+        }
+    } else if (!wifiConnected) {
+        weatherUpdateCount = 0;
+        TemperatureDegree  = TEMPERATURE_DEGREE_INVALID;
+        weatherError       = false;
+    }
+
+    backFromConfigMode = false; // Indicate we are no longer back from config mode
+}
+

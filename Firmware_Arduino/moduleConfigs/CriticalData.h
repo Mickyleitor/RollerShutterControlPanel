@@ -1,9 +1,9 @@
 #ifndef __CRITICAL_DATA_H_INCLUDED__
 #define __CRITICAL_DATA_H_INCLUDED__
 
-#define REMOTE_PREAMBLE_PATTERN                                              (1)
+#define REMOTE_PREAMBLE_PATTERN                                              (0)
 #define REMOTE_INTERFRAME_PATTERN                                            (1)
-#define REMOTE_PREAMBLE_LENGTH                                               (1)
+#define REMOTE_PREAMBLE_LENGTH                                               (0)
 #define REMOTE_PACKET_LENGTH                                                 (1)
 #define REMOTE_SYMBOL_US                                                     (1)
 

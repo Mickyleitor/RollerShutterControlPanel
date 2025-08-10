@@ -40,13 +40,16 @@ void shutterSubirPersiana(int shutterIndex) {
         Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[shutterIndex].lastUpdate = millis();
-    ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_UP;
+    unsigned long now = millis();
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_UP;
     arg.shutter = shutterIndex;
-    arg.retries = 3;
-    (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
+    arg.retries = 2;
+    if (rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000)
+        == RSCP_ERR_OK) {
+        ShutterData[shutterIndex].lastUpdate = now;
+        ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_UP;
+    }
 }
 
 void shutterBajarPersiana(int shutterIndex) {
@@ -54,13 +57,16 @@ void shutterBajarPersiana(int shutterIndex) {
         Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[shutterIndex].lastUpdate = millis();
-    ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_DOWN;
+    unsigned long now = millis();
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_DOWN;
     arg.shutter = shutterIndex;
-    arg.retries = 3;
-    (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
+    arg.retries = 2;
+    if (rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000)
+        == RSCP_ERR_OK) {
+        ShutterData[shutterIndex].lastUpdate = now;
+        ShutterData[shutterIndex].status     = SHUTTER_STATUS_MOVING_DOWN;
+    }
 }
 
 void shutterPararPersiana(int shutterIndex) {
@@ -68,10 +74,13 @@ void shutterPararPersiana(int shutterIndex) {
         Serial.println("Invalid shutter index: " + String(shutterIndex));
         return;
     }
-    ShutterData[shutterIndex].status = SHUTTER_STATUS_STOPPED;
+
     struct RSCP_Arg_rollershutter arg;
     arg.action  = RSCP_DEF_SHUTTER_ACTION_STOP;
     arg.shutter = shutterIndex;
-    arg.retries = 3;
-    (void)rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000);
+    arg.retries = 2;
+    if (rscpSendAction(RSCP_CMD_SET_SHUTTER_ACTION, (uint8_t*)&arg, sizeof(arg), 1000)
+        == RSCP_ERR_OK) {
+        ShutterData[shutterIndex].status = SHUTTER_STATUS_STOPPED;
+    }
 }

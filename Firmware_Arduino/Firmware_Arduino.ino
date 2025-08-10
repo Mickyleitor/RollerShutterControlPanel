@@ -19,7 +19,6 @@
 #include "remote.h"
 #include "rscpProtocol/rscpProtocol.h"
 
-
 /**
  * @enum SystemState
  * @brief Enumeration of system states.

@@ -34,18 +34,22 @@
 #include "moduleConfigs/radioProtocolConfig.h"
 #include "radioProtocol/radioProtocol.h"
 
+static uint8_t KeyPacket[RADIOPROTOCOL_REMOTE_PACKET_LENGTH * 8];
 
 bool sendCommand(int persiana, int comando) {
     if (persiana > 2 || comando > 2) {
         return false;
     }
-    pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX, OUTPUT);
-    uint8_t KeyPacket[RADIOPROTOCOL_REMOTE_PACKET_LENGTH];
+
     // First we need gather the data from the PROGMEM.
     for (int index = 0; index < RADIOPROTOCOL_REMOTE_PACKET_LENGTH; index++) {
-        KeyPacket[index] = pgm_read_byte(&(KeyCommands[persiana][comando][index]));
+        uint8_t bit = pgm_read_byte(&(KeyCommands[persiana][comando][index]));
+        for (int i = 0; i < 8; i++) {
+            KeyPacket[index * 8 + i] = (bit >> (7 - i)) & 1;
+        }
     }
-    radioProtocol_send_frame(KeyPacket, RADIOPROTOCOL_REMOTE_PACKET_LENGTH * 8);
+    pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX, OUTPUT);
+    radioProtocol_send_frame(KeyPacket, sizeof(KeyPacket));
     // Free the 433 Mhz channel making it a floating port
     pinMode(RADIOPROTOCOL_PINNUMBER_RF_TX, INPUT);
     // This delay shouldn't be removed to allow inter-frame separation.

@@ -197,6 +197,7 @@ void pantalla_handleButtonInMenu(
                     }
                     break;
                 case BUTTON_STATUS_UP:
+                    buzzer_sound_button(true);
                     if ((_shutterStatus == SHUTTER_STATUS_MOVING_UP)
                         || _shutterStatus == SHUTTER_STATUS_MOVING_DOWN) {
                         shutterPararPersiana(_localShutterIndex);
@@ -205,6 +206,7 @@ void pantalla_handleButtonInMenu(
                     }
                     break;
                 case BUTTON_STATUS_DOWN:
+                    buzzer_sound_button(true);
                     if ((_shutterStatus == SHUTTER_STATUS_MOVING_DOWN)
                         || _shutterStatus == SHUTTER_STATUS_MOVING_UP) {
                         shutterPararPersiana(_localShutterIndex);

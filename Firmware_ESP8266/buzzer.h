@@ -89,8 +89,16 @@ void buzzer_handler() {
     }
 }
 
-// Sound when a button is pressed
-void buzzer_sound_button() { buzzer_schedule_beep_once(50); }
+// Sound when a button is pressed.
+// Override will immediately trigger the beep sound.
+void buzzer_sound_button(bool override = false) {
+    if (override) {
+        buzzer_beep_once(&buzzerStatus, 50);
+        buzzerStatus.pending = BUZZER_PENDING_NONE;
+    } else {
+        buzzer_schedule_beep_once(50);
+    }
+}
 
 // Sound when an action is accepted
 void buzzer_sound_accept() { buzzer_schedule_beep_once(400); }

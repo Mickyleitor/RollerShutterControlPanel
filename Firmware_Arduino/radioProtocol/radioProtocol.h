@@ -63,15 +63,14 @@
  * The frame is transmitted bit by bit, with the specified inter-bit delay.
  *
  * \param frame Pointer to the data frame to be transmitted.
- * \param length_bytes Length of the data frame in bytes.
+ * \param length_symbols Length of the data frame in symbols.
  */
-static inline void radioProtocol_send_frame(uint8_t* frame, uint32_t length_bytes) {
-    uint8_t* ptr                  = frame;
+static inline void radioProtocol_send_frame(uint8_t* frame_symbols, uint32_t length_symbols) {
     uint8_t data_bit              = 0;
     uint32_t preamble_length_bits = RADIOPROTOCOL_PREAMBLE_LENGTH;
     uint64_t preamble_pattern = RADIOPROTOCOL_PREAMBLE_PATTERN & ((1 << preamble_length_bits) - 1);
 
-    if (length_bytes > 0) {
+    if (length_symbols > 0) {
         // Send preamble pattern in big endian order
         while (preamble_length_bits > 0) {
             data_bit = (preamble_pattern >> (preamble_length_bits - 1)) & 1;
@@ -79,20 +78,14 @@ static inline void radioProtocol_send_frame(uint8_t* frame, uint32_t length_byte
             RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
             preamble_length_bits--;
         }
-        // Send frame in little endian order
-        do {
-            for (int8_t index_bit = 7; index_bit >= 0; index_bit--) {
-                if ((ptr - frame) * 8 + index_bit < ((int32_t)length_bytes * 8)) {
-                    data_bit = (*ptr >> index_bit) & 1;
-                    RADIOPROTOCOL_BITWRITE(
-                            RADIOPROTOCOL_PORT_RF_TX,
-                            RADIOPROTOCOL_PIN_RF_TX,
-                            data_bit);
-                    RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
-                }
-            }
-            ptr++;
-        } while (ptr < frame + length_bytes);
+        // Send frame bit by bit
+        for (unsigned int index_symbol = 0; index_symbol < length_symbols; index_symbol++) {
+            RADIOPROTOCOL_BITWRITE(
+                    RADIOPROTOCOL_PORT_RF_TX,
+                    RADIOPROTOCOL_PIN_RF_TX,
+                    frame_symbols[index_symbol] > 0 ? 1 : 0);
+            RADIOPROTOCOL_DELAYUS(RADIOPROTOCOL_SYMBOL_US);
+        }
     }
 }
 

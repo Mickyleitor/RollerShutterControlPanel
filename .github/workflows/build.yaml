@@ -1,83 +1,50 @@
-# This is the name of the workflow, visible on GitHub UI.
 name: build
 
-# Here we tell GitHub to run the workflow when a commit
-# is pushed or a Pull Request is opened.
 on: [push, pull_request]
 
-# This is the list of jobs that will be run concurrently.
-# Since we use a build matrix, the actual number of jobs
-# started depends on how many configurations the matrix
-# will produce.
 jobs:
-  # This is the name of the job - can be whatever.
   build:
-
-    # Here we tell GitHub that the jobs must be determined
-    # dynamically depending on a matrix configuration.
     strategy:
       matrix:
-        # The matrix will produce one job for each configuration
-        # parameter of type `arduino-platform`, in this case a
-        # total of 2.
-        arduino-platform: ["arduino:avr","esp8266:esp8266"]
-        # This is usually optional but we need to statically define the
-        # FQBN of the boards we want to test for each platform. In the
-        # future the CLI might automatically detect and download the core
-        # needed to compile against a certain FQBN, at that point the
-        # following `include` section will be useless.
-        include:
-          # This works like this: when the platform is "arduino:samd", the
-          # variable `fqbn` is set to "arduino:samd:nano_33_iot".
-          - arduino-platform: "arduino:avr"
-            fqbn: "arduino:avr:pro:cpu=8MHzatmega328"
-          - arduino-platform: "arduino:avr"
-            libraries: "LowPower_LowPowerLab"
-          - arduino-platform: "arduino:avr"
-            project_dir: "Firmware_Arduino"
+        project_dir: ["Firmware_Arduino", "Firmware_ESP8266"]
+    runs-on: ubuntu-latest
 
-          - arduino-platform: "esp8266:esp8266"
-            fqbn: "esp8266:esp8266:generic"
-          - arduino-platform: "esp8266:esp8266"
-            libraries: "LiquidCrystal_PCF8574"
-          - arduino-platform: "esp8266:esp8266"
-            project_dir: "Firmware_ESP8266"
-
-    # This is the platform GitHub will use to run our workflow, we
-    # pick Windows for no particular reason.
-    runs-on: windows-latest
-
-    # This is the list of steps this job will run.
     steps:
-      # First of all, we clone the repo using the `checkout` action.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      # We use the `arduino/setup-arduino-cli` action to install and
-      # configure the Arduino CLI on the system.
-      - name: Setup Arduino CLI
-        uses: arduino/setup-arduino-cli@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
-      # We then install the platform, which one will be determined
-      # dynamically by the build matrix.
-      - name: Install platform
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles(format('{0}/platformio.ini', matrix.project_dir)) }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      - name: Install PlatformIO Core
+        run: pip install -U platformio
+
+      # Builds all environments defined in platformio.ini; use -e for environment matrix
+      - name: Build ${{ matrix.project_dir }}
+        working-directory: ${{ matrix.project_dir }}
         run: |
-          arduino-cli core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
-          arduino-cli core install ${{ matrix.arduino-platform }} --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+          pio run
+        # If defining environment matrix: pio run -e ${{ matrix.env }}
 
-      # We then install the platform, which one will be determined
-      # dynamically by the build matrix.
-      - name: Install libraries
-        run: |
-          arduino-cli lib install ${{ matrix.libraries }}
-          arduino-cli lib list
-
-      # Update submodules
-      - name: Update submodules
-        run: |
-          git submodule update --init --recursive
-
-      # Finally, we compile the sketch, using the FQBN that was set
-      # in the build matrix.
-      - name: Compile Sketches
-        run: arduino-cli compile --fqbn ${{ matrix.fqbn }} --build-path "${{ matrix.project_dir }}/build" ./${{ matrix.project_dir }} 
+      # Upload generated artifacts; hex for AVR; bin for ESP8266
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project_dir }}-artifacts
+          path: |
+            ${{ matrix.project_dir }}/.pio/build/*/*.hex
+            ${{ matrix.project_dir }}/.pio/build/*/*.bin
+            ${{ matrix.project_dir }}/.pio/build/*/*.elf

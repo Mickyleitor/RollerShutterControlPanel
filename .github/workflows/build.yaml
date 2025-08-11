@@ -31,14 +31,14 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install -U platformio
 
-      # Compila todos los entornos definidos en platformio.ini; usa -e si matrices de env
+      # Builds all environments defined in platformio.ini; use -e for environment matrix
       - name: Build ${{ matrix.project_dir }}
         working-directory: ${{ matrix.project_dir }}
         run: |
           pio run
-        # Si defines matriz de entornos: pio run -e ${{ matrix.env }}
+        # If defining environment matrix: pio run -e ${{ matrix.env }}
 
-      # Publica los artefactos generados; hex para AVR; bin para ESP8266
+      # Upload generated artifacts; hex for AVR; bin for ESP8266
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4

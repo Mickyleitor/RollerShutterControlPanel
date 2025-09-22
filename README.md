@@ -6,7 +6,7 @@ ATMega328P plus ESP8266.
 
 <p align="center">
   <img
-    src="https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/Figures/RollerShutterControlPanel.jpg"
+    src="https://raw.githubusercontent.com/Mickyleitor/DomoticShutter/master/Docs/Figures/RollerShutterControlPanel.png"
     width="360"
   />
 </p>
